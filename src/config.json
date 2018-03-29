@@ -1,0 +1,139 @@
+{
+  "name": "ComputeEngine",
+  "type": "executer",
+  "exposeRoute": false,
+  "execProgram": "node",
+  "main": "app.js",
+  "version": "1.0.0",
+  "methods": [
+    {
+      "name": "LAUNCH_INSTANCE",
+      "viewName": "launch a vm",
+      "params": [
+        {
+          "name": "PROJECT",
+          "viewName": "project id",
+          "type": "string"
+        },
+        {
+          "name": "NAME",
+          "viewName": "name",
+          "type": "string"
+        },
+        {
+          "name": "OS",
+          "viewName": "os",
+          "type": "string"
+        },
+        {
+          "name": "ZONE",
+          "viewName": "zone",
+          "type": "string"
+        },
+        {
+          "name": "CREDENTIALS",
+          "viewName": "key file value",
+          "type": "string"
+        },
+        {
+          "name": "MACHINE_TYPE",
+          "viewName": "machine type",
+          "type": "string"
+        },
+        {
+          "name": "HTTP",
+          "viewName": "open http",
+          "type": "string"
+        },
+        {
+          "name": "HTTPS",
+          "viewName": "open https",
+          "type": "string"
+        }
+      ],
+      "actionString": "Launch instance: NAME OS ZONE PROJECT "
+    },
+    {
+      "name": "STOP_INSTANCE",
+      "viewName": "stop a vm",
+      "params": [
+        {
+          "name": "NAME",
+          "viewName": "name",
+          "type": "string"
+        },
+        {
+          "name": "ZONE",
+          "viewName": "zone",
+          "type": "string"
+        },
+        {
+          "name": "PROJECT",
+          "viewName": "project id",
+          "type": "string"
+        },
+        {
+          "name": "CREDENTIALS",
+          "viewName": "key file value",
+          "type": "string"
+        }
+      ],
+      "actionString": "stop instance: NAME OS ZONE PROJECT "
+    },
+    {
+      "name": "RESET_INSTANCE",
+      "viewName": "restart a vm",
+      "params": [
+        {
+          "name": "NAME",
+          "viewName": "name",
+          "type": "string"
+        },
+        {
+          "name": "ZONE",
+          "viewName": "zone",
+          "type": "string"
+        },
+        {
+          "name": "PROJECT",
+          "viewName": "project id",
+          "type": "string"
+        },
+        {
+          "name": "CREDENTIALS",
+          "viewName": "key file value",
+          "type": "string"
+        }
+      ],
+      "actionString": "restart instance: NAME OS ZONE PROJECT "
+    },
+    {
+      "name": "DELETE_INSTANCE",
+      "viewName": "delete a vm",
+      "params": [
+        {
+          "name": "NAME",
+          "viewName": "name",
+          "type": "string"
+        },
+        {
+          "name": "ZONE",
+          "viewName": "zone",
+          "type": "string"
+        },
+        {
+          "name": "PROJECT",
+          "viewName": "project id",
+          "type": "string"
+        },
+        {
+          "name": "CREDENTIALS",
+          "viewName": "key file value",
+          "type": "string"
+        }
+      ],
+      "actionString": "delete instance: NAME OS ZONE PROJECT "
+    }
+  ],
+  "imgUrl": "CommandLine.png"
+}
