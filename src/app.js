@@ -20,17 +20,22 @@ function launchInstance(action) {
         zone.createVM(action.params.NAME, config, (err, vm, operation) => {
             // `operation` lets you check the status of long-running tasks.
 
-            operation
-                .on('error', function (err) {
-                    reject(err);
-                })
-                .on('running', function (metadata) {
-                    console.log(metadata);
-                })
-                .on('complete', function (metadata) {
-                    console.log("Virtual machine created!");
-                    resolve(metadata);
-                });
+            try {
+
+                operation
+                    .on('error', function (err) {
+                        reject(err);
+                    })
+                    .on('running', function (metadata) {
+                        console.log(metadata);
+                    })
+                    .on('complete', function (metadata) {
+                        console.log("Virtual machine created!");
+                        resolve(metadata);
+                    });
+            } catch (e) {
+                reject(e);
+            }
         });
     });
 
@@ -74,12 +79,32 @@ function deleteUpdateRestartInstance(action) {
     }));
 }
 
+function getExternalIP(action) {
+    return new Promise((resolve, reject) => {
+        const gce = authenticate(action.params.PROJECT, action.params.CREDENTIALS);
+
+        let zone = gce.zone(action.params.ZONE);
+        let name = action.params.NAME;
+        const vm = zone.vm(name);
+
+        vm.getMetadata().then((data) => {
+
+            if ((((((data[0] || {}).networkInterfaces || [])[0] || {}).accessConfigs || [])[0] || {}).natIP) {
+                resolve(data[0].networkInterfaces[0].accessConfigs[0].natIP);
+            } else {
+                reject('No external IP');
+            }
+        });
+    });
+}
+
 
 const functions = {
     LAUNCH_INSTANCE: launchInstance,
     STOP_INSTANCE: deleteUpdateRestartInstance,
-    DELETE_INSTANCE: deleteUpdateRestartInstance
-    RESTART_INSTANCE: deleteUpdateRestartInstance
+    DELETE_INSTANCE: deleteUpdateRestartInstance,
+    RESTART_INSTANCE: deleteUpdateRestartInstance,
+    GET_INSTANCE_EXTERNAL_IP: getExternalIP
 };
 
 function main(argv) {

@@ -133,6 +133,33 @@
         }
       ],
       "actionString": "delete instance: NAME OS ZONE PROJECT "
+    },
+    {
+      "name": "GET_INSTANCE_EXTERNAL_IP",
+      "viewName": "get external ip",
+      "params": [
+        {
+          "name": "NAME",
+          "viewName": "vm name",
+          "type": "string"
+        },
+        {
+          "name": "ZONE",
+          "viewName": "zone",
+          "type": "string"
+        },
+        {
+          "name": "PROJECT",
+          "viewName": "project id",
+          "type": "string"
+        },
+        {
+          "name": "CREDENTIALS",
+          "viewName": "key file value",
+          "type": "string"
+        }
+      ],
+      "actionString": "get ID: NAME OS ZONE PROJECT "
     }
   ],
   "imgUrl": "CommandLine.png"
