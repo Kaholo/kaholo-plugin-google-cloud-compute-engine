@@ -1,6 +1,6 @@
 {
   "name": "pm-plugin-googlecloud",
-  "version": "1.0.0",
+  "version": "1.0.1",
   "description": "Google cloud engine plugin for Productionmap",
   "main": "app.js",
   "scripts": {
