@@ -1,12 +1,12 @@
 {
-  "name": "pm-plugin-googlecloud",
-  "version": "1.0.1",
-  "description": "Google cloud engine plugin for Productionmap",
+  "name": "kaholo-plugin-googlecloud",
+  "version": "1.2.0",
+  "description": "Google cloud engine plugin for Kaholo",
   "main": "app.js",
   "scripts": {
     "test": "echo \"Error: no test specified\" && exit 1"
   },
-  "author": "Productionmap team (Roy Talyosef)",
+  "author": "Kaholo team (Roy Talyosef)",
   "license": "ISC",
   "dependencies": {
     "@google-cloud/compute": "^0.10.0"
