@@ -41,13 +41,8 @@
           "type": "string"
         },
         {
-          "name": "HTTP",
-          "viewName": "open http",
-          "type": "string"
-        },
-        {
-          "name": "HTTPS",
-          "viewName": "open https",
+          "name": "IMAGE",
+          "viewName": "Source image",
           "type": "string"
         }
       ],

@@ -9,10 +9,15 @@ function launchInstance(action) {
 
         const config = {
             os: action.params.OS,
-            http: !!action.params.HTTP,
-            https: !!action.params.HTTPS
         };
-
+        if (action.params.IMAGE) {
+            config.disks = {
+                    initializeParams: {
+                        boot: true,
+                        sourceImage: action.params.IMAGE,
+                    }
+                }
+        }
         if (action.params.MACHINE_TYPE) {
             config.machineType = action.params.MACHINE_TYPE;
         }
@@ -42,11 +47,7 @@ function launchInstance(action) {
 }
 
 function authenticate(projectId, credentials) {
-    try {
-        credentials = JSON.parse(credentials)
-    } catch (e) {
-        throw new Error("Bad credentials");
-    }
+    credentials = action.params.CREDENTIALS;
     return compute({
         projectId,
         credentials
