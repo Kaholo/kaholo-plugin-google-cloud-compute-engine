@@ -155,6 +155,99 @@
         }
       ],
       "actionString": "get ID: NAME OS ZONE PROJECT "
+    },
+    {
+      "name": "createNetwork",
+      "viewName": "create VPC",
+      "params": [
+        {
+          "name": "NAME",
+          "viewName": "VPC name",
+          "type": "string"
+        },
+        {
+          "name": "PROJECT",
+          "viewName": "project id",
+          "type": "string"
+        },
+        {
+          "name": "KEYFILE",
+          "viewName": "path to keyfile",
+          "type": "string"
+        }
+      ]
+    },
+    {
+      "name": "createSubnet",
+      "viewName": "create subnetwork",
+      "params": [
+        {
+          "name": "NETID",
+          "viewName": "VPC ID",
+          "type": "string"
+        },
+        {
+          "name": "SUBNAME",
+          "viewName": "subnet name",
+          "type": "string"
+        },
+        {
+          "name": "PROJECT",
+          "viewName": "project id",
+          "type": "string"
+        },
+        {
+          "name": "REGION",
+          "viewName": "region name",
+          "type": "string"
+        },
+        {
+          "name": "IPRANGE",
+          "viewName": "IP range",
+          "type": "string"
+        },
+        {
+          "name": "KEYFILE",
+          "viewName": "path to keyfile",
+          "type": "string"
+        }
+      ]
+    },
+    {
+      "name": "reserveIp",
+      "viewName": "Reserve IP",
+      "params": [
+        {
+          "name": "SUBNAME",
+          "viewName": "subnet name",
+          "type": "string"
+        },
+        {
+          "name": "PROJECT",
+          "viewName": "project id",
+          "type": "string"
+        },
+        {
+          "name": "RESNAME",
+          "viewName": "Reserve name",
+          "type": "string"
+        },
+        {
+          "name": "REGION",
+          "viewName": "region name",
+          "type": "string"
+        },
+        {
+          "name": "RESIP",
+          "viewName": "IP to reserve",
+          "type": "string"
+        },
+        {
+          "name": "KEYFILE",
+          "viewName": "path to keyfile",
+          "type": "string"
+        }
+      ]
     }
   ],
   "imgUrl": "logo.png"

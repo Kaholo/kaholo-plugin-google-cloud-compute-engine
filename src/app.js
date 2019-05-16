@@ -100,10 +100,80 @@ function getExternalIP(action) {
 }
 
 
+function createNetwork(action) {
+    return new Promise((resolve, reject) => {
+        let Compute = new compute({
+            projectId: action.params.PROJECT,
+            keyFilename: action.params.KEYFILE,
+        });
+        let name = action.params.NAME;
+        let network = Compute.network(name);
+        let config = {
+            autoCreateSubnetworks: false
+        };
+        function callback(err, network, operation, apiResponse) {
+            if (err)
+                return reject(err);
+            resolve(apiResponse);
+        }
+        network.create(config, callback);
+    })
+}
+
+function createSubnet(action) {
+    return new Promise((resolve, reject) => {
+        let Compute = new compute({
+            projectId: action.params.PROJECT,
+            keyFilename: action.params.KEYFILE,
+        });
+        let netID = action.params.NETID;
+        let subName = action.params.SUBNAME;
+        let network = Compute.network(netID);
+        let config = {
+            region: action.params.REGION,
+            range: action.params.IPRANGE
+        };
+        function callback(err, network, operation, apiResponse) {
+            if (err)
+                return reject(err);
+            resolve(apiResponse);
+        }
+        network.createSubnetwork(subName, config, callback);
+    })
+}
+
+function reserveIp(action) {
+    return new Promise((resolve, reject) => {
+        const Compute = new compute({
+            projectId: action.params.PROJECT,
+            keyFilename: action.params.KEYFILE,
+        });
+        let resName = action.params.RESNAME;
+        let region = Compute.region(action.params.REGION);
+        let config = {
+            subnetwork: 'regions/' + action.params.REGION + '/subnetworks/' + action.params.SUBNAME,
+            addressType: 'INTERNAL',
+            address: action.params.RESIP
+        };
+        function callback(err, network, operation, apiResponse) {
+            if (err)
+                return reject(err);
+            resolve(apiResponse);
+        }
+        region.createAddress(resName, config, callback);
+
+    })
+}
+
 module.exports = {
     LAUNCH_INSTANCE: launchInstance,
     STOP_INSTANCE: deleteUpdateRestartInstance,
     DELETE_INSTANCE: deleteUpdateRestartInstance,
     RESTART_INSTANCE: deleteUpdateRestartInstance,
-    GET_INSTANCE_EXTERNAL_IP: getExternalIP
+    GET_INSTANCE_EXTERNAL_IP: getExternalIP,
+    createNetwork: createNetwork,
+    createSubnet: createSubnet,
+    reserveIp: reserveIp
 };
+
+
