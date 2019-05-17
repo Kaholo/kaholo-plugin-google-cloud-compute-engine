@@ -44,7 +44,23 @@
           "name": "IMAGE",
           "viewName": "Source image",
           "type": "string"
+        },
+        {
+          "name": "NETWORK",
+          "viewName": "VPC name",
+          "type": "string"
+        },
+        {
+          "name": "SUBNET",
+          "viewName": "Subnetwork",
+          "type": "string"
+        },
+        {
+          "name": "NETIP",
+          "viewName": "Network IP",
+          "type": "string"
         }
+
       ],
       "actionString": "Launch instance: NAME OS ZONE PROJECT "
     },

@@ -18,6 +18,16 @@ function launchInstance(action) {
                     }
                 }
         }
+        if (action.params.NETWORK) {
+            config.networkInterfaces = [
+                {
+                network: action.params.NETWORK,
+                subnetwork: action.params.SUBNET,
+                networkIP: action.params.NETIP
+                }
+            ]
+        }
+
         if (action.params.MACHINE_TYPE) {
             config.machineType = action.params.MACHINE_TYPE;
         }
@@ -47,7 +57,6 @@ function launchInstance(action) {
 }
 
 function authenticate(projectId, credentials) {
-    credentials = action.params.CREDENTIALS;
     return compute({
         projectId,
         credentials
