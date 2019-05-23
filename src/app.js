@@ -1,9 +1,28 @@
 const compute = require('@google-cloud/compute');
 
+function authenticate(action, settings) {
+    let projectId = action.params.PROJECT;
+    let keysParam = action.params.CREDENTIALS || settings.CREDENTIALS;
+    let credentials;
 
-function launchInstance(action) {
+    if (typeof keysParam != 'string'){
+        credentials = keysParam;
+    } else {
+        try{
+            credentials = JSON.parse(keysParam)
+        }catch(err){
+            throw new Error("Invalid credentials JSON");
+        }
+    }
+    return compute({
+        projectId,
+        credentials
+    });
+}
+
+function launchInstance(action, settings) {
     return new Promise((resolve, reject) => {
-        const gce = authenticate(action.params.PROJECT, action.params.CREDENTIALS);
+        const gce = authenticate(action, settings);
 
         const zone = gce.zone(action.params.ZONE);
 
@@ -34,7 +53,6 @@ function launchInstance(action) {
 
         zone.createVM(action.params.NAME, config, (err, vm, operation) => {
             // `operation` lets you check the status of long-running tasks.
-
             try {
 
                 operation
@@ -56,21 +74,13 @@ function launchInstance(action) {
 
 }
 
-function authenticate(projectId, credentials) {
-    return compute({
-        projectId,
-        credentials
-    });
-}
-
-function deleteUpdateRestartInstance(action) {
+function deleteUpdateRestartInstance(action, settings) {
     return new Promise((resolve, reject) => {
-        const gce = authenticate(action.params.PROJECT, action.params.CREDENTIALS);
+        const gce = authenticate(action, settings);
 
         let zone = gce.zone(action.params.ZONE);
         let name = action.params.NAME;
         const vm = zone.vm(name);
-
 
         switch (action.method.name) {
             case 'STOP_INSTANCE':
@@ -89,16 +99,15 @@ function deleteUpdateRestartInstance(action) {
     }));
 }
 
-function getExternalIP(action) {
+function getExternalIP(action, settings) {
     return new Promise((resolve, reject) => {
-        const gce = authenticate(action.params.PROJECT, action.params.CREDENTIALS);
+        const gce = authenticate(action, settings);
 
         let zone = gce.zone(action.params.ZONE);
         let name = action.params.NAME;
         const vm = zone.vm(name);
 
         vm.getMetadata().then((data) => {
-
             if ((((((data[0] || {}).networkInterfaces || [])[0] || {}).accessConfigs || [])[0] || {}).natIP) {
                 resolve(data[0].networkInterfaces[0].accessConfigs[0].natIP);
             } else {
@@ -109,56 +118,47 @@ function getExternalIP(action) {
 }
 
 
-function createNetwork(action) {
+function createVpc(action, settings) {
     return new Promise((resolve, reject) => {
-        let Compute = new compute({
-            projectId: action.params.PROJECT,
-            keyFilename: action.params.KEYFILE,
-        });
+        let compute = authenticate(action, settings);
+        
         let name = action.params.NAME;
-        let network = Compute.network(name);
+        let network = compute.network(name);
         let config = {
             autoCreateSubnetworks: false
         };
-        function callback(err, network, operation, apiResponse) {
+        network.create(config, (err, network, operation, apiResponse) => {
             if (err)
                 return reject(err);
             resolve(apiResponse);
-        }
-        network.create(config, callback);
+        });
     })
 }
 
-function createSubnet(action) {
+function createSubnet(action, settings) {
     return new Promise((resolve, reject) => {
-        let Compute = new compute({
-            projectId: action.params.PROJECT,
-            keyFilename: action.params.KEYFILE,
-        });
+        let compute = authenticate(action, settings);
+
         let netID = action.params.NETID;
         let subName = action.params.SUBNAME;
-        let network = Compute.network(netID);
+        let network = compute.network(netID);
         let config = {
             region: action.params.REGION,
             range: action.params.IPRANGE
         };
-        function callback(err, network, operation, apiResponse) {
+        network.createSubnetwork(subName, config, (err, network, operation, apiResponse) => {
             if (err)
                 return reject(err);
             resolve(apiResponse);
-        }
-        network.createSubnetwork(subName, config, callback);
+        });
     })
 }
 
-function reserveIp(action) {
+function reserveIp(action, settings) {
     return new Promise((resolve, reject) => {
-        const Compute = new compute({
-            projectId: action.params.PROJECT,
-            keyFilename: action.params.KEYFILE,
-        });
+        let compute = authenticate(action, settings);
         let resName = action.params.RESNAME;
-        let region = Compute.region(action.params.REGION);
+        let region = compute.region(action.params.REGION);
         let config = {
             subnetwork: 'regions/' + action.params.REGION + '/subnetworks/' + action.params.SUBNAME,
             addressType: 'INTERNAL',
@@ -180,7 +180,7 @@ module.exports = {
     DELETE_INSTANCE: deleteUpdateRestartInstance,
     RESTART_INSTANCE: deleteUpdateRestartInstance,
     GET_INSTANCE_EXTERNAL_IP: getExternalIP,
-    createNetwork: createNetwork,
+    createVpc: createVpc,
     createSubnet: createSubnet,
     reserveIp: reserveIp
 };

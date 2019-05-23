@@ -1,15 +1,27 @@
 {
-  "name": "ComputeEngine",
+  "name": "Google-Cloud-Compute-Engine",
   "type": "executer",
   "exposeRoute": false,
   "execProgram": "node",
   "main": "app.js",
   "version": "1.2.0",
+  "settings": [
+    {
+      "name": "CREDENTIALS",
+      "viewName": "Credentials",
+      "type": "vault"
+    }
+  ],
   "methods": [
     {
       "name": "LAUNCH_INSTANCE",
       "viewName": "launch a vm",
       "params": [
+        {
+          "name": "CREDENTIALS",
+          "viewName": "Credentials",
+          "type": "vault"
+        },
         {
           "name": "PROJECT",
           "viewName": "project id",
@@ -28,11 +40,6 @@
         {
           "name": "ZONE",
           "viewName": "zone",
-          "type": "string"
-        },
-        {
-          "name": "CREDENTIALS",
-          "viewName": "key file value",
           "type": "string"
         },
         {
@@ -69,6 +76,11 @@
       "viewName": "stop a vm",
       "params": [
         {
+          "name": "CREDENTIALS",
+          "viewName": "Credentials",
+          "type": "vault"
+        },
+        {
           "name": "NAME",
           "viewName": "name",
           "type": "string"
@@ -81,11 +93,6 @@
         {
           "name": "PROJECT",
           "viewName": "project id",
-          "type": "string"
-        },
-        {
-          "name": "CREDENTIALS",
-          "viewName": "key file value",
           "type": "string"
         }
       ],
@@ -96,6 +103,11 @@
       "viewName": "restart a vm",
       "params": [
         {
+          "name": "CREDENTIALS",
+          "viewName": "Credentials",
+          "type": "vault"
+        },
+        {
           "name": "NAME",
           "viewName": "name",
           "type": "string"
@@ -108,11 +120,6 @@
         {
           "name": "PROJECT",
           "viewName": "project id",
-          "type": "string"
-        },
-        {
-          "name": "CREDENTIALS",
-          "viewName": "key file value",
           "type": "string"
         }
       ],
@@ -123,6 +130,11 @@
       "viewName": "delete a vm",
       "params": [
         {
+          "name": "CREDENTIALS",
+          "viewName": "Credentials",
+          "type": "vault"
+        },
+        {
           "name": "NAME",
           "viewName": "name",
           "type": "string"
@@ -136,11 +148,6 @@
           "name": "PROJECT",
           "viewName": "project id",
           "type": "string"
-        },
-        {
-          "name": "CREDENTIALS",
-          "viewName": "key file value",
-          "type": "string"
         }
       ],
       "actionString": "delete instance: NAME OS ZONE PROJECT "
@@ -149,6 +156,11 @@
       "name": "GET_INSTANCE_EXTERNAL_IP",
       "viewName": "get external ip",
       "params": [
+        {
+          "name": "CREDENTIALS",
+          "viewName": "Credentials",
+          "type": "vault"
+        },
         {
           "name": "NAME",
           "viewName": "vm name",
@@ -163,11 +175,6 @@
           "name": "PROJECT",
           "viewName": "project id",
           "type": "string"
-        },
-        {
-          "name": "CREDENTIALS",
-          "viewName": "key file value",
-          "type": "string"
         }
       ],
       "actionString": "get ID: NAME OS ZONE PROJECT "
@@ -177,6 +184,11 @@
       "viewName": "create VPC",
       "params": [
         {
+          "name": "CREDENTIALS",
+          "viewName": "Credentials",
+          "type": "vault"
+        },
+        {
           "name": "NAME",
           "viewName": "VPC name",
           "type": "string"
@@ -185,11 +197,6 @@
           "name": "PROJECT",
           "viewName": "project id",
           "type": "string"
-        },
-        {
-          "name": "KEYFILE",
-          "viewName": "path to keyfile",
-          "type": "string"
         }
       ]
     },
@@ -197,6 +204,11 @@
       "name": "createSubnet",
       "viewName": "create subnetwork",
       "params": [
+        {
+          "name": "CREDENTIALS",
+          "viewName": "Credentials",
+          "type": "vault"
+        },
         {
           "name": "NETID",
           "viewName": "VPC ID",
@@ -221,11 +233,6 @@
           "name": "IPRANGE",
           "viewName": "IP range",
           "type": "string"
-        },
-        {
-          "name": "KEYFILE",
-          "viewName": "path to keyfile",
-          "type": "string"
         }
       ]
     },
@@ -233,6 +240,11 @@
       "name": "reserveIp",
       "viewName": "Reserve IP",
       "params": [
+        {
+          "name": "CREDENTIALS",
+          "viewName": "Credentials",
+          "type": "vault"
+        },
         {
           "name": "SUBNAME",
           "viewName": "subnet name",
@@ -256,11 +268,6 @@
         {
           "name": "RESIP",
           "viewName": "IP to reserve",
-          "type": "string"
-        },
-        {
-          "name": "KEYFILE",
-          "viewName": "path to keyfile",
           "type": "string"
         }
       ]

@@ -1,5 +1,5 @@
 {
-  "name": "kaholo-plugin-googlecloud",
+  "name": "kaholo-plugin-googlecloud-compute-engine",
   "version": "1.2.0",
   "description": "Google cloud engine plugin for Kaholo",
   "main": "app.js",
@@ -9,6 +9,6 @@
   "author": "Kaholo team (Roy Talyosef)",
   "license": "ISC",
   "dependencies": {
-    "@google-cloud/compute": "^0.10.0"
+    "@google-cloud/compute": "0.12.0"
   }
 }
