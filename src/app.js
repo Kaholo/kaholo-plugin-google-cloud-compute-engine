@@ -1,4 +1,6 @@
 const compute = require('@google-cloud/compute');
+const { google } = require('googleapis');
+const { JWT } = require('google-auth-library');
 
 function authenticate(action, settings) {
     let projectId = action.params.PROJECT;
@@ -43,6 +45,16 @@ function launchInstance(action, settings) {
                 network: action.params.NETWORK,
                 subnetwork: action.params.SUBNET,
                 networkIP: action.params.NETIP
+                }
+            ]
+        }
+
+        if (action.params.TAGS) {
+            config.tags = [
+                {
+                    items: [
+                        action.params.TAGS
+                    ]
                 }
             ]
         }
@@ -174,6 +186,105 @@ function reserveIp(action, settings) {
     })
 }
 
+function createFW(action) {
+    return new Promise((resolve, reject) => {
+        let Compute = new compute({
+            keyFilename: action.params.PATHTOKEY,
+        });
+        let fwName = action.params.FWNAME;
+        let firewall = Compute.firewall(fwName);
+        let config = {
+            network: '/global/networks/' + action.params.NETNAME,
+            allowed: [
+                {
+                    IPProtocol: action.params.ALLOWEDPROTOCOL,
+                    ports: [
+                        action.params.ALLOWEDPORT
+                    ]
+                }
+            ]
+        };
+        if (action.params.SOURCERANGE) {
+            config.sourceRanges = [
+                {
+                    sourceRanges: action.params.SOURCERANGE
+                }
+            ]
+        }
+        if (action.params.DESTRANGE) {
+            config.sourceRanges = [
+                {
+                    destinationRanges: action.params.DESTRANGE
+                }
+            ]
+        }
+
+        if (action.params.DENIEDPROTOCOL) {
+            config.denied = [
+                {
+                    IPProtocol: action.params.DENIEDPROTOCOL,
+                    ports: [
+                        action.params.DENIEDPORT
+                    ]
+                }
+            ]
+        }
+
+        function callback(err, firewall, operation, apiResponse) {
+            if (err)
+                return reject(err);
+            resolve(apiResponse);
+        }
+        firewall.create(config, callback);
+    })
+}
+
+function createRoute(action, settings) {
+
+    let keysParam = action.params.CREDENTIALS || settings.CREDENTIALS
+    let keys;
+
+    if (typeof keysParam != 'string'){
+        keys = keysParam;
+    } else {
+        try{
+            keys = JSON.parse(keysParam)
+        }catch(err){
+            return Promise.reject("Invalid credentials JSON");
+        }
+    }
+
+
+    return new Promise((resolve, reject) => {
+        const client = new JWT(
+            keys.client_email,
+            null,
+            keys.private_key,
+            ['https://www.googleapis.com/auth/cloud-platform'],
+        );
+
+        let request = {
+            project: action.params.PROJECT,
+            resource:
+                {
+                    name: action.params.NAME,
+                    network: action.params.NETWORK,
+                    nextHopGateway: action.params.NEXTHOPEGW,
+                    destRange: action.params.DESTRANGE,
+                    priority: action.params.PRIORITY || '0'
+
+                },
+            auth: client
+        };
+        let compute = google.compute('v1');
+        compute.routes.insert(request,function (err, res) {
+            if (err)
+                return reject(err);
+            resolve(res)
+        })
+    })
+}
+
 module.exports = {
     LAUNCH_INSTANCE: launchInstance,
     STOP_INSTANCE: deleteUpdateRestartInstance,
@@ -182,7 +293,9 @@ module.exports = {
     GET_INSTANCE_EXTERNAL_IP: getExternalIP,
     createVpc: createVpc,
     createSubnet: createSubnet,
-    reserveIp: reserveIp
+    reserveIp: reserveIp,
+    createFW: createFW
+    createRoute: createRoute
 };
 
 

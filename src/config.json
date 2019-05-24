@@ -66,6 +66,11 @@
           "name": "NETIP",
           "viewName": "Network IP",
           "type": "string"
+        },
+        {
+          "name": "TAGS",
+          "viewName": "Tags items",
+          "type": "string"
         }
 
       ],
@@ -270,6 +275,99 @@
           "viewName": "IP to reserve",
           "type": "string"
         }
+      ]
+    },
+    {
+      "name": "createFW",
+      "viewName": "create firewall",
+      "params": [
+        {
+          "name": "PATHTOKEY",
+          "viewName": "path to key",
+          "type": "string"
+        },
+        {
+          "name": "FWNAME",
+          "viewName": "firewall name",
+          "type": "string"
+        },
+        {
+          "name": "NETNAME",
+          "viewName": "network name",
+          "type": "string"
+        },
+        {
+          "name": "SOURCERANGE",
+          "viewName": "source range",
+          "type": "string"
+        },
+        {
+          "name": "DESTRANGE",
+          "viewName": "destination range",
+          "type": "string"
+        },
+        {
+          "name": "ALLOWEDPROTOCOL",
+          "viewName": "allowed protocol",
+          "type": "string"
+        },
+        {
+          "name": "ALLOWEDPORT",
+          "viewName": "allowed port",
+          "type": "string"
+        },
+        {
+          "name": "DENIEDPROTOCOL",
+          "viewName": "denied protocol",
+          "type": "string"
+        },
+        {
+          "name": "DENIEDPORT",
+          "viewName": "denied port",
+          "type": "string"
+        }
+      ]
+    },
+    {
+      "name": "createRoute",
+      "viewName": "create a route",
+      "params": [
+        {
+          "name": "CREDENTIALS",
+          "viewName": "Credentials",
+          "type": "vault"
+        },
+        {
+          "name": "PROJECT",
+          "viewName": "project id",
+          "type": "string"
+        },
+        {
+          "name": "NAME",
+          "viewName": "name",
+          "type": "string"
+        },
+        {
+          "name": "NETWORK",
+          "viewName": "Network name",
+          "type": "string"
+        },
+        {
+          "name": "NEXTHOPEGW",
+          "viewName": "next hope gw",
+          "type": "string"
+        },
+        {
+          "name": "DESTRANGE",
+          "viewName": "dest range",
+          "type": "string"
+        },
+        {
+          "name": "PRIORITY",
+          "viewName": "priority",
+          "type": "string"
+        }
+
       ]
     }
   ],
