@@ -69,7 +69,7 @@
         },
         {
           "name": "TAGS",
-          "viewName": "Tags items",
+          "viewName": "Tags",
           "type": "string"
         }
 
@@ -282,13 +282,13 @@
       "viewName": "create firewall",
       "params": [
         {
-          "name": "PATHTOKEY",
-          "viewName": "path to key",
-          "type": "string"
+          "name": "CREDENTIALS",
+          "viewName": "Credentials",
+          "type": "vault"
         },
         {
           "name": "FWNAME",
-          "viewName": "firewall name",
+          "viewName": "Firewall name",
           "type": "string"
         },
         {

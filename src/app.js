@@ -1,62 +1,69 @@
-const compute = require('@google-cloud/compute');
+const Compute = require('@google-cloud/compute');
 const { google } = require('googleapis');
 const { JWT } = require('google-auth-library');
 
-function authenticate(action, settings) {
-    let projectId = action.params.PROJECT;
-    let keysParam = action.params.CREDENTIALS || settings.CREDENTIALS;
-    let credentials;
+const { _handleParam, _stringArrayParamHandler } = require('./helper')
 
-    if (typeof keysParam != 'string'){
-        credentials = keysParam;
+function _getCredentials(action, settings) {
+    let keysParam = action.params.CREDENTIALS || settings.CREDENTIALS;
+    if (typeof keysParam != 'string') {
+        return keysParam;
     } else {
-        try{
-            credentials = JSON.parse(keysParam)
-        }catch(err){
+        try {
+            return JSON.parse(keysParam)
+        } catch (err) {
             throw new Error("Invalid credentials JSON");
         }
     }
-    return compute({
-        projectId,
+}
+
+function authenticate(action, settings, withoutProject) {
+    let credentials = _getCredentials(action, settings);
+
+    let computeOptions = {
         credentials
-    });
+    }
+
+    if (!withoutProject) {
+        computeOptions.projectId = action.params.PROJECT
+    }
+
+    return new Compute(computeOptions);
 }
 
 function launchInstance(action, settings) {
     return new Promise((resolve, reject) => {
-        const gce = authenticate(action, settings);
+        if (!action.params.ZONE || !action.params.NAME || !action.params.PROJECT){
+            return reject(new Error("One of the following required parameters is missing: Name, Zone, Project Id"));
+        }
 
-        const zone = gce.zone(action.params.ZONE);
+        const compute = authenticate(action, settings);
+        const zone = compute.zone(action.params.ZONE);
 
         const config = {
             os: action.params.OS,
+            disks: []
         };
         if (action.params.IMAGE) {
-            config.disks = {
-                    initializeParams: {
-                        boot: true,
-                        sourceImage: action.params.IMAGE,
-                    }
+            config.disks.push({
+                boot: true,
+                initializeParams: {
+                    sourceImage: action.params.IMAGE,
                 }
+            })
         }
         if (action.params.NETWORK) {
             config.networkInterfaces = [
                 {
-                network: action.params.NETWORK,
-                subnetwork: action.params.SUBNET,
-                networkIP: action.params.NETIP
+                    network: action.params.NETWORK,
+                    subnetwork: action.params.SUBNET,
+                    networkIP: action.params.NETIP
                 }
             ]
         }
 
         if (action.params.TAGS) {
-            config.tags = [
-                {
-                    items: [
-                        action.params.TAGS
-                    ]
-                }
-            ]
+            config.tags = _stringArrayParamHandler(action.params.TAGS, 'Tags');
         }
 
         if (action.params.MACHINE_TYPE) {
@@ -64,15 +71,17 @@ function launchInstance(action, settings) {
         }
 
         zone.createVM(action.params.NAME, config, (err, vm, operation) => {
+            if (err)
+                return reject(err);
+
             // `operation` lets you check the status of long-running tasks.
             try {
-
                 operation
                     .on('error', function (err) {
                         reject(err);
                     })
                     .on('running', function (metadata) {
-                        console.log(metadata);
+                        console.log(JSON.stringify(metadata));
                     })
                     .on('complete', function (metadata) {
                         console.log("Virtual machine created!");
@@ -83,14 +92,13 @@ function launchInstance(action, settings) {
             }
         });
     });
-
 }
 
 function deleteUpdateRestartInstance(action, settings) {
     return new Promise((resolve, reject) => {
-        const gce = authenticate(action, settings);
+        const compute = authenticate(action, settings);
 
-        let zone = gce.zone(action.params.ZONE);
+        let zone = compute.zone(action.params.ZONE);
         let name = action.params.NAME;
         const vm = zone.vm(name);
 
@@ -113,9 +121,8 @@ function deleteUpdateRestartInstance(action, settings) {
 
 function getExternalIP(action, settings) {
     return new Promise((resolve, reject) => {
-        const gce = authenticate(action, settings);
-
-        let zone = gce.zone(action.params.ZONE);
+        const compute = authenticate(action, settings);
+        let zone = compute.zone(action.params.ZONE);
         let name = action.params.NAME;
         const vm = zone.vm(name);
 
@@ -129,11 +136,10 @@ function getExternalIP(action, settings) {
     });
 }
 
-
 function createVpc(action, settings) {
     return new Promise((resolve, reject) => {
         let compute = authenticate(action, settings);
-        
+
         let name = action.params.NAME;
         let network = compute.network(name);
         let config = {
@@ -188,35 +194,35 @@ function reserveIp(action, settings) {
 
 function createFW(action) {
     return new Promise((resolve, reject) => {
-        let Compute = new compute({
-            keyFilename: action.params.PATHTOKEY,
-        });
-        let fwName = action.params.FWNAME;
-        let firewall = Compute.firewall(fwName);
+        let compute = authenticate(action, settings, true);
+        let firewall = compute.firewall(action.params.FWNAME);
         let config = {
-            network: '/global/networks/' + action.params.NETNAME,
-            allowed: [
-                {
-                    IPProtocol: action.params.ALLOWEDPROTOCOL,
-                    ports: [
-                        action.params.ALLOWEDPORT
-                    ]
-                }
-            ]
+            network: undefined, // Default : /global/networks/default
+            denied: [],
+            allowed: [],
+            destinationRanges: [],
+            sourceRanges: []
         };
-        if (action.params.SOURCERANGE) {
-            config.sourceRanges = [
-                {
-                    sourceRanges: action.params.SOURCERANGE
-                }
-            ]
+
+        if (action.params.NETNAME) {
+            config.network = `/global/networks/${action.params.NETNAME}`
         }
+
+        if (action.params.ALLOWEDPROTOCOL) {
+            config.allowed.push({
+                IPProtocol: action.params.ALLOWEDPROTOCOL,
+                ports: [
+                    action.params.ALLOWEDPORT
+                ]
+            })
+        }
+
+        if (action.params.SOURCERANGE) {
+            config.sourceRanges = _stringArrayParamHandler(action.params.SOURCERANGE, 'Source Ranges');
+        }
+
         if (action.params.DESTRANGE) {
-            config.sourceRanges = [
-                {
-                    destinationRanges: action.params.DESTRANGE
-                }
-            ]
+            config.destinationRanges = _stringArrayParamHandler(action.params.DESTRANGE, 'Destination Ranges');
         }
 
         if (action.params.DENIEDPROTOCOL) {
@@ -230,32 +236,18 @@ function createFW(action) {
             ]
         }
 
-        function callback(err, firewall, operation, apiResponse) {
+        firewall.create(config, (err, firewall, operation, apiResponse) => {
             if (err)
                 return reject(err);
             resolve(apiResponse);
-        }
-        firewall.create(config, callback);
+        });
     })
 }
 
 function createRoute(action, settings) {
-
-    let keysParam = action.params.CREDENTIALS || settings.CREDENTIALS
-    let keys;
-
-    if (typeof keysParam != 'string'){
-        keys = keysParam;
-    } else {
-        try{
-            keys = JSON.parse(keysParam)
-        }catch(err){
-            return Promise.reject("Invalid credentials JSON");
-        }
-    }
-
-
     return new Promise((resolve, reject) => {
+        let keys = _getCredentials(action, settings);
+
         const client = new JWT(
             keys.client_email,
             null,
@@ -266,18 +258,18 @@ function createRoute(action, settings) {
         let request = {
             project: action.params.PROJECT,
             resource:
-                {
-                    name: action.params.NAME,
-                    network: action.params.NETWORK,
-                    nextHopGateway: action.params.NEXTHOPEGW,
-                    destRange: action.params.DESTRANGE,
-                    priority: action.params.PRIORITY || '0'
+            {
+                name: action.params.NAME,
+                network: action.params.NETWORK,
+                nextHopGateway: action.params.NEXTHOPEGW,
+                destRange: action.params.DESTRANGE,
+                priority: action.params.PRIORITY || '0'
 
-                },
+            },
             auth: client
         };
         let compute = google.compute('v1');
-        compute.routes.insert(request,function (err, res) {
+        compute.routes.insert(request, function (err, res) {
             if (err)
                 return reject(err);
             resolve(res)
@@ -294,8 +286,6 @@ module.exports = {
     createVpc: createVpc,
     createSubnet: createSubnet,
     reserveIp: reserveIp,
-    createFW: createFW
+    createFW: createFW,
     createRoute: createRoute
 };
-
-
