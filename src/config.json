@@ -24,27 +24,27 @@
         },
         {
           "name": "PROJECT",
-          "viewName": "project id",
+          "viewName": "Project ID",
           "type": "string"
         },
         {
           "name": "NAME",
-          "viewName": "name",
+          "viewName": "Name",
           "type": "string"
         },
         {
           "name": "OS",
-          "viewName": "os",
+          "viewName": "OS",
           "type": "string"
         },
         {
           "name": "ZONE",
-          "viewName": "zone",
+          "viewName": "Zone",
           "type": "string"
         },
         {
           "name": "MACHINE_TYPE",
-          "viewName": "machine type",
+          "viewName": "Machine Type",
           "type": "string"
         },
         {
@@ -59,12 +59,12 @@
         },
         {
           "name": "SUBNET",
-          "viewName": "Subnetwork",
+          "viewName": "Subnet Path",
           "type": "string"
         },
         {
           "name": "NETIP",
-          "viewName": "Network IP",
+          "viewName": "Internal IP",
           "type": "string"
         },
         {
@@ -185,7 +185,7 @@
       "actionString": "get ID: NAME OS ZONE PROJECT "
     },
     {
-      "name": "createNetwork",
+      "name": "createVpc",
       "viewName": "create VPC",
       "params": [
         {
@@ -287,6 +287,11 @@
           "type": "vault"
         },
         {
+          "name": "PROJECT",
+          "viewName": "project id",
+          "type": "string"
+        },
+        {
           "name": "FWNAME",
           "viewName": "Firewall name",
           "type": "string"
@@ -339,22 +344,22 @@
         },
         {
           "name": "PROJECT",
-          "viewName": "project id",
+          "viewName": "Project ID",
           "type": "string"
         },
         {
           "name": "NAME",
-          "viewName": "name",
+          "viewName": "Name",
           "type": "string"
         },
         {
           "name": "NETWORK",
-          "viewName": "Network name",
+          "viewName": "VPC name",
           "type": "string"
         },
         {
-          "name": "NEXTHOPEGW",
-          "viewName": "next hope gw",
+          "name": "NEXTHOPIP",
+          "viewName": "Next Hop IP",
           "type": "string"
         },
         {
@@ -364,10 +369,14 @@
         },
         {
           "name": "PRIORITY",
-          "viewName": "priority",
+          "viewName": "Priority",
+          "type": "string"
+        },
+        {
+          "name": "TAGS",
+          "viewName": "Tags",
           "type": "string"
         }
-
       ]
     }
   ],

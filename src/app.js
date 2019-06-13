@@ -55,7 +55,7 @@ function launchInstance(action, settings) {
         if (action.params.NETWORK) {
             config.networkInterfaces = [
                 {
-                    network: action.params.NETWORK,
+                    network: `projects/${action.params.PROJECT}/global/networks/${action.params.NETWORK}`,
                     subnetwork: action.params.SUBNET,
                     networkIP: action.params.NETIP
                 }
@@ -192,20 +192,19 @@ function reserveIp(action, settings) {
     })
 }
 
-function createFW(action) {
+function createFW(action, settings) {
     return new Promise((resolve, reject) => {
-        let compute = authenticate(action, settings, true);
+        let compute = authenticate(action, settings);
         let firewall = compute.firewall(action.params.FWNAME);
         let config = {
             network: undefined, // Default : /global/networks/default
-            denied: [],
-            allowed: [],
             destinationRanges: [],
-            sourceRanges: []
+            sourceRanges: [],
+            allowed : []
         };
 
         if (action.params.NETNAME) {
-            config.network = `/global/networks/${action.params.NETNAME}`
+            config.network = `projects/${action.params.PROJECT}/global/networks/${action.params.NETNAME}`;
         }
 
         if (action.params.ALLOWEDPROTOCOL) {
@@ -214,6 +213,11 @@ function createFW(action) {
                 ports: [
                     action.params.ALLOWEDPORT
                 ]
+            })
+        } else {
+            config.allowed.push({
+                IPProtocol: "tcp",
+                ports: []
             })
         }
 
@@ -226,6 +230,7 @@ function createFW(action) {
         }
 
         if (action.params.DENIEDPROTOCOL) {
+            if (!config.denied) config.denied = [];
             config.denied = [
                 {
                     IPProtocol: action.params.DENIEDPROTOCOL,
@@ -260,11 +265,11 @@ function createRoute(action, settings) {
             resource:
             {
                 name: action.params.NAME,
-                network: action.params.NETWORK,
-                nextHopGateway: action.params.NEXTHOPEGW,
+                network: `projects/${action.params.PROJECT}/global/networks/${action.params.NETWORK}`,
+                nextHopIp: action.params.NEXTHOPIP,
                 destRange: action.params.DESTRANGE,
-                priority: action.params.PRIORITY || '0'
-
+                priority: action.params.PRIORITY || '0',
+                tags : action.params.TAGS ? _stringArrayParamHandler(action.params.TAGS) : []
             },
             auth: client
         };
