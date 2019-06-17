@@ -44,6 +44,7 @@ function launchInstance(action, settings) {
             os: action.params.OS,
             disks: []
         };
+        
         if (action.params.IMAGE) {
             config.disks.push({
                 boot: true,
@@ -64,6 +65,12 @@ function launchInstance(action, settings) {
 
         if (action.params.TAGS) {
             config.tags = _stringArrayParamHandler(action.params.TAGS, 'Tags');
+        }
+
+        if (action.params.LABELS) {
+            if (typeof action.params.LABELS != 'object' || Array.isArray(action.params.LABELS))
+                return reject(new Error("Labels object must be an object"));
+            config.labels = action.params.LABELS;
         }
 
         if (action.params.MACHINE_TYPE) {

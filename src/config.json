@@ -71,6 +71,11 @@
           "name": "TAGS",
           "viewName": "Tags",
           "type": "string"
+        },
+        {
+          "name": "LABELS",
+          "viewName": "Labels object",
+          "type": "string"
         }
 
       ],
