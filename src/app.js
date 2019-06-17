@@ -44,7 +44,7 @@ function launchInstance(action, settings) {
             os: action.params.OS,
             disks: []
         };
-        
+
         if (action.params.IMAGE) {
             config.disks.push({
                 boot: true,
@@ -53,7 +53,15 @@ function launchInstance(action, settings) {
                 }
             })
         }
-        if (action.params.NETWORK) {
+
+        if (action.params.networkInterfaces){
+            if (!Array.isArray(action.params.networkInterfaces))
+                return reject(new Error("Network interfaces must be an array."));
+            config.networkInterfaces = action.params.networkInterfaces;
+        } else if (action.params.NETWORK) {
+            if (!action.params.SUBNET || !action.params.NETIP){
+                return reject(new Error("You must specify subnet and ip to use specific VPC"));
+            }
             config.networkInterfaces = [
                 {
                     network: `projects/${action.params.PROJECT}/global/networks/${action.params.NETWORK}`,

@@ -68,6 +68,11 @@
           "type": "string"
         },
         {
+          "name": "networkInterfaces",
+          "viewName": "Network Interfaces",
+          "type": "string"
+        },
+        {
           "name": "TAGS",
           "viewName": "Tags",
           "type": "string"
