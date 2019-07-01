@@ -42,7 +42,8 @@ function launchInstance(action, settings) {
 
         const config = {
             os: action.params.OS,
-            disks: []
+            disks: [],
+            canIpForward : action.params.canIpForward
         };
 
         if (action.params.IMAGE) {
