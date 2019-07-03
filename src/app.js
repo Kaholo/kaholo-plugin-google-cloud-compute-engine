@@ -17,6 +17,25 @@ function _getCredentials(action, settings) {
     }
 }
 
+function _handleOPeration(operation){
+    return new Promise((resolve,reject)=>{
+        try {
+            operation
+                .on('error', function (err) {
+                    reject(err);
+                })
+                .on('running', function (metadata) {
+                    console.log(JSON.stringify(metadata));
+                })
+                .on('complete', function (metadata) {
+                    resolve(metadata);
+                });
+        } catch (e) {
+            reject(e);
+        }    
+    })
+}
+
 function authenticate(action, settings, withoutProject) {
     let credentials = _getCredentials(action, settings);
 
@@ -73,7 +92,9 @@ function launchInstance(action, settings) {
         }
 
         if (action.params.TAGS) {
-            config.tags = _stringArrayParamHandler(action.params.TAGS, 'Tags');
+            config.tags = {
+                items : _stringArrayParamHandler(action.params.TAGS, 'Tags')
+            };
         }
 
         if (action.params.LABELS) {
@@ -90,22 +111,8 @@ function launchInstance(action, settings) {
             if (err)
                 return reject(err);
 
-            // `operation` lets you check the status of long-running tasks.
-            try {
-                operation
-                    .on('error', function (err) {
-                        reject(err);
-                    })
-                    .on('running', function (metadata) {
-                        console.log(JSON.stringify(metadata));
-                    })
-                    .on('complete', function (metadata) {
-                        console.log("Virtual machine created!");
-                        resolve(metadata);
-                    });
-            } catch (e) {
-                reject(e);
-            }
+            
+            _handleOPeration(operation).then(resolve).catch(reject);
         });
     });
 }
@@ -164,7 +171,11 @@ function createVpc(action, settings) {
         network.create(config, (err, network, operation, apiResponse) => {
             if (err)
                 return reject(err);
-            resolve(apiResponse);
+            
+            if(!action.params.waitForOperation)
+                return resolve(apiResponse);
+
+            _handleOPeration(operation).then(resolve).catch(reject);
         });
     })
 }
@@ -183,7 +194,11 @@ function createSubnet(action, settings) {
         network.createSubnetwork(subName, config, (err, network, operation, apiResponse) => {
             if (err)
                 return reject(err);
-            resolve(apiResponse);
+
+            if(!action.params.waitForOperation)
+                return resolve(apiResponse);
+
+            _handleOPeration(operation).then(resolve).catch(reject);
         });
     })
 }
@@ -232,7 +247,7 @@ function createFW(action, settings) {
             })
         } else {
             config.allowed.push({
-                IPProtocol: "tcp",
+                IPProtocol: "all",
                 ports: []
             })
         }

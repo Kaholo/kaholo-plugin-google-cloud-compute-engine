@@ -217,6 +217,11 @@
           "name": "PROJECT",
           "viewName": "project id",
           "type": "string"
+        },
+        {
+          "name": "waitForOperation",
+          "viewName": "Wait for operation end",
+          "type": "boolean"
         }
       ]
     },
@@ -253,6 +258,11 @@
           "name": "IPRANGE",
           "viewName": "IP range",
           "type": "string"
+        },
+        {
+          "name": "waitForOperation",
+          "viewName": "Wait for operation end",
+          "type": "boolean"
         }
       ]
     },
