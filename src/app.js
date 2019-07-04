@@ -36,6 +36,18 @@ function _handleOPeration(operation){
     })
 }
 
+function _gcpCallback(action, resolve, reject){
+    return (err, entity, operation, apiResponse) => {
+        if (err)
+            return reject(err);
+        
+        if(!action.params.waitForOperation)
+            return resolve(apiResponse);
+
+        _handleOPeration(operation).then(resolve).catch(reject);
+    }
+}
+
 function authenticate(action, settings, withoutProject) {
     let credentials = _getCredentials(action, settings);
 
@@ -107,13 +119,7 @@ function launchInstance(action, settings) {
             config.machineType = action.params.MACHINE_TYPE;
         }
 
-        zone.createVM(action.params.NAME, config, (err, vm, operation) => {
-            if (err)
-                return reject(err);
-
-            
-            _handleOPeration(operation).then(resolve).catch(reject);
-        });
+        zone.createVM(action.params.NAME, config, _gcpCallback(action,resolve,reject));
     });
 }
 
@@ -168,15 +174,7 @@ function createVpc(action, settings) {
         let config = {
             autoCreateSubnetworks: false
         };
-        network.create(config, (err, network, operation, apiResponse) => {
-            if (err)
-                return reject(err);
-            
-            if(!action.params.waitForOperation)
-                return resolve(apiResponse);
-
-            _handleOPeration(operation).then(resolve).catch(reject);
-        });
+        network.create(config, _gcpCallback(action,resolve,reject));
     })
 }
 
@@ -191,15 +189,7 @@ function createSubnet(action, settings) {
             region: action.params.REGION,
             range: action.params.IPRANGE
         };
-        network.createSubnetwork(subName, config, (err, network, operation, apiResponse) => {
-            if (err)
-                return reject(err);
-
-            if(!action.params.waitForOperation)
-                return resolve(apiResponse);
-
-            _handleOPeration(operation).then(resolve).catch(reject);
-        });
+        network.createSubnetwork(subName, config, _gcpCallback(action,resolve,reject));
     })
 }
 
