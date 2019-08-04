@@ -69,7 +69,7 @@ function launchInstance(action, settings) {
         }
 
         const compute = authenticate(action, settings);
-        const zone = compute.zone(action.params.ZONE);
+        const zone = compute.zone(action.params.ZONE.replace(/–/g,'-'));
 
         const config = {
             os: action.params.OS,
