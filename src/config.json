@@ -53,6 +53,25 @@
           "type": "string"
         },
         {
+          "name": "diskType",
+          "viewName": "Disk Type",
+          "type": "options",
+          "options" : [
+            {
+              "id": "pd-standard,",
+              "name": "pd-standard,"
+            },
+            {
+              "id": "pd-ssd",
+              "name": "pd-ssd"
+            },
+            {
+              "id": "local-ssd",
+              "name": "local-ssd"
+            }
+          ]
+        },
+        {
           "name": "NETWORK",
           "viewName": "VPC name",
           "type": "string"
@@ -60,6 +79,11 @@
         {
           "name": "canIpForward",
           "viewName": "Can IP forward",
+          "type": "boolean"
+        },
+        {
+          "name": "preemptible",
+          "viewName": "Preemptible",
           "type": "boolean"
         },
         {

@@ -68,8 +68,10 @@ function launchInstance(action, settings) {
             return reject(new Error("One of the following required parameters is missing: Name, Zone, Project Id"));
         }
 
+        const zoneString = action.params.ZONE.replace(/–/g,'-');
+
         const compute = authenticate(action, settings);
-        const zone = compute.zone(action.params.ZONE.replace(/–/g,'-'));
+        const zone = compute.zone(zoneString);
 
         const config = {
             os: action.params.OS,
@@ -78,12 +80,25 @@ function launchInstance(action, settings) {
         };
 
         if (action.params.IMAGE) {
+
+            let initializeParams = {
+                sourceImage: action.params.IMAGE
+            };
+
+            if(action.params.diskType){
+                initializeParams.diskType = `zones/${zoneString}/diskTypes/${action.params.diskType}`
+            }
+
             config.disks.push({
                 boot: true,
-                initializeParams: {
-                    sourceImage: action.params.IMAGE,
-                }
+                initializeParams: initializeParams
             })
+        }
+
+        if (action.params.preemptible){
+            config.scheduling = {
+                preemptible: true
+            };
         }
 
         if (action.params.networkInterfaces){
