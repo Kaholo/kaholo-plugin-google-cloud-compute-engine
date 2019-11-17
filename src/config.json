@@ -4,7 +4,7 @@
   "exposeRoute": false,
   "execProgram": "node",
   "main": "app.js",
-  "version": "1.4.0",
+  "version": "1.4.1",
   "settings": [
     {
       "name": "CREDENTIALS",
@@ -355,6 +355,41 @@
           "type": "string"
         },
         {
+          "name": "PRIORITY",
+          "viewName": "Priority",
+          "type": "string"
+        },
+        {
+          "name": "direction",
+          "viewName": "Direction",
+          "type": "options",
+          "options": [
+            {
+              "id": "INGRESS",
+              "name": "Ingress"
+            },
+            {
+              "id": "EGRESS",
+              "name": "Egress"
+            }
+          ]
+        },
+        {
+          "name": "action",
+          "viewName": "Action",
+          "type": "options",
+          "options": [
+            {
+              "id": "allow",
+              "name": "Allow"
+            },
+            {
+              "id": "deny",
+              "name": "Deny"
+            }
+          ]
+        },
+        {
           "name": "SOURCERANGE",
           "viewName": "source range",
           "type": "string"
@@ -365,23 +400,13 @@
           "type": "string"
         },
         {
-          "name": "ALLOWEDPROTOCOL",
-          "viewName": "allowed protocol",
+          "name": "PROTOCOL",
+          "viewName": "Protocol",
           "type": "string"
         },
         {
-          "name": "ALLOWEDPORT",
-          "viewName": "allowed port",
-          "type": "string"
-        },
-        {
-          "name": "DENIEDPROTOCOL",
-          "viewName": "denied protocol",
-          "type": "string"
-        },
-        {
-          "name": "DENIEDPORT",
-          "viewName": "denied port",
+          "name": "PORTS",
+          "viewName": "Ports",
           "type": "string"
         }
       ]

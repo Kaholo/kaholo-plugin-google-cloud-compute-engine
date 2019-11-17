@@ -231,30 +231,32 @@ function reserveIp(action, settings) {
 function createFW(action, settings) {
     return new Promise((resolve, reject) => {
         let compute = authenticate(action, settings);
-        let firewall = compute.firewall(action.params.FWNAME);
+        let firewall = compute.firewall(    action.params.FWNAME);
+
+        let fwAction = action.params.action || 'allow';
+        let priority = action.params.PRIORITY ? parseInt(action.params.PRIORITY) : 1000;
+        if (isNaN(priority)) priority = 1000;
         let config = {
             network: undefined, // Default : /global/networks/default
             destinationRanges: [],
             sourceRanges: [],
-            allowed : []
+            priority : priority,
+            direction : action.params.direction || 'INGRESS'
         };
 
         if (action.params.NETNAME) {
             config.network = `projects/${action.params.PROJECT}/global/networks/${action.params.NETNAME}`;
         }
 
-        if (action.params.ALLOWEDPROTOCOL) {
-            config.allowed.push({
-                IPProtocol: action.params.ALLOWEDPROTOCOL,
-                ports: [
-                    action.params.ALLOWEDPORT
-                ]
-            })
-        } else {
-            config.allowed.push({
-                IPProtocol: "all",
-                ports: []
-            })
+        let fwRule = {
+            IPProtocol: action.params.PROTOCOL || 'all',
+            ports: action.params.PORT ? [action.params.PORTS] : []
+        }
+
+        if(fwAction=='allow'){
+            config.allowed = [fwRule]
+        } else if (fwAction=='deny'){
+            config.denied = [fwRule]
         }
 
         if (action.params.SOURCERANGE) {
@@ -263,18 +265,6 @@ function createFW(action, settings) {
 
         if (action.params.DESTRANGE) {
             config.destinationRanges = _stringArrayParamHandler(action.params.DESTRANGE, 'Destination Ranges');
-        }
-
-        if (action.params.DENIEDPROTOCOL) {
-            if (!config.denied) config.denied = [];
-            config.denied = [
-                {
-                    IPProtocol: action.params.DENIEDPROTOCOL,
-                    ports: [
-                        action.params.DENIEDPORT
-                    ]
-                }
-            ]
         }
 
         firewall.create(config, (err, firewall, operation, apiResponse) => {
