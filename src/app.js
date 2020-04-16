@@ -248,9 +248,18 @@ function createFW(action, settings) {
             config.network = `projects/${action.params.PROJECT}/global/networks/${action.params.NETNAME}`;
         }
 
+        let ports = [];
+        if (action.params.PORTS){
+            if (action.params.PORTS instanceof Array){
+                ports = action.params.PORTS.map(port=>`${port}`);
+            } else {    
+                ports = [`${action.params.PORTS}`];
+            }
+        }
+
         let fwRule = {
             IPProtocol: action.params.PROTOCOL || 'all',
-            ports: action.params.PORT ? [action.params.PORTS] : []
+            ports: ports
         }
 
         if(fwAction=='allow'){
