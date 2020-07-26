@@ -91,7 +91,8 @@ function launchInstance(action, settings) {
 
             config.disks.push({
                 boot: true,
-                initializeParams: initializeParams
+                initializeParams: initializeParams,
+                autoDelete : action.params.diskAutoDelete || false
             })
         }
 

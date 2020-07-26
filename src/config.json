@@ -4,7 +4,7 @@
   "exposeRoute": false,
   "execProgram": "node",
   "main": "app.js",
-  "version": "1.4.2",
+  "version": "1.4.3",
   "settings": [
     {
       "name": "CREDENTIALS",
@@ -70,6 +70,11 @@
               "name": "local-ssd"
             }
           ]
+        },
+        {
+          "name": "diskAutoDelete",
+          "viewName": "Disk Auto Delete",
+          "type": "boolean"
         },
         {
           "name": "NETWORK",
