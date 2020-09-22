@@ -96,7 +96,7 @@ function launchInstance(action, settings) {
             })
         }
 
-        if (action.params.preemptible){
+        if (action.params.preemptible && action.params.preemptible !== "false"){
             config.scheduling = {
                 preemptible: true
             };
