@@ -2,22 +2,24 @@ const Compute = require('@google-cloud/compute');
 const { google } = require('googleapis');
 const { JWT } = require('google-auth-library');
 
-const { _handleParam, _stringArrayParamHandler } = require('./helper')
+const { _stringArrayParamHandler } = require('./helper')
 
 function _getCredentials(action, settings) {
-    let keysParam = action.params.CREDENTIALS || settings.CREDENTIALS;
+    const keysParam = action.params.CREDENTIALS || settings.CREDENTIALS;
     if (typeof keysParam != 'string') {
         return keysParam;
-    } else {
+    } 
+    else {
         try {
-            return JSON.parse(keysParam)
-        } catch (err) {
+            return JSON.parse(keysParam);
+        } 
+        catch (err) {
             throw new Error("Invalid credentials JSON");
         }
     }
 }
 
-function _handleOPeration(operation){
+async function _handleOPeration(operation){
     return new Promise((resolve,reject)=>{
         try {
             operation
@@ -49,12 +51,9 @@ function _gcpCallback(action, resolve, reject){
 }
 
 function authenticate(action, settings, withoutProject) {
-    let credentials = _getCredentials(action, settings);
+    const credentials = _getCredentials(action, settings);
 
-    let computeOptions = {
-        credentials
-    }
-
+    let computeOptions = { credentials: credentials }
     if (!withoutProject) {
         computeOptions.projectId = action.params.PROJECT
     }
@@ -62,115 +61,127 @@ function authenticate(action, settings, withoutProject) {
     return new Compute(computeOptions);
 }
 
-function launchInstance(action, settings) {
-    return new Promise((resolve, reject) => {
-        if (!action.params.ZONE || !action.params.NAME || !action.params.PROJECT){
-            return reject(new Error("One of the following required parameters is missing: Name, Zone, Project Id"));
-        }
+async function launchInstance(action, settings) {
+    if (!action.params.ZONE || !action.params.NAME || !action.params.PROJECT){
+        throw new Error("One of the following required parameters is missing: Name, Zone, Project Id");
+    }
+    let config = {
+        os: action.params.OS,
+        disks: [],
+        canIpForward : action.params.canIpForward
+    };
+    const zoneString = action.params.ZONE.replace(/–/g,'-');
+    const name = action.params.NAME;
+    const compute = authenticate(action, settings);
+    const zone = compute.zone(zoneString);
 
-        const zoneString = action.params.ZONE.replace(/–/g,'-');
-
-        const compute = authenticate(action, settings);
-        const zone = compute.zone(zoneString);
-
-        const config = {
-            os: action.params.OS,
-            disks: [],
-            canIpForward : action.params.canIpForward
+    if (action.params.IMAGE) {
+        let initializeParams = {
+            sourceImage: action.params.IMAGE
         };
 
-        if (action.params.IMAGE) {
+        if(action.params.diskType){
+            initializeParams.diskType = `zones/${zoneString}/diskTypes/${action.params.diskType}`;
+        }
 
-            let initializeParams = {
-                sourceImage: action.params.IMAGE
-            };
+        config.disks.push({
+            boot: true,
+            initializeParams: initializeParams,
+            autoDelete : action.params.diskAutoDelete || false
+        });
+    }
 
-            if(action.params.diskType){
-                initializeParams.diskType = `zones/${zoneString}/diskTypes/${action.params.diskType}`
+    if (action.params.preemptible){
+        config.scheduling = {
+            preemptible: true
+        };
+    }
+
+    if (action.params.networkInterfaces){
+        if (!Array.isArray(action.params.networkInterfaces))
+            throw new Error("Network interfaces must be an array.");
+        config.networkInterfaces = action.params.networkInterfaces;
+    } 
+    else if (action.params.NETWORK) {
+        if (!action.params.SUBNET || !action.params.NETIP){
+            throw new Error("You must specify subnet and ip to use specific VPC");
+        }
+        config.networkInterfaces = [
+            {
+                network: `projects/${action.params.PROJECT}/global/networks/${action.params.NETWORK}`,
+                subnetwork: action.params.SUBNET,
+                networkIP: action.params.NETIP
             }
+        ]
+    }
 
-            config.disks.push({
-                boot: true,
-                initializeParams: initializeParams,
-                autoDelete : action.params.diskAutoDelete || false
-            })
+    if (action.params.TAGS) {
+        config.tags = {
+            items : _stringArrayParamHandler(action.params.TAGS, 'Tags')
+        };
+    }
+
+    if (action.params.LABELS) {
+        if (typeof action.params.LABELS != 'object' || Array.isArray(action.params.LABELS))
+            throw new Error("Labels object must be an object");
+        config.labels = action.params.LABELS;
+    }
+
+    if (action.params.MACHINE_TYPE) {
+        config.machineType = action.params.MACHINE_TYPE;
+    }
+
+    if (action.params.autoCreateStaticIP) {
+        const regionStr = zoneString.substr(0, zoneString.lastIndexOf('-')); // get region from zone
+        const region = compute.region(regionStr);
+        const addrName = `${name}-ext-addr`;
+        const address = (await region.createAddress(addrName, {addressType: "EXTERNAL"}))[0];
+        const extIpAddr = (await address.getMetadata())[0].address;
+        if (!config.networkInterfaces || config.networkInterfaces.length == 0){
+            config.networkInterfaces = [{
+                accessConfigs: [{
+                    natIP: extIpAddr
+                }]
+            }];
         }
-
-        if (action.params.preemptible && action.params.preemptible !== "false"){
-            config.scheduling = {
-                preemptible: true
+        else {
+            config.networkInterfaces[0].accessConfigs = {
+                natIP: extIpAddr
             };
         }
-
-        if (action.params.networkInterfaces){
-            if (!Array.isArray(action.params.networkInterfaces))
-                return reject(new Error("Network interfaces must be an array."));
-            config.networkInterfaces = action.params.networkInterfaces;
-        } else if (action.params.NETWORK) {
-            if (!action.params.SUBNET || !action.params.NETIP){
-                return reject(new Error("You must specify subnet and ip to use specific VPC"));
-            }
-            config.networkInterfaces = [
-                {
-                    network: `projects/${action.params.PROJECT}/global/networks/${action.params.NETWORK}`,
-                    subnetwork: action.params.SUBNET,
-                    networkIP: action.params.NETIP
-                }
-            ]
-        }
-
-        if (action.params.TAGS) {
-            config.tags = {
-                items : _stringArrayParamHandler(action.params.TAGS, 'Tags')
-            };
-        }
-
-        if (action.params.LABELS) {
-            if (typeof action.params.LABELS != 'object' || Array.isArray(action.params.LABELS))
-                return reject(new Error("Labels object must be an object"));
-            config.labels = action.params.LABELS;
-        }
-
-        if (action.params.MACHINE_TYPE) {
-            config.machineType = action.params.MACHINE_TYPE;
-        }
-
-        zone.createVM(action.params.NAME, config, _gcpCallback(action,resolve,reject));
+    }
+    return new Promise((resolve, reject) => {
+        zone.createVM(name, config, _gcpCallback(action,resolve,reject));
     });
 }
 
-function deleteUpdateRestartInstance(action, settings) {
-    return new Promise((resolve, reject) => {
-        const compute = authenticate(action, settings);
-
-        let zone = compute.zone(action.params.ZONE);
-        let name = action.params.NAME;
-        const vm = zone.vm(name);
-
-        switch (action.method.name) {
-            case 'STOP_INSTANCE':
-                return vm.stop();
-            case 'DELETE_INSTANCE':
-                return vm.delete();
-            case 'RESET_INSTANCE':
-                return vm.reset();
-            default:
-                throw new Error("Unknown method");
-        }
-
-    }).then(data => new Promise((resolve, reject) => {
-        console.log(data[0]);
-        resolve(data[1]);
-    }));
+async function deleteUpdateRestartInstance(action, settings) {
+    const compute = authenticate(action, settings);
+    const zone = compute.zone(action.params.ZONE);
+    const vm = zone.vm(action.params.NAME);
+    let res = {};
+    switch (action.method.name) {
+        case 'STOP_INSTANCE':
+            res = vm.stop();
+            break;
+        case 'DELETE_INSTANCE':
+            res = vm.delete();
+            break;
+        case 'RESET_INSTANCE':
+            res = vm.reset();
+            break;
+        default:
+            throw new Error("Unknown method");
+    }
+    console.log(res[0]);
+    return res[1];
 }
 
-function getExternalIP(action, settings) {
+async function getExternalIP(action, settings) {
+    const compute = authenticate(action, settings);
+    const zone = compute.zone(action.params.ZONE);
+    const vm = zone.vm(action.params.NAME);
     return new Promise((resolve, reject) => {
-        const compute = authenticate(action, settings);
-        let zone = compute.zone(action.params.ZONE);
-        let name = action.params.NAME;
-        const vm = zone.vm(name);
-
         vm.getMetadata().then((data) => {
             if ((((((data[0] || {}).networkInterfaces || [])[0] || {}).accessConfigs || [])[0] || {}).natIP) {
                 resolve(data[0].networkInterfaces[0].accessConfigs[0].natIP);
@@ -181,103 +192,39 @@ function getExternalIP(action, settings) {
     });
 }
 
-function createVpc(action, settings) {
-    return new Promise((resolve, reject) => {
-        let compute = authenticate(action, settings);
+async function createVpc(action, settings) {
+    const compute = authenticate(action, settings);
 
-        let name = action.params.NAME;
-        let network = compute.network(name);
-        let config = {
-            autoCreateSubnetworks: false
-        };
-        network.create(config, _gcpCallback(action,resolve,reject));
+    const network = compute.network(action.params.NAME);
+    const config = { autoCreateSubnetworks: false };
+    return new Promise((resolve, reject) => {
+        network.create(config, _gcpCallback(action, resolve, reject));
     })
 }
 
-function createSubnet(action, settings) {
+async function createSubnet(action, settings) {
+    const compute = authenticate(action, settings);
+    const network = compute.network(action.params.NETID);
+    const config = {
+        region: action.params.REGION,
+        range: action.params.IPRANGE
+    };
     return new Promise((resolve, reject) => {
-        let compute = authenticate(action, settings);
-
-        let netID = action.params.NETID;
-        let subName = action.params.SUBNAME;
-        let network = compute.network(netID);
-        let config = {
-            region: action.params.REGION,
-            range: action.params.IPRANGE
-        };
-        network.createSubnetwork(subName, config, _gcpCallback(action,resolve,reject));
+        network.createSubnetwork(action.params.SUBNAME, config, _gcpCallback(action, resolve, reject));
     })
 }
 
-function reserveIp(action, settings) {
+async function reserveIp(action, settings) {
+    const compute = authenticate(action, settings);
+    const resName = action.params.RESNAME;
+    const region = compute.region(action.params.REGION);
+    const config = {
+        subnetwork: 'regions/' + action.params.REGION + '/subnetworks/' + action.params.SUBNAME,
+        addressType: 'INTERNAL',
+        address: action.params.RESIP
+    };
     return new Promise((resolve, reject) => {
-        let compute = authenticate(action, settings);
-        let resName = action.params.RESNAME;
-        let region = compute.region(action.params.REGION);
-        let config = {
-            subnetwork: 'regions/' + action.params.REGION + '/subnetworks/' + action.params.SUBNAME,
-            addressType: 'INTERNAL',
-            address: action.params.RESIP
-        };
-        function callback(err, network, operation, apiResponse) {
-            if (err)
-                return reject(err);
-            resolve(apiResponse);
-        }
-        region.createAddress(resName, config, callback);
-
-    })
-}
-
-function createFW(action, settings) {
-    return new Promise((resolve, reject) => {
-        let compute = authenticate(action, settings);
-        let firewall = compute.firewall(    action.params.FWNAME);
-
-        let fwAction = action.params.action || 'allow';
-        let priority = action.params.PRIORITY ? parseInt(action.params.PRIORITY) : 1000;
-        if (isNaN(priority)) priority = 1000;
-        let config = {
-            network: undefined, // Default : /global/networks/default
-            destinationRanges: [],
-            sourceRanges: [],
-            priority : priority,
-            direction : action.params.direction || 'INGRESS'
-        };
-
-        if (action.params.NETNAME) {
-            config.network = `projects/${action.params.PROJECT}/global/networks/${action.params.NETNAME}`;
-        }
-
-        let ports = [];
-        if (action.params.PORTS){
-            if (action.params.PORTS instanceof Array){
-                ports = action.params.PORTS.map(port=>`${port}`);
-            } else {    
-                ports = [`${action.params.PORTS}`];
-            }
-        }
-
-        let fwRule = {
-            IPProtocol: action.params.PROTOCOL || 'all',
-            ports: ports
-        }
-
-        if(fwAction=='allow'){
-            config.allowed = [fwRule]
-        } else if (fwAction=='deny'){
-            config.denied = [fwRule]
-        }
-
-        if (action.params.SOURCERANGE) {
-            config.sourceRanges = _stringArrayParamHandler(action.params.SOURCERANGE, 'Source Ranges');
-        }
-
-        if (action.params.DESTRANGE) {
-            config.destinationRanges = _stringArrayParamHandler(action.params.DESTRANGE, 'Destination Ranges');
-        }
-
-        firewall.create(config, (err, firewall, operation, apiResponse) => {
+        region.createAddress(resName, config, (err, t, t2, apiResponse) => {
             if (err)
                 return reject(err);
             resolve(apiResponse);
@@ -285,37 +232,81 @@ function createFW(action, settings) {
     })
 }
 
-function createRoute(action, settings) {
+async function createFW(action, settings) {
+    const compute = authenticate(action, settings);
+    const firewall = compute.firewall(action.params.FWNAME);
+    const fwAction = action.params.action || 'allow';
+    let priority = action.params.PRIORITY ? parseInt(action.params.PRIORITY) : 1000;
+    if (isNaN(priority)) priority = 1000;
+    const netName = action.params.NETNAME || `default`
+    let config = {
+        network: `projects/${action.params.PROJECT}/global/networks/${netName}`,
+        destinationRanges: [],
+        sourceRanges: [],
+        priority : priority,
+        direction : action.params.direction || 'INGRESS'
+    };
+    let ports = [];
+    if (action.params.PORTS){
+        if (action.params.PORTS instanceof Array){
+            ports = action.params.PORTS.map(port=>`${port}`);
+        } else {    
+            ports = [`${action.params.PORTS}`];
+        }
+    }
+    const fwRule = {
+        IPProtocol: action.params.PROTOCOL || 'all',
+        ports: ports
+    }
+    if(fwAction=='allow'){
+        config.allowed = [fwRule]
+    } else if (fwAction=='deny'){
+        config.denied = [fwRule]
+    }
+    if (action.params.SOURCERANGE) {
+        config.sourceRanges = _stringArrayParamHandler(action.params.SOURCERANGE, 'Source Ranges');
+    }
+    if (action.params.DESTRANGE) {
+        config.destinationRanges = _stringArrayParamHandler(action.params.DESTRANGE, 'Destination Ranges');
+    }
     return new Promise((resolve, reject) => {
-        let keys = _getCredentials(action, settings);
+        firewall.create(config, (err, t, t2, apiResponse) => {
+            if (err)
+                return reject(err);
+            resolve(apiResponse);
+        });
+    })
+}
 
-        const client = new JWT(
-            keys.client_email,
-            null,
-            keys.private_key,
-            ['https://www.googleapis.com/auth/cloud-platform'],
-        );
-
-        let request = {
-            project: action.params.PROJECT,
-            resource:
-            {
-                name: action.params.NAME,
-                network: `projects/${action.params.PROJECT}/global/networks/${action.params.NETWORK}`,
-                nextHopIp: action.params.NEXTHOPIP,
-                destRange: action.params.DESTRANGE,
-                priority: action.params.PRIORITY || '0',
-                tags : action.params.TAGS ? _stringArrayParamHandler(action.params.TAGS) : []
-            },
-            auth: client
-        };
-        let compute = google.compute('v1');
+async function createRoute(action, settings) {
+    const keys = _getCredentials(action, settings);
+    
+    const client = new JWT(
+        keys.client_email, null,
+        keys.private_key,
+        ['https://www.googleapis.com/auth/cloud-platform'],
+    );
+    const request = {
+        project: action.params.PROJECT,
+        resource:
+        {
+            name: action.params.NAME,
+            network: `projects/${action.params.PROJECT}/global/networks/${action.params.NETWORK}`,
+            nextHopIp: action.params.NEXTHOPIP,
+            destRange: action.params.DESTRANGE,
+            priority: action.params.PRIORITY || '0',
+            tags : action.params.TAGS ? _stringArrayParamHandler(action.params.TAGS) : []
+        },
+        auth: client
+    };
+    const compute = google.compute('v1');
+    return new Promise((resolve, reject) => {
         compute.routes.insert(request, function (err, res) {
             if (err)
                 return reject(err);
             resolve(res)
-        })
-    })
+        });
+    });
 }
 
 module.exports = {

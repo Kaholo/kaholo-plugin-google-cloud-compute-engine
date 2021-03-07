@@ -4,7 +4,7 @@
   "exposeRoute": false,
   "execProgram": "node",
   "main": "app.js",
-  "version": "1.4.4",
+  "version": "1.5.1",
   "settings": [
     {
       "name": "CREDENTIALS",
@@ -119,6 +119,11 @@
         {
           "name": "waitForOperation",
           "viewName": "Wait for operation end",
+          "type": "boolean"
+        },
+        {
+          "name": "autoCreateStaticIP",
+          "viewName": "Auto Create Static IP Address",
           "type": "boolean"
         }
       ],
