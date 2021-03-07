@@ -23,6 +23,7 @@ This plugin integrate with GCP and provide several methods:
 16. Tags
 17. Labels object
 18. Wait for operation end
+19. Auto Create Static IP Address
 
 ## Method: stop a vm
 

@@ -9,19 +9,6 @@ function _stringArrayParamHandler(param, paramName){
     return paramValue;
 }
 
-function _handleParam(param){
-    if (typeof param != 'string'){
-        return param;
-    } else {
-        try{
-            return JSON.parse(param)
-        }catch(err){
-            return param
-        }
-    }
-}
-
 module.exports = {
-    _handleParam, 
     _stringArrayParamHandler
 };
