@@ -135,19 +135,27 @@ async function launchInstance(action, settings) {
         const regionStr = zoneString.substr(0, zoneString.lastIndexOf('-')); // get region from zone
         const region = compute.region(regionStr);
         const addrName = `${name}-ext-addr`;
-        const address = (await region.createAddress(addrName, {addressType: "EXTERNAL"}))[0];
-        const extIpAddr = (await address.getMetadata())[0].address;
-        if (!config.networkInterfaces || config.networkInterfaces.length == 0){
-            config.networkInterfaces = [{
-                accessConfigs: [{
+        try {
+            const createAddressRes = (await region.createAddress(addrName, {addressType: "EXTERNAL"}));
+            await _handleOPeration(createAddressRes[1]);
+            const address = createAddressRes[0];
+            const extIpAddr = (await address.getMetadata())[0].address;
+
+            if (!config.networkInterfaces || config.networkInterfaces.length == 0){
+                config.networkInterfaces = [{
+                    accessConfigs: [{
+                        natIP: extIpAddr
+                    }]
+                }];
+            }
+            else {
+                config.networkInterfaces[0].accessConfigs = {
                     natIP: extIpAddr
-                }]
-            }];
+                };
+            }
         }
-        else {
-            config.networkInterfaces[0].accessConfigs = {
-                natIP: extIpAddr
-            };
+        catch (err){
+            throw `Couldn't create external address with the name: ${addrName}\n${err}`;
         }
     }
     return new Promise((resolve, reject) => {
