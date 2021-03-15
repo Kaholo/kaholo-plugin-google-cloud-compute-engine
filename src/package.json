@@ -1,6 +1,6 @@
 {
   "name": "kaholo-plugin-googlecloud-compute-engine",
-  "version": "1.5.4",
+  "version": "1.5.5",
   "description": "Google cloud engine plugin for Kaholo",
   "main": "app.js",
   "scripts": {
