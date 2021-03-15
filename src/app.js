@@ -50,6 +50,33 @@ function _gcpCallback(action, resolve, reject){
     }
 }
 
+async function _autoCreateExtIP(compute, zone, instanceName, config){
+    const regionStr = zone.substr(0, zone.lastIndexOf('-')); // get region from zone
+    const region = compute.region(regionStr);
+    const addrName = `${instanceName}-ext-addr`;
+    try {
+        const createAddressRes = (await region.createAddress(addrName, {addressType: "EXTERNAL"}));
+        await _handleOPeration(createAddressRes[1]);
+        const address = createAddressRes[0];
+        const extIpAddr = (await address.getMetadata())[0].address;
+        if (!config.networkInterfaces || config.networkInterfaces.length == 0){
+            config.networkInterfaces = [{
+                accessConfigs: [{
+                    natIP: extIpAddr
+                }]
+            }];
+        }
+        else {
+            config.networkInterfaces[0].accessConfigs = {
+                natIP: extIpAddr
+            };
+        }
+    }
+    catch (err){
+        throw `Couldn't create external address with the name: ${addrName}\n${err}`;
+    }
+}
+
 function authenticate(action, settings, withoutProject) {
     const credentials = _getCredentials(action, settings);
 
@@ -132,31 +159,7 @@ async function launchInstance(action, settings) {
     }
 
     if (action.params.autoCreateStaticIP) {
-        const regionStr = zoneString.substr(0, zoneString.lastIndexOf('-')); // get region from zone
-        const region = compute.region(regionStr);
-        const addrName = `${name}-ext-addr`;
-        try {
-            const createAddressRes = (await region.createAddress(addrName, {addressType: "EXTERNAL"}));
-            await _handleOPeration(createAddressRes[1]);
-            const address = createAddressRes[0];
-            const extIpAddr = (await address.getMetadata())[0].address;
-
-            if (!config.networkInterfaces || config.networkInterfaces.length == 0){
-                config.networkInterfaces = [{
-                    accessConfigs: [{
-                        natIP: extIpAddr
-                    }]
-                }];
-            }
-            else {
-                config.networkInterfaces[0].accessConfigs = {
-                    natIP: extIpAddr
-                };
-            }
-        }
-        catch (err){
-            throw `Couldn't create external address with the name: ${addrName}\n${err}`;
-        }
+        await _autoCreateExtIP(compute, zoneString, name, config);
     }
     return new Promise((resolve, reject) => {
         zone.createVM(name, config, _gcpCallback(action,resolve,reject));
