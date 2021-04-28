@@ -55,9 +55,8 @@ async function _autoCreateExtIP(compute, zone, instanceName, config){
     const region = compute.region(regionStr);
     const addrName = `${instanceName}-ext-addr`;
     try {
-        const createAddressRes = (await region.createAddress(addrName, {addressType: "EXTERNAL"}));
-        await _handleOPeration(createAddressRes[1]);
-        const address = createAddressRes[0];
+        const [address, operation] = (await region.createAddress(addrName, {addressType: "EXTERNAL"}));
+        await _handleOPeration(operation);
         const extIpAddr = (await address.getMetadata())[0].address;
         if (!config.networkInterfaces || config.networkInterfaces.length == 0){
             config.networkInterfaces = [{
@@ -80,7 +79,7 @@ async function _autoCreateExtIP(compute, zone, instanceName, config){
 function authenticate(action, settings, withoutProject) {
     const credentials = _getCredentials(action, settings);
 
-    let computeOptions = { credentials: credentials }
+    let computeOptions = { credentials }
     if (!withoutProject) {
         computeOptions.projectId = action.params.PROJECT
     }
