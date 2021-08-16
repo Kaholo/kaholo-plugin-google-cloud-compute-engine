@@ -324,7 +324,7 @@ module.exports = {
     LAUNCH_INSTANCE: launchInstance,
     STOP_INSTANCE: deleteUpdateRestartInstance,
     DELETE_INSTANCE: deleteUpdateRestartInstance,
-    RESTART_INSTANCE: deleteUpdateRestartInstance,
+    RESET_INSTANCE: deleteUpdateRestartInstance,
     GET_INSTANCE_EXTERNAL_IP: getExternalIP,
     createVpc: createVpc,
     createSubnet: createSubnet,
