@@ -173,18 +173,17 @@ async function deleteUpdateRestartInstance(action, settings) {
     let res = {};
     switch (action.method.name) {
         case 'STOP_INSTANCE':
-            res = vm.stop();
+            res = await vm.stop();
             break;
         case 'DELETE_INSTANCE':
-            res = vm.delete();
+            res = await vm.delete();
             break;
         case 'RESET_INSTANCE':
-            res = vm.reset();
+            res = await vm.reset();
             break;
         default:
             throw new Error("Unknown method");
     }
-    console.log(res[0]);
     return res[1];
 }
 

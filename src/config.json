@@ -4,7 +4,7 @@
   "exposeRoute": false,
   "execProgram": "node",
   "main": "app.js",
-  "version": "1.5.9",
+  "version": "1.6.0",
   "settings": [
     {
       "name": "CREDENTIALS",
