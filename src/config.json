@@ -4,7 +4,7 @@
   "exposeRoute": false,
   "execProgram": "node",
   "main": "app.js",
-  "version": "1.6.0",
+  "version": "1.6.1",
   "settings": [
     {
       "name": "CREDENTIALS",
@@ -58,8 +58,8 @@
           "type": "options",
           "options" : [
             {
-              "id": "pd-standard,",
-              "name": "pd-standard,"
+              "id": "pd-standard",
+              "name": "pd-standard"
             },
             {
               "id": "pd-ssd",
