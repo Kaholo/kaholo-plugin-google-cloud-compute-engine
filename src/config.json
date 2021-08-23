@@ -4,7 +4,7 @@
   "exposeRoute": false,
   "execProgram": "node",
   "main": "app.js",
-  "version": "1.6.1",
+  "version": "1.6.2",
   "settings": [
     {
       "name": "CREDENTIALS",
@@ -15,7 +15,7 @@
   "methods": [
     {
       "name": "LAUNCH_INSTANCE",
-      "viewName": "launch a vm",
+      "viewName": "Launch VM",
       "params": [
         {
           "name": "CREDENTIALS",
@@ -49,7 +49,7 @@
         },
         {
           "name": "IMAGE",
-          "viewName": "Source image",
+          "viewName": "Source Image",
           "type": "string"
         },
         {
@@ -59,15 +59,15 @@
           "options" : [
             {
               "id": "pd-standard",
-              "name": "pd-standard"
+              "name": "PD-Standard"
             },
             {
               "id": "pd-ssd",
-              "name": "pd-ssd"
+              "name": "PD-SSD"
             },
             {
               "id": "local-ssd",
-              "name": "local-ssd"
+              "name": "Local SSD"
             }
           ]
         },
@@ -78,12 +78,12 @@
         },
         {
           "name": "NETWORK",
-          "viewName": "VPC name",
+          "viewName": "VPC Name",
           "type": "string"
         },
         {
           "name": "canIpForward",
-          "viewName": "Can IP forward",
+          "viewName": "Can IP Forward",
           "type": "boolean"
         },
         {
@@ -118,7 +118,7 @@
         },
         {
           "name": "waitForOperation",
-          "viewName": "Wait for operation end",
+          "viewName": "Wait For Operation End",
           "type": "boolean"
         },
         {
@@ -126,12 +126,11 @@
           "viewName": "Auto Create Static IP Address",
           "type": "boolean"
         }
-      ],
-      "actionString": "Launch instance: NAME OS ZONE PROJECT "
+      ]
     },
     {
       "name": "STOP_INSTANCE",
-      "viewName": "stop a vm",
+      "viewName": "Stop VM",
       "params": [
         {
           "name": "CREDENTIALS",
@@ -140,25 +139,24 @@
         },
         {
           "name": "NAME",
-          "viewName": "name",
+          "viewName": "Name",
           "type": "string"
         },
         {
           "name": "ZONE",
-          "viewName": "zone",
+          "viewName": "Zone",
           "type": "string"
         },
         {
           "name": "PROJECT",
-          "viewName": "project id",
+          "viewName": "Project ID",
           "type": "string"
         }
-      ],
-      "actionString": "stop instance: NAME OS ZONE PROJECT "
+      ]
     },
     {
       "name": "RESET_INSTANCE",
-      "viewName": "restart a vm",
+      "viewName": "Restart VM",
       "params": [
         {
           "name": "CREDENTIALS",
@@ -167,25 +165,24 @@
         },
         {
           "name": "NAME",
-          "viewName": "name",
+          "viewName": "Name",
           "type": "string"
         },
         {
           "name": "ZONE",
-          "viewName": "zone",
+          "viewName": "Zone",
           "type": "string"
         },
         {
           "name": "PROJECT",
-          "viewName": "project id",
+          "viewName": "Project ID",
           "type": "string"
         }
-      ],
-      "actionString": "restart instance: NAME OS ZONE PROJECT "
+      ]
     },
     {
       "name": "DELETE_INSTANCE",
-      "viewName": "delete a vm",
+      "viewName": "Delete VM",
       "params": [
         {
           "name": "CREDENTIALS",
@@ -194,25 +191,24 @@
         },
         {
           "name": "NAME",
-          "viewName": "name",
+          "viewName": "Name",
           "type": "string"
         },
         {
           "name": "ZONE",
-          "viewName": "zone",
+          "viewName": "Zone",
           "type": "string"
         },
         {
           "name": "PROJECT",
-          "viewName": "project id",
+          "viewName": "Project ID",
           "type": "string"
         }
-      ],
-      "actionString": "delete instance: NAME OS ZONE PROJECT "
+      ]
     },
     {
       "name": "GET_INSTANCE_EXTERNAL_IP",
-      "viewName": "get external ip",
+      "viewName": "Get External IP",
       "params": [
         {
           "name": "CREDENTIALS",
@@ -221,25 +217,24 @@
         },
         {
           "name": "NAME",
-          "viewName": "vm name",
+          "viewName": "VM Name",
           "type": "string"
         },
         {
           "name": "ZONE",
-          "viewName": "zone",
+          "viewName": "Zone",
           "type": "string"
         },
         {
           "name": "PROJECT",
-          "viewName": "project id",
+          "viewName": "Project ID",
           "type": "string"
         }
-      ],
-      "actionString": "get ID: NAME OS ZONE PROJECT "
+      ]
     },
     {
       "name": "createVpc",
-      "viewName": "create VPC",
+      "viewName": "Create VPC",
       "params": [
         {
           "name": "CREDENTIALS",
@@ -248,24 +243,24 @@
         },
         {
           "name": "NAME",
-          "viewName": "VPC name",
+          "viewName": "VPC Name",
           "type": "string"
         },
         {
           "name": "PROJECT",
-          "viewName": "project id",
+          "viewName": "Project ID",
           "type": "string"
         },
         {
           "name": "waitForOperation",
-          "viewName": "Wait for operation end",
+          "viewName": "Wait For Operation End",
           "type": "boolean"
         }
       ]
     },
     {
       "name": "createSubnet",
-      "viewName": "create subnetwork",
+      "viewName": "Create Subnetwork",
       "params": [
         {
           "name": "CREDENTIALS",
@@ -279,27 +274,27 @@
         },
         {
           "name": "SUBNAME",
-          "viewName": "subnet name",
+          "viewName": "Subnet Name",
           "type": "string"
         },
         {
           "name": "PROJECT",
-          "viewName": "project id",
+          "viewName": "Project ID",
           "type": "string"
         },
         {
           "name": "REGION",
-          "viewName": "region name",
+          "viewName": "Region Name",
           "type": "string"
         },
         {
           "name": "IPRANGE",
-          "viewName": "IP range",
+          "viewName": "IP Range",
           "type": "string"
         },
         {
           "name": "waitForOperation",
-          "viewName": "Wait for operation end",
+          "viewName": "Wait For Operation End",
           "type": "boolean"
         }
       ]
@@ -315,12 +310,12 @@
         },
         {
           "name": "SUBNAME",
-          "viewName": "subnet name",
+          "viewName": "Subnet Name",
           "type": "string"
         },
         {
           "name": "PROJECT",
-          "viewName": "project id",
+          "viewName": "Project ID",
           "type": "string"
         },
         {
@@ -330,19 +325,19 @@
         },
         {
           "name": "REGION",
-          "viewName": "region name",
+          "viewName": "Region Name",
           "type": "string"
         },
         {
           "name": "RESIP",
-          "viewName": "IP to reserve",
+          "viewName": "IP To Reserve",
           "type": "string"
         }
       ]
     },
     {
       "name": "createFW",
-      "viewName": "create firewall",
+      "viewName": "Create Firewall",
       "params": [
         {
           "name": "CREDENTIALS",
@@ -351,17 +346,17 @@
         },
         {
           "name": "PROJECT",
-          "viewName": "project id",
+          "viewName": "Project ID",
           "type": "string"
         },
         {
           "name": "FWNAME",
-          "viewName": "Firewall name",
+          "viewName": "Firewall Name",
           "type": "string"
         },
         {
           "name": "NETNAME",
-          "viewName": "network name",
+          "viewName": "Network Name",
           "type": "string"
         },
         {
@@ -401,12 +396,12 @@
         },
         {
           "name": "SOURCERANGE",
-          "viewName": "source range",
+          "viewName": "Source Range",
           "type": "string"
         },
         {
           "name": "DESTRANGE",
-          "viewName": "destination range",
+          "viewName": "Destination Range",
           "type": "string"
         },
         {
@@ -423,7 +418,7 @@
     },
     {
       "name": "createRoute",
-      "viewName": "create a route",
+      "viewName": "Create Route",
       "params": [
         {
           "name": "CREDENTIALS",
@@ -452,7 +447,7 @@
         },
         {
           "name": "DESTRANGE",
-          "viewName": "dest range",
+          "viewName": "Dest Range",
           "type": "string"
         },
         {
