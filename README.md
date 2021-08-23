@@ -5,7 +5,7 @@ Google Cloud Compute Engine (GCCE) plugin for Kaholo.
 ## Settings: 
 1. Credentials (Vault) **Optional** - Default credentials for authenticating to the google cloud API. Needs to be saved in the format of a json object or a string representing it.
 
-## Method: launch a vm
+## Method: Launch VM
 Starts a new VM instance in the google cloud. Does so according to this [documentation](https://cloud.google.com/compute/docs/instances/create-start-instance#api).
 
 ### Parameters
@@ -29,7 +29,7 @@ Starts a new VM instance in the google cloud. Does so according to this [documen
 18. Wait For Operation End (Boolean) **Optional** - Whether to wait until the API finished creating the VM instance or not. Default value is false.
 19. Auto Create Static IP Address (Boolean) **Optional** - Whether to automatically create and assign a static external IP address to this VM instance. Default value is false.
 
-## Method: stop a vm
+## Method: Stop VM
 Stop a VM on the cloud.
 
 ### Parameters
@@ -38,7 +38,7 @@ Stop a VM on the cloud.
 3. Zone (String) **Required** - The zone of the VM.
 4. Project ID (String) **Required** - The ID of the project of the VM.
 
-## Method: start a vm
+## Method: Start VM
 Start the specified VM instance(if he was stopped before).
 
 ### Parameters
@@ -47,7 +47,7 @@ Start the specified VM instance(if he was stopped before).
 3. Zone (String) **Required** - The zone of the VM.
 4. Project ID (String) **Required** - The ID of the project of the VM.
 
-## Method: restart a vm
+## Method: Restart VM
 Restart the specified VM.
 
 ### Parameters
@@ -56,7 +56,7 @@ Restart the specified VM.
 3. Zone (String) **Required** - The zone of the VM.
 4. Project ID (String) **Required** - The ID of the project of the VM.
 
-## Method: delete a vm
+## Method: Delete VM
 Delete the specified VM.
 
 ### Parameters
@@ -65,7 +65,7 @@ Delete the specified VM.
 3. Zone (String) **Required** - The zone of the VM.
 4. Project ID (String) **Required** - The ID of the project of the VM.
 
-## Method: get external ip
+## Method: Get External IP
 Get the external IP address of the specified VM.
 
 ### Parameters
@@ -74,7 +74,7 @@ Get the external IP address of the specified VM.
 3. Zone (String) **Required** - The zone of the VM.
 4. Project ID (String) **Required** - The ID of the project of the VM.
 
-## Method: create a vpc
+## Method: Create VPC
 Create a new VPC resource in the cloud
 
 ### Parameters
@@ -83,7 +83,7 @@ Create a new VPC resource in the cloud
 3. Project ID (String) **Required** - The ID of the project to create this VPC in.
 4. Wait For Operationn End (Boolean) **Optional** - Whether to wait until the API finished creating the VPC resource or not. Default value is false.
 
-## Method: create subnetwork
+## Method: Create Subnetwork
 Create a new subnetwork inside the specified VPC.
 
 ### Parameters
@@ -106,7 +106,7 @@ Reserve an internal IP address and create a resource for it, from the specified 
 5. Region Name (String) **Required** - The region of the subnetwork.
 6. IP To Reserve (String) **Required** - The IP address to reserve from the subnetwork.
 
-## Method: create firewall
+## Method: Create Firewall
 Create a new firewall instance in the cloud.
 
 ### Parameters
@@ -122,7 +122,7 @@ Create a new firewall instance in the cloud.
 10. Protocol **Optional** - The ip protocol this rule will apply on. can be: tcp, udp, icmp, esp, ah, sctp, ipip or all).
 11. Ports **Optional** - The ports on which the firewall rule will apply on. if not specified will apply on all ports.
 
-## Method: create route
+## Method: Create Route
 Create a route resource to direct traffic from a range of IP address to a different IP address.
 
 ### Parameters
