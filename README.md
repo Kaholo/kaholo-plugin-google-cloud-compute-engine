@@ -1,6 +1,8 @@
 # kaholo-plugin-GCCE
 Google Cloud Compute Engine (GCCE) plugin for Kaholo.
 
+* **Make sure to enable the compute API on google cloud.**
+
 ## Settings
 1. Service Account Credentials (Vault) **Required if not in method** - Default credentials for authenticating to the google cloud API. Needs to be saved in the format of a json object or a string representing it.
 2. Default Project ID (String) **Required if not in method** - The ID of the default project to use the methods on.
@@ -47,11 +49,17 @@ Perform the specified action the specified VM instance. Possible actions are:
 * Get External IP - Return only the external IP address of the VM instance.
 * Delete - Delete the VM instance.
 
+### Parameters
+1. Service Account Credentials (Vault) **Required if not in settings** - The credentials to use for authenticating to the google cloud API.
+2. Project (Autocomplete) **Required if not in settings** - The project of the VM instance. **You need access to the "Cloud Resource Manager API" to use autocomplete in this parameter!**
+3. Region (Autocomplete) **Required** - The region of the zone hosting the VM instance.
+4. Zone (Autocomplete) **Required** - The zone hosting the VM instance.
+5. VM Instance (Autocomplete) **Required** -  The VM instance to perform the action on.
+6. Action (Options) **Required** - The action to run on the VM instance. Possible values: Stop | Start | Restart | Get | Get External IP | Delete
+7. Wait For Operation End (Boolean) **Optional** - If specified, wait until the action is finished.
+
 ## Method: Create VPC Network
 Create a new VPC network.
-
-## Method: Create VPC
-Create a new VPC resource in the cloud
 
 ### Parameters
 1. Service Account Credentials (Vault) **Required if not in settings** - The credentials to use for authenticating to the google cloud API.
