@@ -4,62 +4,104 @@
   "exposeRoute": false,
   "execProgram": "node",
   "main": "app.js",
-  "version": "1.6.2",
+  "imgUrl": "logo.png",
+  "version": "2.0.1",
   "settings": [
     {
-      "name": "CREDENTIALS",
-      "viewName": "Credentials",
+      "name": "creds",
+      "viewName": "Service Account Credentials",
       "type": "vault"
+    },
+    {
+      "name": "project",
+      "viewName": "Default Project ID",
+      "type": "string"
     }
   ],
   "methods": [
     {
-      "name": "LAUNCH_INSTANCE",
+      "name": "launchVm",
       "viewName": "Launch VM",
       "params": [
         {
-          "name": "CREDENTIALS",
-          "viewName": "Credentials",
+          "name": "creds",
+          "viewName": "Service Account Credentials",
           "type": "vault"
         },
         {
-          "name": "PROJECT",
-          "viewName": "Project ID",
-          "type": "string"
+          "name": "project",
+          "viewName": "Project",
+          "type": "autocomplete",
+          "autocompleteType":"function",
+          "functionName":"listProjectsAuto"
         },
         {
-          "name": "NAME",
+          "name": "name",
           "viewName": "Name",
           "type": "string"
         },
         {
-          "name": "OS",
-          "viewName": "OS",
-          "type": "string"
+          "name": "description",
+          "viewName": "Description",
+          "type": "text"
         },
         {
-          "name": "ZONE",
+          "name": "region",
+          "viewName": "Region",
+          "type": "autocomplete",
+          "autocompleteType":"function",
+          "functionName":"listRegionsAuto"
+        },
+        {
+          "name": "zone",
           "viewName": "Zone",
-          "type": "string"
+          "type": "autocomplete",
+          "autocompleteType":"function",
+          "functionName":"listZonesAuto"
         },
         {
-          "name": "MACHINE_TYPE",
+          "name": "machineType",
           "viewName": "Machine Type",
+          "type": "autocomplete",
+          "autocompleteType":"function",
+          "functionName":"listMachineTypesAuto"
+        },
+        {
+          "name": "customMachineCpuCount",
+          "viewName": "Custom Machine CPU Count",
           "type": "string"
         },
         {
-          "name": "IMAGE",
-          "viewName": "Source Image",
+          "name": "customMachineMem",
+          "viewName": "Custom Machine Memory(In MB)",
           "type": "string"
+        },
+        {
+          "name": "imageProject",
+          "viewName": "Image Project",
+          "type": "autocomplete",
+          "autocompleteType":"function",
+          "functionName":"listImageProjectsAuto"
+        },
+        {
+          "name": "image",
+          "viewName": "Image",
+          "type": "autocomplete",
+          "autocompleteType":"function",
+          "functionName":"listImagesAuto"
         },
         {
           "name": "diskType",
-          "viewName": "Disk Type",
+          "viewName": "Boot Disk Type",
           "type": "options",
           "options" : [
             {
               "id": "pd-standard",
               "name": "PD-Standard"
+            },
+            {
+              "id": "pd-balanced",
+              "name": "PD-Balanced"
             },
             {
               "id": "pd-ssd",
@@ -72,13 +114,69 @@
           ]
         },
         {
+          "name": "diskSize",
+          "viewName": "Boot Disk Size(In GB)",
+          "type": "string"
+        },
+        {
           "name": "diskAutoDelete",
           "viewName": "Disk Auto Delete",
           "type": "boolean"
         },
         {
-          "name": "NETWORK",
-          "viewName": "VPC Name",
+          "name": "serviceAccount",
+          "viewName": "Api Access Service Account",
+          "type": "autocomplete",
+          "autocompleteType":"function",
+          "functionName":"listServiceAccountsAuto"
+        },
+        {
+          "name": "saAccessScopes",
+          "viewName": "Service Account Access Scopes",
+          "type": "options",
+          "options": [
+            {
+              "id": "default",
+              "name": "Allow default access"
+            },
+            {
+              "id": "full",
+              "name": "Allow full access to all Cloud APIs"
+            }
+          ]
+        },
+        {
+          "name": "allowHttp",
+          "viewName": "Firewall - Allow HTTP traffic",
+          "type": "boolean"
+        },
+        {
+          "name": "allowHttps",
+          "viewName": "Firewall - Allow HTTPS traffic",
+          "type": "boolean"
+        },
+        {
+          "name": "network",
+          "viewName": "VPC Network",
+          "type": "autocomplete",
+          "autocompleteType":"function",
+          "functionName":"listNetworksAuto"
+        },
+        {
+          "name": "subnetwork",
+          "viewName": "Subnetwork",
+          "type": "autocomplete",
+          "autocompleteType":"function",
+          "functionName":"listSubnetworksAuto"
+        },
+        {
+          "name": "customInternalIp",
+          "viewName": "Custom Internal IP",
+          "type": "string"
+        },
+        {
+          "name": "networkInterfaces",
+          "viewName": "Additional Network Interfaces",
           "type": "string"
         },
         {
@@ -92,29 +190,14 @@
           "type": "boolean"
         },
         {
-          "name": "SUBNET",
-          "viewName": "Subnet Path",
-          "type": "string"
-        },
-        {
-          "name": "NETIP",
-          "viewName": "Internal IP",
-          "type": "string"
-        },
-        {
-          "name": "networkInterfaces",
-          "viewName": "Network Interfaces",
-          "type": "string"
-        },
-        {
-          "name": "TAGS",
+          "name": "tags",
           "viewName": "Tags",
-          "type": "string"
+          "type": "text"
         },
         {
-          "name": "LABELS",
-          "viewName": "Labels object",
-          "type": "string"
+          "name": "labels",
+          "viewName": "Labels",
+          "type": "text"
         },
         {
           "name": "waitForOperation",
@@ -129,127 +212,110 @@
       ]
     },
     {
-      "name": "STOP_INSTANCE",
-      "viewName": "Stop VM",
+      "name": "vmAction",
+      "viewName": "VM Action",
       "params": [
         {
-          "name": "CREDENTIALS",
-          "viewName": "Credentials",
+          "name": "creds",
+          "viewName": "Service Account Credentials",
           "type": "vault"
         },
         {
-          "name": "NAME",
-          "viewName": "Name",
-          "type": "string"
+          "name": "project",
+          "viewName": "Project",
+          "type": "autocomplete",
+          "autocompleteType":"function",
+          "functionName":"listProjectsAuto"
         },
         {
-          "name": "ZONE",
+          "name": "region",
+          "viewName": "Region",
+          "type": "autocomplete",
+          "autocompleteType":"function",
+          "functionName":"listRegionsAuto"
+        },
+        {
+          "name": "zone",
           "viewName": "Zone",
-          "type": "string"
+          "type": "autocomplete",
+          "autocompleteType":"function",
+          "functionName":"listZonesAuto"
         },
         {
-          "name": "PROJECT",
-          "viewName": "Project ID",
-          "type": "string"
-        }
-      ]
-    },
-    {
-      "name": "RESET_INSTANCE",
-      "viewName": "Restart VM",
-      "params": [
-        {
-          "name": "CREDENTIALS",
-          "viewName": "Credentials",
-          "type": "vault"
+          "name": "vm",
+          "viewName": "VM Instance",
+          "type": "autocomplete",
+          "autocompleteType":"function",
+          "functionName":"listVmsAuto"
         },
         {
-          "name": "NAME",
-          "viewName": "Name",
-          "type": "string"
+          "name": "action",
+          "viewName": "Action",
+          "type": "options",
+          "options": [
+            {
+              "id": "Stop",
+              "name": "Stop"
+            },
+            {
+              "id": "Start",
+              "name": "Start"
+            },
+            {
+              "id": "Restart",
+              "name": "Restart"
+            },
+            {
+              "id": "Get",
+              "name": "Get"
+            },
+            {
+              "id": "Get-IP",
+              "name": "Get External IP"
+            },
+            {
+              "id": "Delete",
+              "name": "Delete"
+            }
+          ]
         },
         {
-          "name": "ZONE",
-          "viewName": "Zone",
-          "type": "string"
-        },
-        {
-          "name": "PROJECT",
-          "viewName": "Project ID",
-          "type": "string"
-        }
-      ]
-    },
-    {
-      "name": "DELETE_INSTANCE",
-      "viewName": "Delete VM",
-      "params": [
-        {
-          "name": "CREDENTIALS",
-          "viewName": "Credentials",
-          "type": "vault"
-        },
-        {
-          "name": "NAME",
-          "viewName": "Name",
-          "type": "string"
-        },
-        {
-          "name": "ZONE",
-          "viewName": "Zone",
-          "type": "string"
-        },
-        {
-          "name": "PROJECT",
-          "viewName": "Project ID",
-          "type": "string"
-        }
-      ]
-    },
-    {
-      "name": "GET_INSTANCE_EXTERNAL_IP",
-      "viewName": "Get External IP",
-      "params": [
-        {
-          "name": "CREDENTIALS",
-          "viewName": "Credentials",
-          "type": "vault"
-        },
-        {
-          "name": "NAME",
-          "viewName": "VM Name",
-          "type": "string"
-        },
-        {
-          "name": "ZONE",
-          "viewName": "Zone",
-          "type": "string"
-        },
-        {
-          "name": "PROJECT",
-          "viewName": "Project ID",
-          "type": "string"
+          "name": "waitForOperation",
+          "viewName": "Wait For Operation End",
+          "type": "boolean"
         }
       ]
     },
     {
       "name": "createVpc",
-      "viewName": "Create VPC",
+      "viewName": "Create VPC Network",
       "params": [
         {
-          "name": "CREDENTIALS",
-          "viewName": "Credentials",
+          "name": "creds",
+          "viewName": "Service Account Credentials",
           "type": "vault"
         },
         {
-          "name": "NAME",
-          "viewName": "VPC Name",
+          "name": "project",
+          "viewName": "Project",
+          "type": "autocomplete",
+          "autocompleteType":"function",
+          "functionName":"listProjectsAuto"
+        },
+        {
+          "name": "name",
+          "viewName": "Network Name",
           "type": "string"
         },
         {
-          "name": "PROJECT",
-          "viewName": "Project ID",
-          "type": "string"
+          "name": "description",
+          "viewName": "Description",
+          "type": "text"
+        },
+        {
+          "name": "autoCreateSubnetworks",
+          "viewName": "Auto Create Subnetworks",
+          "type": "boolean"
         },
         {
           "name": "waitForOperation",
@@ -263,34 +329,55 @@
       "viewName": "Create Subnetwork",
       "params": [
         {
-          "name": "CREDENTIALS",
-          "viewName": "Credentials",
+          "name": "creds",
+          "viewName": "Service Account Credentials",
           "type": "vault"
         },
         {
-          "name": "NETID",
-          "viewName": "VPC ID",
+          "name": "project",
+          "viewName": "Project",
+          "type": "autocomplete",
+          "autocompleteType":"function",
+          "functionName":"listProjectsAuto"
+        },
+        {
+          "name": "network",
+          "viewName": "VPC Network",
+          "type": "autocomplete",
+          "autocompleteType":"function",
+          "functionName":"listNetworksAuto"
+        },
+        {
+          "name": "name",
+          "viewName": "Subnetwork Name",
           "type": "string"
         },
         {
-          "name": "SUBNAME",
-          "viewName": "Subnet Name",
-          "type": "string"
+          "name": "description",
+          "viewName": "Description",
+          "type": "text"
         },
         {
-          "name": "PROJECT",
-          "viewName": "Project ID",
-          "type": "string"
+          "name": "region",
+          "viewName": "Region",
+          "type": "autocomplete",
+          "autocompleteType":"function",
+          "functionName":"listRegionsAuto"
         },
         {
-          "name": "REGION",
-          "viewName": "Region Name",
-          "type": "string"
-        },
-        {
-          "name": "IPRANGE",
+          "name": "ipRange",
           "viewName": "IP Range",
           "type": "string"
+        },
+        {
+          "name": "privateGoogleAccess",
+          "viewName": "Private Google API Access",
+          "type": "boolean"
+        },
+        {
+          "name": "flowLogs",
+          "viewName": "Flow Logs",
+          "type": "boolean"
         },
         {
           "name": "waitForOperation",
@@ -304,64 +391,86 @@
       "viewName": "Reserve IP",
       "params": [
         {
-          "name": "CREDENTIALS",
-          "viewName": "Credentials",
+          "name": "creds",
+          "viewName": "Service Account Credentials",
           "type": "vault"
         },
         {
-          "name": "SUBNAME",
-          "viewName": "Subnet Name",
-          "type": "string"
+          "name": "project",
+          "viewName": "Project",
+          "type": "autocomplete",
+          "autocompleteType":"function",
+          "functionName":"listProjectsAuto"
         },
         {
-          "name": "PROJECT",
-          "viewName": "Project ID",
-          "type": "string"
+          "name": "network",
+          "viewName": "VPC Network",
+          "type": "autocomplete",
+          "autocompleteType":"function",
+          "functionName":"listNetworksAuto"
         },
         {
-          "name": "RESNAME",
+          "name": "region",
+          "viewName": "Subnetwork Region",
+          "type": "autocomplete",
+          "autocompleteType":"function",
+          "functionName":"listRegionsAuto"
+        },
+        {
+          "name": "subnet",
+          "viewName": "Subnetwork",
+          "type": "autocomplete",
+          "autocompleteType":"function",
+          "functionName":"listSubnetworksAuto"
+         },
+        {
+          "name": "resName",
           "viewName": "Reserve name",
           "type": "string"
         },
         {
-          "name": "REGION",
-          "viewName": "Region Name",
+          "name": "resIp",
+          "viewName": "IP To Reserve",
           "type": "string"
         },
         {
-          "name": "RESIP",
-          "viewName": "IP To Reserve",
-          "type": "string"
+          "name": "waitForOperation",
+          "viewName": "Wait For Operation End",
+          "type": "boolean"
         }
       ]
     },
     {
-      "name": "createFW",
+      "name": "createFw",
       "viewName": "Create Firewall",
       "params": [
         {
-          "name": "CREDENTIALS",
-          "viewName": "Credentials",
+          "name": "creds",
+          "viewName": "Service Account Credentials",
           "type": "vault"
         },
         {
-          "name": "PROJECT",
-          "viewName": "Project ID",
-          "type": "string"
+          "name": "project",
+          "viewName": "Project",
+          "type": "autocomplete",
+          "autocompleteType":"function",
+          "functionName":"listProjectsAuto"
         },
         {
-          "name": "FWNAME",
+          "name": "network",
+          "viewName": "VPC Network",
+          "type": "autocomplete",
+          "autocompleteType":"function",
+          "functionName":"listNetworksAuto"
+        },
+        {
+          "name": "name",
           "viewName": "Firewall Name",
           "type": "string"
         },
         {
-          "name": "NETNAME",
-          "viewName": "Network Name",
-          "type": "string"
-        },
-        {
-          "name": "PRIORITY",
-          "viewName": "Priority",
+          "name": "priority",
+          "viewName": "Priority(0 - 65535)",
           "type": "string"
         },
         {
@@ -395,24 +504,58 @@
           ]
         },
         {
-          "name": "SOURCERANGE",
-          "viewName": "Source Range",
-          "type": "string"
+          "name": "ipRanges",
+          "viewName": "Ip Ranges Filter",
+          "type": "text"
         },
         {
-          "name": "DESTRANGE",
-          "viewName": "Destination Range",
-          "type": "string"
-        },
-        {
-          "name": "PROTOCOL",
+          "name": "protocol",
           "viewName": "Protocol",
-          "type": "string"
+          "type": "options",
+          "options": [
+            {
+              "id": "all",
+              "name": "All"
+            }, 
+            {
+              "id": "ah",
+              "name": "AH"
+            }, 
+            {
+              "id": "esp",
+              "name": "ESP"
+            }, 
+            {
+              "id": "icmp",
+              "name": "ICMP"
+            }, 
+            {
+              "id": "ipip",
+              "name": "IPIP"
+            }, 
+            {
+              "id": "sctp",
+              "name": "SCTP"
+            }, 
+            {
+              "id": "tcp",
+              "name": "TCP"
+            }, 
+            {
+              "id": "udp",
+              "name": "UDP"
+            } 
+          ]
         },
         {
-          "name": "PORTS",
+          "name": "ports",
           "viewName": "Ports",
-          "type": "string"
+          "type": "text"
+        },
+        {
+          "name": "waitForOperation",
+          "viewName": "Wait For Operation End",
+          "type": "boolean"
         }
       ]
     },
@@ -421,47 +564,55 @@
       "viewName": "Create Route",
       "params": [
         {
-          "name": "CREDENTIALS",
-          "viewName": "Credentials",
+          "name": "creds",
+          "viewName": "Service Account Credentials",
           "type": "vault"
         },
         {
-          "name": "PROJECT",
-          "viewName": "Project ID",
+          "name": "project",
+          "viewName": "Project",
+          "type": "autocomplete",
+          "autocompleteType":"function",
+          "functionName":"listProjectsAuto"
+        },
+        {
+          "name": "network",
+          "viewName": "VPC Network",
+          "type": "autocomplete",
+          "autocompleteType":"function",
+          "functionName":"listNetworksAuto"
+        },
+        {
+          "name": "name",
+          "viewName": "Route Name",
           "type": "string"
         },
         {
-          "name": "NAME",
-          "viewName": "Name",
-          "type": "string"
-        },
-        {
-          "name": "NETWORK",
-          "viewName": "VPC name",
-          "type": "string"
-        },
-        {
-          "name": "NEXTHOPIP",
+          "name": "nextHopIp",
           "viewName": "Next Hop IP",
           "type": "string"
         },
         {
-          "name": "DESTRANGE",
-          "viewName": "Dest Range",
+          "name": "destIpRange",
+          "viewName": "Dest IP Range",
           "type": "string"
         },
         {
-          "name": "PRIORITY",
+          "name": "priority",
           "viewName": "Priority",
           "type": "string"
         },
         {
-          "name": "TAGS",
+          "name": "tags",
           "viewName": "Tags",
-          "type": "string"
+          "type": "text"
+        },
+        {
+          "name": "waitForOperation",
+          "viewName": "Wait For Operation End",
+          "type": "boolean"
         }
       ]
     }
-  ],
-  "imgUrl": "logo.png"
+  ]
 }
