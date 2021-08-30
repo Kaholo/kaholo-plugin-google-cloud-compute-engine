@@ -12,7 +12,7 @@ Launch a new virtual machine instance. You can find more on the method used from
 
 ### Parameters
 1. Service Account Credentials (Vault) **Required if not in settings** - The credentials to use for authenticating to the google cloud API.
-2. Project (Autocomplete) **Required if not in settings** - The project to launch the new VM inside.
+2. Project (Autocomplete) **Required if not in settings** - The project to launch the new VM inside. **You need access to the "Cloud Resource Manager API" to use autocomplete in this parameter!**
 3. Name (String) **Required** - The name of the VM instance to launch.
 4. Description (Text) **Optional** - The description of the VM instance.
 5. Region (Autocomplete) **Required** - The Region of the zone to launch the new VM inside.
@@ -25,7 +25,7 @@ Launch a new virtual machine instance. You can find more on the method used from
 12. Boot Disk Type (Options) **Optional** - The type of disk to use for the boot disk. **Possible values: PD-Standard | PD-Balanced | PD-SSD | Local SSD**. Default value is PD-Standard.
 13. Boot Disk Size(In GB) (Integer) **Optional** - The size of the boot disk. Default value is 10.
 14. Disk Auto Delete (Boolean) **Optional** - Whether to delete the disk automatically when the vm is deleted. Default value is false.
-15. Api Access Service Account (Autocomplete) **Optional** - If specified, give access to the specified service account to the new VM. 
+15. Api Access Service Account (Autocomplete) **Optional** - If specified, give access to the specified service account to the new VM. **You need access to the "Identity and Access Management (IAM) API" to use autocomplete in this parameter!**
 16. Service Account Access Scopes (Options) **Required if specified 'Api Access Service Account'** - Possible values: Allow default access | Allow full access to all Cloud APIs
 17. Firewall - Allow HTTP traffic (Boolean) **Optional** - If specified, create a new firewall rule for the new VM instance to allow HTTP traffic inside(Ingress).
 18. Firewall - Allow HTTPS traffic (Boolean) **Optional** - If specified, create a new firewall rule for the new VM instance to allow HTTPS traffic inside(Ingress).
@@ -51,7 +51,7 @@ Perform the specified action the specified VM instance. Possible actions are:
 
 ### Parameters
 1. Service Account Credentials (Vault) **Required if not in settings** - The credentials to use for authenticating to the google cloud API.
-2. Project (Autocomplete) **Required if not in settings** - The project of the VM instance.
+2. Project (Autocomplete) **Required if not in settings** - The project of the VM instance. **You need access to the "Cloud Resource Manager API" to use autocomplete in this parameter!**
 3. Region (Autocomplete) **Required** - The region of the zone hosting the VM instance.
 4. Zone (Autocomplete) **Required** - The zone hosting the VM instance.
 5. VM Instance (Autocomplete) **Required** -  The VM instance to perform the action on.
@@ -63,7 +63,7 @@ Create a new VPC network.
 
 ### Parameters
 1. Service Account Credentials (Vault) **Required if not in settings** - The credentials to use for authenticating to the google cloud API.
-2. Project (Autocomplete) **Required if not in settings** - The project to create the network inside.
+2. Project (Autocomplete) **Required if not in settings** - The project to create the network inside. **You need access to the "Cloud Resource Manager API" to use autocomplete in this parameter!**
 3. Network Name (String) **Required** - The name of the network to create.
 4. Description (Text) **Optional** - The description of the new network.
 5. Auto Create Subnetworks (Boolean) **Optional** - If specified, let google cloud automatically create some subnetworks on the creation of the new network, inside it.
@@ -74,7 +74,7 @@ Create a new subnetwork inside the specified VPC network, hosted in the specifie
 
 ### Parameters
 1. Service Account Credentials (Vault) **Required if not in settings** - The credentials to use for authenticating to the google cloud API.
-2. Project (Autocomplete) **Required if not in settings** - The project of the network.
+2. Project (Autocomplete) **Required if not in settings** - The project of the network. **You need access to the "Cloud Resource Manager API" to use autocomplete in this parameter!**
 3. VPC Network (Autocomplete) **Required** - The network to create the subnetwork inside.
 4. Subnetwork Name (String) **Required** - The name of the new subnetwork.
 5. Description (Text) **Optional** - The description of the new subnetwork.
@@ -89,7 +89,7 @@ Reserve the specified internal IP address inside the specified subnetwork, by cr
 
 ### Parameters
 1. Service Account Credentials (Vault) **Required if not in settings** - The credentials to use for authenticating to the google cloud API.
-2. Project (Autocomplete) **Required if not in settings** - The project  of the network.
+2. Project (Autocomplete) **Required if not in settings** - The project of the network. **You need access to the "Cloud Resource Manager API" to use autocomplete in this parameter!**
 3. VPC Network (Autocomplete) **Required for autocomplete in 'Subnetwork'** - The network of the subnetwork to reserve the IP address inside.
 4. Subnetwork Region (Autocomplete) **Required for autocomplete in 'Subnetwork'** - The region of the subnetwork to reserve the IP address inside.
 5. Subnetwork (Autocomplete) **Required** - The subnetwork to reserve an IP address inside. Must be in the range of IP addresses associated with the subnetwork.
@@ -102,7 +102,7 @@ Create a new firewall rule for the specified VPC network.
 
 ### Parameters
 1. Service Account Credentials (Vault) **Required if not in settings** - The credentials to use for authenticating to the google cloud API.
-2. Project (Autocomplete) **Required if not in settings** - The project of the VPC network.
+2. Project (Autocomplete) **Required if not in settings** - The project of the VPC network. **You need access to the "Cloud Resource Manager API" to use autocomplete in this parameter!**
 3. VPC Network (Autocomplete) **Required** - The VPC network to create the new firewall rule for.
 4. Firewall Name (String) **Required** - The name of the new firewall rule.
 5. Priority(0 - 65535) (String) **Optional** - The priority of the new firewall rule. Default value is 1000.
@@ -121,7 +121,7 @@ Create a new route inside the specified network.
 
 ### Parameters
 1. Service Account Credentials (Vault) **Required if not in settings** - The credentials to use for authenticating to the google cloud API.
-2. Project (Autocomplete) **Required if not in settings** - The project of the network.
+2. Project (Autocomplete) **Required if not in settings** - The project of the network. **You need access to the "Cloud Resource Manager API" to use autocomplete in this parameter!**
 3. VPC Network (Autocomplete) **Required** - The vpc network to create the new route in.
 4. Route Name (String) **Required** - The name of the new route.
 5. Next Hop IP (String) **Required** - The IP address to route any requests with the specified destination IP to.
