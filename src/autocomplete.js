@@ -54,13 +54,18 @@ function listAuto(listFunc, fields, paging, noProject, parseFunc) {
     query = (query || "").trim();
     params.query = query;
     while (true){
-      const result = await client[listFunc](params, fields, nextPageToken);
-      items.push(...handleResult(result.items || result, query, parseFunc));
-      if (!paging || !query || !result.nextPageToken || items.length >= MAX_RESULTS) return items;
-      const exactMatch = items.find(item => item.value.toLowerCase() === query.toLowerCase() || 
-                                            item.id.toLowerCase() === query.toLowerCase());
-      if (exactMatch) return [exactMatch]
-      nextPageToken = result.nextPageToken;
+      try {
+        const result = await client[listFunc](params, fields, nextPageToken);
+        items.push(...handleResult(result.items || result, query, parseFunc));
+        if (!paging || !query || !result.nextPageToken || items.length >= MAX_RESULTS) return items;
+        const exactMatch = items.find(item => item.value.toLowerCase() === query.toLowerCase() || 
+                                              item.id.toLowerCase() === query.toLowerCase());
+        if (exactMatch) return [exactMatch]
+        nextPageToken = result.nextPageToken;
+      }
+      catch (err) {
+        throw `Problem with '${listFunc}': ${err.message}`;
+      }
     }
   }
 }
@@ -70,19 +75,24 @@ async function listMachineTypesAuto(query, pluginSettings, triggerParameters){
   const client = GoogleComputeService.from(params, settings);
   const nextPageToken = undefined;
   query = (query || "").trim();
-  const items = filterItems([{id: "custom-", value: "Custom N1(Default Custom)"},
-                              {id: "n2-custom-", value: "Custom N2"}, 
-                              {id: "n2d-custom-", value: "Custom N2D"},
-                              {id: "e2-custom-", value: "Custom E2"}], query);
-  if (query.toLowerCase().includes("custom")) return items;
-  while (true){
+  try {
+    const items = filterItems([{id: "custom-", value: "Custom N1(Default Custom)"},
+      {id: "n2-custom-", value: "Custom N2"}, 
+      {id: "n2d-custom-", value: "Custom N2D"},
+      {id: "e2-custom-", value: "Custom E2"}], query);
+    if (query.toLowerCase().includes("custom")) return items;
+    while (true){
     const result = await client.listMachineTypes(params, nextPageToken);
     items.push(...handleResult(result.items, query));
     if (!result.nextPageToken || !query || items.length >= MAX_RESULTS) return items;
     const exactMatch = items.find(item => item.value.toLowerCase() === query.toLowerCase() || 
-                                          item.id.toLowerCase() === query.toLowerCase());
+                    item.id.toLowerCase() === query.toLowerCase());
     if (exactMatch) return [exactMatch]
     nextPageToken = result.nextPageToken;
+    }
+  }
+  catch (err) {
+    throw `Problem with 'listMachineTypesAuto': ${err.message}`;
   }
 }
 

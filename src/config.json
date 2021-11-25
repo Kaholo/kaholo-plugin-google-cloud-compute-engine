@@ -5,17 +5,24 @@
   "execProgram": "node",
   "main": "app.js",
   "imgUrl": "logo.png",
-  "version": "2.0.1",
+  "version": "2.0.2",
+  "category": "COMPUTE",
+  "keywords": ["GCP", "compute", "google", "platform", "vm", "instance", "cloud", "cluster", "project", "infra", "infrastructure", "cli", "network", "subnetwork", "firewall", "IP", "route"],
   "settings": [
     {
       "name": "creds",
       "viewName": "Service Account Credentials",
-      "type": "vault"
+      "type": "vault",
+      "description": "Default service account credentials",
+      "learnUrl": "https://cloud.google.com/docs/authentication/production"
     },
     {
       "name": "project",
       "viewName": "Default Project ID",
-      "type": "string"
+      "type": "string",
+      "description": "The ID of the default project to send requests to.",
+      "placeholder": "my-project",
+      "learnUrl": "https://cloud.google.com/resource-manager/docs/creating-managing-projects"
     }
   ],
   "methods": [
@@ -26,75 +33,107 @@
         {
           "name": "creds",
           "viewName": "Service Account Credentials",
-          "type": "vault"
+          "type": "vault",
+          "description": "Service account credentials",
+          "learnUrl": "https://cloud.google.com/docs/authentication/production"
         },
         {
           "name": "project",
           "viewName": "Project",
           "type": "autocomplete",
-          "autocompleteType":"function",
-          "functionName":"listProjectsAuto"
+          "autocompleteType": "function",
+          "functionName": "listProjectsAuto",
+          "description": "Project name",
+          "placeholder": "project-name-username",
+          "learnUrl": "https://cloud.google.com/resource-manager/docs/creating-managing-projects"
         },
         {
           "name": "name",
           "viewName": "Name",
-          "type": "string"
+          "type": "string",
+          "description": "Name of the new VM",
+          "placeholder": "instance-01",
+          "learnUrl": "https://cloud.google.com/compute/docs/instances/create-start-instance"
         },
         {
           "name": "description",
           "viewName": "Description",
-          "type": "text"
+          "type": "text",
+          "description": "Description to the newly created VM",
+          "placeholder": "This is a new instance for region01",
+          "learnUrl": "https://cloud.google.com/compute/docs/instances/create-start-instance"
         },
         {
           "name": "region",
           "viewName": "Region",
           "type": "autocomplete",
-          "autocompleteType":"function",
-          "functionName":"listRegionsAuto"
+          "autocompleteType": "function",
+          "functionName": "listRegionsAuto",
+          "description": "Region name",
+          "placeholder": "us-east1",
+          "learnUrl": "https://cloud.google.com/compute/docs/regions-zones"
         },
         {
           "name": "zone",
           "viewName": "Zone",
           "type": "autocomplete",
-          "autocompleteType":"function",
-          "functionName":"listZonesAuto"
+          "autocompleteType": "function",
+          "functionName": "listZonesAuto",
+          "description": "Zone name",
+          "placeholder": "us-east1-c",
+          "learnUrl": "https://cloud.google.com/compute/docs/regions-zones"
         },
         {
           "name": "machineType",
           "viewName": "Machine Type",
           "type": "autocomplete",
-          "autocompleteType":"function",
-          "functionName":"listMachineTypesAuto"
+          "autocompleteType": "function",
+          "functionName": "listMachineTypesAuto",
+          "description": "Every machine family has predefined machine shapes that have a specific vCPU to memory ratio that fits a variety of workload needs. If a predefined machine type does not meet your needs, you can create a custom machine for any general-purpose VM",
+          "placeholder": "Custom N1",
+          "learnUrl": "https://cloud.google.com/compute/docs/machine-types"
         },
         {
           "name": "customMachineCpuCount",
           "viewName": "Custom Machine CPU Count",
-          "type": "string"
+          "type": "string",
+          "description": "Required CPUs for the VM instance.",
+          "placeholder": "2",
+          "learnUrl": "https://cloud.google.com/compute/docs/machine-types"
         },
         {
           "name": "customMachineMem",
           "viewName": "Custom Machine Memory(In MB)",
-          "type": "string"
+          "type": "string",
+          "description": "When using custom nachine type, the size of the memory for the machine",
+          "placeholder": "1024",
+          "learnUrl": "https://cloud.google.com/compute/docs/instances/create-start-instance"
         },
         {
           "name": "imageProject",
           "viewName": "Image Project",
           "type": "autocomplete",
-          "autocompleteType":"function",
-          "functionName":"listImageProjectsAuto"
+          "autocompleteType": "function",
+          "functionName": "listImageProjectsAuto",
+          "description": "Specify the image project",
+          "placeholder": "Debian Cloud",
+          "learnUrl": "https://cloud.google.com/compute/docs/instances/create-start-instance"
         },
         {
           "name": "image",
           "viewName": "Image",
           "type": "autocomplete",
-          "autocompleteType":"function",
-          "functionName":"listImagesAuto"
+          "autocompleteType": "function",
+          "functionName": "listImagesAuto",
+          "description": "Image on boot for the VM instance.",
+          "placeholder": "backports-debian-7-wheezy-v20131127",
+          "learnUrl": "https://cloud.google.com/compute/docs/images"
         },
         {
           "name": "diskType",
           "viewName": "Boot Disk Type",
           "type": "options",
-          "options" : [
+          "options": [
             {
               "id": "pd-standard",
               "name": "PD-Standard"
@@ -111,24 +150,36 @@
               "id": "local-ssd",
               "name": "Local SSD"
             }
-          ]
+          ],
+          "description": "Boot disk type for the new VM instance",
+          "placeholder": "PD-Standard",
+          "learnUrl": "https://cloud.google.com/compute/docs/disks"
         },
         {
           "name": "diskSize",
           "viewName": "Boot Disk Size(In GB)",
-          "type": "string"
+          "type": "string",
+          "description": "The size in GB for the boot disk",
+          "placeholder": "10",
+          "learnUrl": "https://cloud.google.com/compute/docs/disks"
         },
         {
           "name": "diskAutoDelete",
           "viewName": "Disk Auto Delete",
-          "type": "boolean"
+          "type": "boolean",
+          "description": "Boot disk size (In GB)",
+          "placeholder": "4",
+          "learnUrl": "https://cloud.google.com/compute/docs/disks/add-persistent-disk"
         },
         {
           "name": "serviceAccount",
           "viewName": "Api Access Service Account",
           "type": "autocomplete",
-          "autocompleteType":"function",
-          "functionName":"listServiceAccountsAuto"
+          "autocompleteType": "function",
+          "functionName": "listServiceAccountsAuto",
+          "description": "Provide access to an API access service account",
+          "placeholder": "username_1",
+          "learnUrl": "https://cloud.google.com/iam/docs/service-accounts"
         },
         {
           "name": "saAccessScopes",
@@ -143,71 +194,104 @@
               "id": "full",
               "name": "Allow full access to all Cloud APIs"
             }
-          ]
+          ],
+          "description": "Which access rights to allow the service access account",
+          "placeholder": "Allow default access | Allow full access to all Cloud API",
+          "learnUrl": "https://cloud.google.com/compute/docs/access/create-enable-service-accounts-for-instances"
         },
         {
           "name": "allowHttp",
           "viewName": "Firewall - Allow HTTP traffic",
-          "type": "boolean"
+          "type": "boolean",
+          "description": "Enable a new rule in the firewall for incoming HTTPS traffic",
+          "learnUrl": "https://cloud.google.com/vpc/docs/special-configurations"
         },
         {
           "name": "allowHttps",
           "viewName": "Firewall - Allow HTTPS traffic",
-          "type": "boolean"
+          "type": "boolean",
+          "description": "Enable a new rule in the firewall for incoming HTTPS traffic",
+          "learnUrl": "https://cloud.google.com/vpc/docs/special-configurations"
         },
         {
           "name": "network",
           "viewName": "VPC Network",
           "type": "autocomplete",
-          "autocompleteType":"function",
-          "functionName":"listNetworksAuto"
+          "autocompleteType": "function",
+          "functionName": "listNetworksAuto",
+          "description": "A Virtual Private Cloud (VPC) is a global private isolated virtual network partition that provides managed networking functionality for your Google Cloud Platform (GCP) resources",
+          "placeholder": "vpc-network-1",
+          "learnUrl": "https://cloud.google.com/vpc/docs/using-vpc"
         },
         {
           "name": "subnetwork",
           "viewName": "Subnetwork",
           "type": "autocomplete",
-          "autocompleteType":"function",
-          "functionName":"listSubnetworksAuto"
+          "autocompleteType": "function",
+          "functionName": "listSubnetworksAuto",
+          "description": "Subnets are regional resources. Each subnet defines a range of IP addresses. Traffic to and from instances can be controlled with network firewall rules",
+          "placeholder": "default",
+          "learnUrl": "https://cloud.google.com/compute/docs/reference/rest/beta/subnetworks"
         },
         {
           "name": "customInternalIp",
           "viewName": "Custom Internal IP",
-          "type": "string"
+          "type": "string",
+          "description": "Customized reserved IP address for the new VM instance",
+          "placeholder": "192.168.10.10",
+          "learnUrl": "https://cloud.google.com/compute/docs/ip-addresses"
         },
         {
           "name": "networkInterfaces",
           "viewName": "Additional Network Interfaces",
-          "type": "string"
+          "type": "string",
+          "description": "Network interfaces to the VM instance",
+          "placeholder": "subnet1",
+          "learnUrl": "https://cloud.google.com/vpc/docs/multiple-interfaces-concepts"
         },
         {
           "name": "canIpForward",
           "viewName": "Can IP Forward",
-          "type": "boolean"
+          "type": "boolean",
+          "description": "Used to determine which path a packet or datagram can be sent. The process uses routing information to make decisions and is designed to send a packet over multiple networks",
+          "learnUrl": "https://cloud.google.com/vpc/docs/using-routes"
         },
         {
           "name": "preemptible",
           "viewName": "Preemptible",
-          "type": "boolean"
+          "type": "boolean",
+          "description": "An instance that can be purchased for a steep discount which will terminate the instance after 24 hours",
+          "learnUrl": "https://cloud.google.com/compute/docs/instances/create-use-preemptible"
         },
         {
           "name": "tags",
           "viewName": "Tags",
-          "type": "text"
+          "type": "text",
+          "description": "Tagging the newly created VM instance",
+          "placeholder": "instance-tag-01",
+          "learnUrl": "https://cloud.google.com/vpc/docs/add-remove-network-tags"
         },
         {
           "name": "labels",
           "viewName": "Labels",
-          "type": "text"
+          "type": "text",
+          "description": "Customized label to the VM instance.",
+          "placeholder": "production-01",
+          "learnUrl": "https://cloud.google.com/resource-manager/docs/creating-managing-labels"
         },
         {
           "name": "waitForOperation",
           "viewName": "Wait For Operation End",
-          "type": "boolean"
+          "type": "boolean",
+          "description": "Waiting until the operation is completed before moving on to the next operation",
+          "learnUrl": "https://github.com/Kaholo/kaholo-plugin-GoogleCloudComputeEngine"
         },
         {
           "name": "autoCreateStaticIP",
           "viewName": "Auto Create Static IP Address",
-          "type": "boolean"
+          "type": "boolean",
+          "description": "Permanent IP address that doesn’t change in cases of occasional reboots",
+          "learnUrl": "https://cloud.google.com/compute/docs/ip-addresses/reserve-static-internal-ip-address"
         }
       ]
     },
@@ -218,35 +302,49 @@
         {
           "name": "creds",
           "viewName": "Service Account Credentials",
-          "type": "vault"
+          "type": "vault",
+          "description": "Service account credentials",
+          "learnUrl": "https://cloud.google.com/docs/authentication/production"
         },
         {
           "name": "project",
           "viewName": "Project",
           "type": "autocomplete",
-          "autocompleteType":"function",
-          "functionName":"listProjectsAuto"
+          "autocompleteType": "function",
+          "functionName": "listProjectsAuto",
+          "description": "Project name",
+          "placeholder": "project-name-username",
+          "learnUrl": "https://cloud.google.com/resource-manager/docs/creating-managing-projects"
         },
         {
           "name": "region",
           "viewName": "Region",
           "type": "autocomplete",
-          "autocompleteType":"function",
-          "functionName":"listRegionsAuto"
+          "autocompleteType": "function",
+          "functionName": "listRegionsAuto",
+          "description": "Region name",
+          "placeholder": "us-east1",
+          "learnUrl": "https://cloud.google.com/compute/docs/regions-zones"
         },
         {
           "name": "zone",
           "viewName": "Zone",
           "type": "autocomplete",
-          "autocompleteType":"function",
-          "functionName":"listZonesAuto"
+          "autocompleteType": "function",
+          "functionName": "listZonesAuto",
+          "description": "Zone name",
+          "placeholder": "us-east1-c",
+          "learnUrl": "https://cloud.google.com/compute/docs/regions-zones"
         },
         {
           "name": "vm",
           "viewName": "VM Instance",
           "type": "autocomplete",
-          "autocompleteType":"function",
-          "functionName":"listVmsAuto"
+          "autocompleteType": "function",
+          "functionName": "listVmsAuto",
+          "description": "VM instance to run the action on",
+          "placeholder": "instance-01",
+          "learnUrl": "https://cloud.google.com/compute"
         },
         {
           "name": "action",
@@ -277,12 +375,17 @@
               "id": "Delete",
               "name": "Delete"
             }
-          ]
+          ],
+          "description": "Action to perform on the VM instance",
+          "placeholder": "Stop | Start | Restart | Get | Get External IP | Delete",
+          "learnUrl": "https://cloud.google.com/compute/docs/instances/stop-start-instance"
         },
         {
           "name": "waitForOperation",
           "viewName": "Wait For Operation End",
-          "type": "boolean"
+          "type": "boolean",
+          "description": "Waiting until the operation is completed before moving on to the next operation",
+          "learnUrl": "https://github.com/Kaholo/kaholo-plugin-GoogleCloudComputeEngine"
         }
       ]
     },
@@ -293,34 +396,49 @@
         {
           "name": "creds",
           "viewName": "Service Account Credentials",
-          "type": "vault"
+          "type": "vault",
+          "description": "Service account credentials",
+          "learnUrl": "https://cloud.google.com/docs/authentication/production"
         },
         {
           "name": "project",
           "viewName": "Project",
           "type": "autocomplete",
-          "autocompleteType":"function",
-          "functionName":"listProjectsAuto"
+          "autocompleteType": "function",
+          "functionName": "listProjectsAuto",
+          "description": "Project name",
+          "placeholder": "project-name-username",
+          "learnUrl": "https://cloud.google.com/resource-manager/docs/creating-managing-projects"
         },
         {
           "name": "name",
           "viewName": "Network Name",
-          "type": "string"
+          "type": "string",
+          "description": "Name of the created network",
+          "placeholder": "network-01",
+          "learnUrl": "https://cloud.google.com/vpc/docs/using-vpc"
         },
         {
           "name": "description",
           "viewName": "Description",
-          "type": "text"
+          "type": "text",
+          "description": "The description of the new network",
+          "placeholder": "This is the new network description",
+          "learnUrl": "https://cloud.google.com/vpc/docs/vpc"
         },
         {
           "name": "autoCreateSubnetworks",
           "viewName": "Auto Create Subnetworks",
-          "type": "boolean"
+          "type": "boolean",
+          "description": "Google cloud may create subnetworks on creation in the new network",
+          "learnUrl": "https://cloud.google.com/vpc/docs/using-vpc"
         },
         {
           "name": "waitForOperation",
           "viewName": "Wait For Operation End",
-          "type": "boolean"
+          "type": "boolean",
+          "description": "Waiting until the operation is completed before moving on to the next operation",
+          "learnUrl": "https://github.com/Kaholo/kaholo-plugin-GoogleCloudComputeEngine"
         }
       ]
     },
@@ -331,58 +449,84 @@
         {
           "name": "creds",
           "viewName": "Service Account Credentials",
-          "type": "vault"
+          "type": "vault",
+          "description": "Service account credentials",
+          "learnUrl": "https://cloud.google.com/docs/authentication/production"
         },
         {
           "name": "project",
           "viewName": "Project",
           "type": "autocomplete",
-          "autocompleteType":"function",
-          "functionName":"listProjectsAuto"
+          "autocompleteType": "function",
+          "functionName": "listProjectsAuto",
+          "description": "Project name",
+          "placeholder": "project-name-username",
+          "learnUrl": "https://cloud.google.com/resource-manager/docs/creating-managing-projects"
         },
         {
           "name": "network",
           "viewName": "VPC Network",
           "type": "autocomplete",
-          "autocompleteType":"function",
-          "functionName":"listNetworksAuto"
+          "autocompleteType": "function",
+          "functionName": "listNetworksAuto",
+          "description": "A Virtual Private Cloud (VPC) is a global private isolated virtual network partition that provides managed networking functionality for your Google Cloud Platform (GCP) resources",
+          "placeholder": "vpc-network-1",
+          "learnUrl": "https://cloud.google.com/vpc/docs/using-vpc"
         },
         {
           "name": "name",
           "viewName": "Subnetwork Name",
-          "type": "string"
+          "type": "string",
+          "description": "Subnets are regional resources. Each subnet defines a range of IP addresses. Traffic to and from instances can be controlled with network firewall rules",
+          "placeholder": "default",
+          "learnUrl": "https://cloud.google.com/compute/docs/reference/rest/beta/subnetworks"
         },
         {
           "name": "description",
           "viewName": "Description",
-          "type": "text"
+          "type": "text",
+          "description": "Description of the new subnetwork",
+          "placeholder": "This is a new subnetwork for region01",
+          "learnUrl": "https://cloud.google.com/vpc/docs/using-vpc"
         },
         {
           "name": "region",
           "viewName": "Region",
           "type": "autocomplete",
-          "autocompleteType":"function",
-          "functionName":"listRegionsAuto"
+          "autocompleteType": "function",
+          "functionName": "listRegionsAuto",
+          "description": "Region name",
+          "placeholder": "us-east1",
+          "learnUrl": "https://cloud.google.com/compute/docs/regions-zones"
         },
         {
           "name": "ipRange",
           "viewName": "IP Range",
-          "type": "string"
+          "type": "string",
+          "description": "IP range subdivision for the new subnetwork",
+          "placeholder": "10.0.0.0/24",
+          "learnUrl": "https://cloud.google.com/vpc/docs/vpc"
         },
         {
           "name": "privateGoogleAccess",
           "viewName": "Private Google API Access",
-          "type": "boolean"
+          "type": "boolean",
+          "description": "GCP provides several private access options that let virtual machine (VM) instances in Virtual Private Cloud (VPC) networks reach supported APIs and services without requiring an external IP address. Choose an option that supports the APIs and services that you need to access",
+          "learnUrl": "https://cloud.google.com/vpc/docs/private-access-options"
         },
         {
           "name": "flowLogs",
           "viewName": "Flow Logs",
-          "type": "boolean"
+          "type": "boolean",
+          "description": "Allow logs to write and flow for the newly created subnetwork",
+          "learnUrl": "https://cloud.google.com/vpc/docs/flow-logs"
         },
         {
           "name": "waitForOperation",
           "viewName": "Wait For Operation End",
-          "type": "boolean"
+          "type": "boolean",
+          "description": "Waiting until the operation is completed before moving on to the next operation",
+          "learnUrl": "https://github.com/Kaholo/kaholo-plugin-GoogleCloudComputeEngine"
         }
       ]
     },
@@ -393,50 +537,72 @@
         {
           "name": "creds",
           "viewName": "Service Account Credentials",
-          "type": "vault"
+          "type": "vault",
+          "description": "Service account credentials",
+          "learnUrl": "https://cloud.google.com/docs/authentication/production"
         },
         {
           "name": "project",
           "viewName": "Project",
           "type": "autocomplete",
-          "autocompleteType":"function",
-          "functionName":"listProjectsAuto"
+          "autocompleteType": "function",
+          "functionName": "listProjectsAuto",
+          "description": "Project name",
+          "placeholder": "project-name-username",
+          "learnUrl": "https://cloud.google.com/resource-manager/docs/creating-managing-projects"
         },
         {
           "name": "network",
           "viewName": "VPC Network",
           "type": "autocomplete",
-          "autocompleteType":"function",
-          "functionName":"listNetworksAuto"
+          "autocompleteType": "function",
+          "functionName": "listNetworksAuto",
+          "description": "A Virtual Private Cloud (VPC) is a global private isolated virtual network partition that provides managed networking functionality for your Google Cloud Platform (GCP) resources",
+          "placeholder": "vpc-network-1",
+          "learnUrl": "https://cloud.google.com/vpc/docs/using-vpc"
         },
         {
           "name": "region",
           "viewName": "Subnetwork Region",
           "type": "autocomplete",
-          "autocompleteType":"function",
-          "functionName":"listRegionsAuto"
+          "autocompleteType": "function",
+          "functionName": "listRegionsAuto",
+          "description": "Subnetwork region",
+          "placeholder": "us-east1",
+          "learnUrl": "https://cloud.google.com/dataflow/docs/guides/specifying-networks"
         },
         {
           "name": "subnet",
           "viewName": "Subnetwork",
           "type": "autocomplete",
-          "autocompleteType":"function",
-          "functionName":"listSubnetworksAuto"
-         },
+          "autocompleteType": "function",
+          "functionName": "listSubnetworksAuto",
+          "description": "The subnetwork to reserve an IP address inside. Must be in the range of IP addresses associated with the subnetwork",
+          "placeholder": "project-name-username",
+          "learnUrl": "https://cloud.google.com/compute/docs/ip-addresses/reserve-static-internal-ip-address"
+        },
         {
           "name": "resName",
           "viewName": "Reserve name",
-          "type": "string"
+          "type": "string",
+          "description": "Name the reserved IP address resource",
+          "placeholder": "reserve-name-01",
+          "learnUrl": "https://cloud.google.com/compute/docs/ip-addresses/reserve-static-internal-ip-address"
         },
         {
           "name": "resIp",
           "viewName": "IP To Reserve",
-          "type": "string"
+          "type": "string",
+          "description": "IP address to reserve",
+          "placeholder": "192.168.132.12",
+          "learnUrl": "https://cloud.google.com/compute/docs/ip-addresses/reserve-static-internal-ip-address"
         },
         {
           "name": "waitForOperation",
           "viewName": "Wait For Operation End",
-          "type": "boolean"
+          "type": "boolean",
+          "description": "Waiting until the operation is completed before moving on to the next operation",
+          "learnUrl": "https://github.com/Kaholo/kaholo-plugin-GoogleCloudComputeEngine"
         }
       ]
     },
@@ -447,31 +613,45 @@
         {
           "name": "creds",
           "viewName": "Service Account Credentials",
-          "type": "vault"
+          "type": "vault",
+          "description": "Service account credentials",
+          "learnUrl": "https://cloud.google.com/docs/authentication/production"
         },
         {
           "name": "project",
           "viewName": "Project",
           "type": "autocomplete",
-          "autocompleteType":"function",
-          "functionName":"listProjectsAuto"
+          "autocompleteType": "function",
+          "functionName": "listProjectsAuto",
+          "description": "Project name",
+          "placeholder": "project-name-username",
+          "learnUrl": "https://cloud.google.com/resource-manager/docs/creating-managing-projects"
         },
         {
           "name": "network",
           "viewName": "VPC Network",
           "type": "autocomplete",
-          "autocompleteType":"function",
-          "functionName":"listNetworksAuto"
+          "autocompleteType": "function",
+          "functionName": "listNetworksAuto",
+          "description": "A Virtual Private Cloud (VPC) is a global private isolated virtual network partition that provides managed networking functionality for your Google Cloud Platform (GCP) resources",
+          "placeholder": "vpc-network-1",
+          "learnUrl": "https://cloud.google.com/vpc/docs/using-vpc"
         },
         {
           "name": "name",
           "viewName": "Firewall Name",
-          "type": "string"
+          "type": "string",
+          "description": "Firewall rules let you allow or deny traffic to and from your virtual machine (VM) instances based on a configuration you specify. By creating a firewall rule, you specify a Virtual Private Cloud (VPC) network and a set of components that define the rule",
+          "placeholder": "myfirewall-01",
+          "learnUrl": "https://cloud.google.com/vpc/docs/using-firewalls"
         },
         {
           "name": "priority",
           "viewName": "Priority(0 - 65535)",
-          "type": "string"
+          "type": "string",
+          "description": "The firewall rule priority is an integer from 0 to 65535, inclusive. Lower integers indicate higher priorities. If you do not specify a priority when creating a rule, it is assigned a priority of 1000",
+          "placeholder": "1000",
+          "learnUrl": "https://cloud.google.com/vpc/docs/firewalls#priority_order_for_firewall_rules"
         },
         {
           "name": "direction",
@@ -486,7 +666,10 @@
               "id": "EGRESS",
               "name": "Egress"
             }
-          ]
+          ],
+          "description": "Direction of a firewall rule can be either ingress (for incoming network traffic) or egress (for outgoing network traffic). The direction is always defined from the perspective of the VM that the firewall rule applies to (the target)",
+          "placeholder": "Ingress / Egress",
+          "learnUrl": "https://cloud.google.com/vpc/docs/firewalls#direction_of_the_rule"
         },
         {
           "name": "action",
@@ -501,12 +684,18 @@
               "id": "deny",
               "name": "Deny"
             }
-          ]
+          ],
+          "description": "Allow or deny the access to the IP address in the request",
+          "placeholder": "Allow / Deny",
+          "learnUrl": "https://cloud.google.com/vpc/docs/firewalls#action_of_the_rule"
         },
         {
           "name": "ipRanges",
           "viewName": "Ip Ranges Filter",
-          "type": "text"
+          "type": "text",
+          "description": "Ranges of IP addresses to be applied on the firewall rule",
+          "placeholder": "205.200.173.213/27",
+          "learnUrl": "https://cloud.google.com/vpc/docs/firewalls#firewall_rule_components"
         },
         {
           "name": "protocol",
@@ -516,46 +705,54 @@
             {
               "id": "all",
               "name": "All"
-            }, 
+            },
             {
               "id": "ah",
               "name": "AH"
-            }, 
+            },
             {
               "id": "esp",
               "name": "ESP"
-            }, 
+            },
             {
               "id": "icmp",
               "name": "ICMP"
-            }, 
+            },
             {
               "id": "ipip",
               "name": "IPIP"
-            }, 
+            },
             {
               "id": "sctp",
               "name": "SCTP"
-            }, 
+            },
             {
               "id": "tcp",
               "name": "TCP"
-            }, 
+            },
             {
               "id": "udp",
               "name": "UDP"
-            } 
-          ]
+            }
+          ],
+          "description": "Protocols to be used in the firewall rule",
+          "placeholder": "All | AH | ESP | ICMP | IPIP | SCTP | TCP | UDP",
+          "learnUrl": "https://cloud.google.com/vpc/docs/using-firewalls"
         },
         {
           "name": "ports",
           "viewName": "Ports",
-          "type": "text"
+          "type": "text",
+          "description": "Specify ports to allow or deny in the firewall rule.",
+          "placeholder": "8080",
+          "learnUrl": "https://cloud.google.com/vpc/docs/using-firewalls"
         },
         {
           "name": "waitForOperation",
           "viewName": "Wait For Operation End",
-          "type": "boolean"
+          "type": "boolean",
+          "description": "Waiting until the operation is completed before moving on to the next operation",
+          "learnUrl": "https://github.com/Kaholo/kaholo-plugin-GoogleCloudComputeEngine"
         }
       ]
     },
@@ -566,51 +763,76 @@
         {
           "name": "creds",
           "viewName": "Service Account Credentials",
-          "type": "vault"
+          "type": "vault",
+          "description": "Service account credentials",
+          "learnUrl": "https://cloud.google.com/docs/authentication/production"
         },
         {
           "name": "project",
           "viewName": "Project",
           "type": "autocomplete",
-          "autocompleteType":"function",
-          "functionName":"listProjectsAuto"
+          "autocompleteType": "function",
+          "functionName": "listProjectsAuto",
+          "description": "Project name",
+          "placeholder": "project-name-username",
+          "learnUrl": "https://cloud.google.com/resource-manager/docs/creating-managing-projects"
         },
         {
           "name": "network",
           "viewName": "VPC Network",
           "type": "autocomplete",
-          "autocompleteType":"function",
-          "functionName":"listNetworksAuto"
+          "autocompleteType": "function",
+          "functionName": "listNetworksAuto",
+          "description": "A Virtual Private Cloud (VPC) is a global private isolated virtual network partition that provides managed networking functionality for your Google Cloud Platform (GCP) resources",
+          "placeholder": "vpc-network-1",
+          "learnUrl": "https://cloud.google.com/vpc/docs/using-vpc"
         },
         {
           "name": "name",
           "viewName": "Route Name",
-          "type": "string"
+          "type": "string",
+          "description": "Paths that network traffic takes from a virtual machine (VM) instance to other destinations. These destinations can be inside your Google Cloud Virtual Private Cloud (VPC) network (for example, in another VM) or outside it",
+          "placeholder": "route-name-01",
+          "learnUrl": "https://cloud.google.com/vpc/docs/using-routes"
         },
         {
           "name": "nextHopIp",
           "viewName": "Next Hop IP",
-          "type": "string"
+          "type": "string",
+          "description": "Determines which subnet routes the Cloud Routers in that network advertise",
+          "placeholder": "10.10.1.10",
+          "learnUrl": "https://cloud.google.com/vpc/docs/using-routes"
         },
         {
           "name": "destIpRange",
           "viewName": "Dest IP Range",
-          "type": "string"
+          "type": "string",
+          "description": "Range of IP addresses in CIDR notation",
+          "placeholder": "10.10.1.10/24",
+          "learnUrl": "https://cloud.google.com/vpc/docs/using-routes"
         },
         {
           "name": "priority",
           "viewName": "Priority",
-          "type": "string"
+          "type": "string",
+          "description": "Priority of the new route",
+          "placeholder": "0",
+          "learnUrl": "https://cloud.google.com/vpc/docs/routes#static-route-next-hops"
         },
         {
           "name": "tags",
           "viewName": "Tags",
-          "type": "text"
+          "type": "text",
+          "description": "You can specify a list of network tags so that the route only applies to instances that have at least one of the listed tags. If you don't specify tags, Google Cloud applies the route to all instances in the network. Next hop internal TCP/UDP load balancers do not support network tags",
+          "placeholder": "route-tag-01",
+          "learnUrl": "https://cloud.google.com/vpc/docs/add-remove-network-tags"
         },
         {
           "name": "waitForOperation",
           "viewName": "Wait For Operation End",
-          "type": "boolean"
+          "type": "boolean",
+          "description": "Waiting until the operation is completed before moving on to the next operation",
+          "learnUrl": "https://github.com/Kaholo/kaholo-plugin-GoogleCloudComputeEngine"
         }
       ]
     }
