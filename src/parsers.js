@@ -42,12 +42,14 @@ module.exports = {
                 return JSON.parse(value);
             }
             catch (e) {}
-            return value.split("\n").reduce((prev, cur) => {
-                let [key, ...val] = cur.trim().split("=");
+            const obj = {};
+            value.split("\n").forEach(row => {
+                let [key, ...val] = row.trim().split("=");
                 if (!key || !val) throw "bad object format";
                 if (Array.isArray(val)) val = val.join("=");
-                prev[key] = val;
-            }, {});
+                obj[key] = val;
+            });
+            return obj;
         }
         throw `Value ${value} is not an object`;
     },
