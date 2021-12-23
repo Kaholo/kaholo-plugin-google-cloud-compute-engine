@@ -5,8 +5,8 @@
   "execProgram": "node",
   "main": "app.js",
   "imgUrl": "logo.png",
-  "version": "2.0.2",
-  "category": "COMPUTE",
+  "version": "2.0.3",
+  "category": ["CLOUD", "COMPUTE"],
   "keywords": ["GCP", "compute", "google", "platform", "vm", "instance", "cloud", "cluster", "project", "infra", "infrastructure", "cli", "network", "subnetwork", "firewall", "IP", "route"],
   "settings": [
     {
@@ -167,8 +167,6 @@
           "name": "diskAutoDelete",
           "viewName": "Disk Auto Delete",
           "type": "boolean",
-          "description": "Boot disk size (In GB)",
-          "placeholder": "4",
           "learnUrl": "https://cloud.google.com/compute/docs/disks/add-persistent-disk"
         },
         {

@@ -346,7 +346,7 @@ module.exports = class GoogleComputeService extends Compute{
         return (await compute.images.list(request)).data;
     }
     
-    async listServiceAccounts({}, fields){
+    async listServiceAccounts(){
         const request = removeUndefinedAndEmpty({ 
             auth: this.getAuthClient(),
             name: `projects/${this.projectId}`
