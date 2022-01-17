@@ -1,4 +1,5 @@
 const Compute = require('@google-cloud/compute');
+Compute.Firewall
 const { JWT } = require('google-auth-library');
 const { google } = require('googleapis');
 const cloudresourcemanager = google.cloudresourcemanager('v1');
@@ -74,6 +75,14 @@ module.exports = class GoogleComputeService extends Compute{
             auth: this.getAuthClient()
         });
         return compute.addresses.delete(request);
+    }
+
+    async getIpinfo({vm, zone}){
+        zone = this.zone(zone);
+        const myvm = zone.vm(vm)
+        const data = await myvm.getMetadata()
+        const metadata = data[0]
+        return metadata.networkInterfaces[0].accessConfigs[0]
     }
 
      /**

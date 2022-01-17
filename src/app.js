@@ -7,7 +7,7 @@ async function launchVm(action, settings) {
     
     const customCpu = parsers.number(action.params.customMachineCpuCount);
     const customMem = parsers.number(action.params.customMachineMem);
-    let machineType = parsers.autocomplete(action.params.machineType) || "custom-";
+    let machineType = action.params.machineType.value || "custom-";
     if (machineType.includes('custom')){
         if (!customCpu || !customMem) {
             throw "Must provide both CPU Count and memory size for custom machine type.";
@@ -18,7 +18,7 @@ async function launchVm(action, settings) {
         throw "Must be a custom machine type for specifying cpu count or memory size.";
     }
 
-    return serviceClient.launchVm({
+    const vmResult = await serviceClient.launchVm({
         name: parsers.string(action.params.name),
         description: parsers.string(action.params.description),
         region: parsers.autocomplete(action.params.region),
@@ -42,6 +42,18 @@ async function launchVm(action, settings) {
         labels: parsers.object(action.params.labels),
         autoCreateStaticIP: parsers.boolean(action.params.autoCreateStaticIP)
     }, parsers.boolean(action.params.autoCreateStaticIP))
+
+    let autoCreatedIp = parsers.boolean(action.params.autoCreateStaticIP)
+
+    if (autoCreatedIp && ((vmResult.id).length>0)){
+        const ipInfo = await serviceClient.getIpinfo({
+            vm: parsers.string(action.params.name),
+            zone: parsers.autocomplete(action.params.zone)
+        })
+
+        return [{vmStatus: vmResult}, {attachedIpInfo: ipInfo}]
+    }
+    else  return vmResult
 }
 
 async function vmAction(action, settings){
@@ -51,6 +63,18 @@ async function vmAction(action, settings){
         vmName: parsers.autocomplete(action.params.vm),
         action: action.params.action
     }, parsers.boolean(action.params.waitForOperation));
+}
+
+async function deleteVM(action, settings){
+    const serviceClient = GoogleComputeService.from(action.params, settings);
+    const isDeleteStaticIP = parsers.boolean(action.params.isDeleteStaticIP)
+    if(isDeleteStaticIP) await serviceClient.deleteAutoExtIp( parsers.autocomplete(action.params.region), action.params.vm.value )
+    return serviceClient.vmAction({
+        zoneStr: parsers.autocomplete(action.params.zone),
+        vmName: parsers.autocomplete(action.params.vm),
+        action: 'Delete',
+    },  parsers.boolean(action.params.waitForOperation))
+
 }
 
 async function createVpc(action, settings){
@@ -124,6 +148,7 @@ module.exports = {
     reserveIp, 
     createFw, 
     createRoute,
+    deleteVM,
     // autocomplete methods
     ...require("./autocomplete")
 };
