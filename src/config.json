@@ -193,10 +193,10 @@
         },
         {
           "name": "diskSize",
-          "viewName": "Boot Disk Size(In GB)",
+          "viewName": "Boot Disk Size (GB)",
           "required": false,
           "type": "string",
-          "description": "The size in GB for the boot disk",
+          "description": "(not yet implemented) The size in GB for the boot disk",
           "placeholder": "10",
           "learnUrl": "https://cloud.google.com/compute/docs/disks"
         },
@@ -283,8 +283,8 @@
           "viewName": "Custom Internal IP",
           "required": false,
           "type": "string",
-          "description": "Assign a specific unused IP address from the subnet to the new VM, if desired",
-          "placeholder": "10.20.30.115",
+          "description": "(not yet implemented) Assign a reserved internal IP address to the new VM",
+          "placeholder": "reserved-ip-web01",
           "learnUrl": "https://cloud.google.com/compute/docs/ip-addresses"
         },
         {
@@ -292,9 +292,10 @@
           "viewName": "Additional Network Interfaces",
           "required": false,
           "type": "string",
-          "description": "Network interfaces to the VM instance",
-          "placeholder": "not implemented",
-          "learnUrl": "https://cloud.google.com/vpc/docs/multiple-interfaces-concepts"
+          "description": "(not yet implemented) Network interfaces to the VM instance",
+          "placeholder": "",
+          "learnUrl": "https://cloud.google.com/vpc/docs/multiple-interfaces-concepts",
+          "codeExample": "{ \"my-vpc\", \"subnet-b\", \"\" }"
         },
         {
           "name": "canIpForward",
@@ -340,10 +341,10 @@
         },
         {
           "name": "autoCreateStaticIP",
-          "viewName": "Auto Create Static IP Address",
+          "viewName": "Auto Create Static External IP Address",
           "required": false,
           "type": "boolean",
-          "description": "If checked, the IP address (in the subnet) is reserved for this VM so it does not change even if the machine is shut down or rebooted",
+          "description": "If checked, the external IP address is reserved so it does not change or get released even if the VM is deleted",
           "learnUrl": "https://cloud.google.com/compute/docs/ip-addresses/reserve-static-internal-ip-address"
         }
       ]
