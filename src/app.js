@@ -26,7 +26,7 @@ async function launchVm(action, settings) {
         machineType,
         sourceImage: parsers.autocomplete(action.params.image),
         diskType: action.params.diskType || "pd-standard",
-        diskSize: parsers.number(action.params.diskSize) || 10,
+        diskSizeGb: parsers.number(action.params.diskSize) || 10,
         diskAutoDelete: parsers.boolean(action.params.diskAutoDelete),
         serviceAccount: parsers.autocomplete(action.params.serviceAccount),
         saAccessScopes: action.params.saAccessScopes || "default",
