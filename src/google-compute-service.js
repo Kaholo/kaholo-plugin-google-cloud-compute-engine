@@ -377,7 +377,7 @@ module.exports = class GoogleComputeService extends Compute{
             region, pageToken,
         });
         
-        return (await compute.subnetworks.list(request)).data;
+        return (await compute.subnetworks.list(request)).data.items;
     }
 
     async listVms({zone}, fields, pageToken){
