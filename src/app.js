@@ -43,17 +43,22 @@ async function launchVm(action, settings) {
         autoCreateStaticIP: parsers.boolean(action.params.autoCreateStaticIP)
     }, parsers.boolean(action.params.autoCreateStaticIP))
 
-    let autoCreatedIp = parsers.boolean(action.params.autoCreateStaticIP)
 
-    if (autoCreatedIp && ((vmResult.id).length>0)){
+
+    let autoCreatedIp = parsers.boolean(action.params.autoCreateStaticIP)
+    let resultArray=[]
+    resultArray.push(vmResult)
+
+    if (autoCreatedIp && ((vmResult.name).length>0)){
         const ipInfo = await serviceClient.getIpinfo({
             vm: parsers.string(action.params.name),
             zone: parsers.autocomplete(action.params.zone)
         })
-
-        return [{vmStatus: vmResult}, {attachedIpInfo: ipInfo}]
+        resultArray.push(ipInfo)
+        
     }
-    else  return vmResult
+    resultArray.forEach(item=>console.info(item))
+    return 'Done'
 }
 
 async function vmAction(action, settings){
@@ -66,15 +71,23 @@ async function vmAction(action, settings){
 }
 
 async function deleteVM(action, settings){
+    let resultArray=[]
     const serviceClient = GoogleComputeService.from(action.params, settings);
     const isDeleteStaticIP = parsers.boolean(action.params.isDeleteStaticIP)
-    if(isDeleteStaticIP) await serviceClient.deleteAutoExtIp(parsers.autocomplete(action.params.region), (action.params.vm.value)||(parsers.autocomplete(action.params.vm )))
-    return serviceClient.vmAction({
+    if(isDeleteStaticIP) {
+        const deleteStatus= await serviceClient.deleteAutoExtIp(parsers.autocomplete(action.params.region), (action.params.vm.value)||(parsers.autocomplete(action.params.vm )))
+        resultArray.push(deleteStatus)
+    }
+    const deleteResult=  await serviceClient.deleteVM({
         zoneStr: parsers.autocomplete(action.params.zone),
         vmName: parsers.autocomplete(action.params.vm),
-        action: 'Delete',
+        // action: 'Delete',
     },  parsers.boolean(action.params.waitForOperation))
-
+    
+    
+    resultArray.push(deleteResult)
+    resultArray.forEach(item=>console.info(item))
+    return 'Done'
 }
 
 async function createVpc(action, settings){

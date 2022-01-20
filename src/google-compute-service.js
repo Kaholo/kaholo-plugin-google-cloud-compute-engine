@@ -74,7 +74,8 @@ module.exports = class GoogleComputeService extends Compute{
             address: addrName,
             auth: this.getAuthClient()
         });
-        return compute.addresses.delete(request);
+        const response =  await compute.addresses.delete(request);
+        return response.data
     }
 
     async getIpinfo({vm, zone}){
@@ -146,7 +147,7 @@ module.exports = class GoogleComputeService extends Compute{
             }
         }
 
-        zone = this.zone(zone);
+        zone = this.zone(zone)
         return new Promise((resolve, reject) => {
             const oldReject = reject;
             const getReject = (err) => (() => oldReject(err));
@@ -157,6 +158,22 @@ module.exports = class GoogleComputeService extends Compute{
             }
             zone.createVM(name, config, defaultGcpCallback(resolve, reject, waitForOperation));
         });
+    }
+
+    async deleteVM ({zoneStr,vmName }, waitForOperation){
+        let vmZone = this.zone(zoneStr)
+        const vmInfo = vmZone.vm(vmName)
+        vmInfo.delete().then(data=>{
+            const operation = data[0];
+            const apiResponse = data[1];
+            operation.on('complete', function(metadata) {
+                // console.log(metadata);
+                console.log(apiResponse);
+                return "Done"
+              });
+        }).catch(err=> console.error(err))
+       
+        
     }
 
     /**

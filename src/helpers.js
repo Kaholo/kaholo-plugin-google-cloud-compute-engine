@@ -25,7 +25,7 @@ function defaultGcpCallback(resolve, reject, waitForOperation){
     }
     return (err, entity, operation, apiResponse) => {
         if (err) return reject(err);
-        return handleOperation(operation).then(resolve).catch(reject);
+        return handleOperation(operation).then(data=> resolve(data)).catch(reject);
     }
 }
 
@@ -43,7 +43,7 @@ async function handleOperation(operation){
                     reject(err);
                 })
                 .on('running', function (metadata) {
-                    console.log(JSON.stringify(metadata));
+                    console.log(metadata);
                 })
                 .on('complete', function (metadata) {
                     resolve(metadata);
@@ -59,9 +59,10 @@ function parseFields(fields, prefix="items"){
     return fields.sort().map(field => `${prefix}/${field}`).join(", ");
 }
 
+
 module.exports = {
     removeUndefinedAndEmpty,
     defaultGcpCallback,
     handleOperation,
-    parseFields
+    parseFields,
 }
