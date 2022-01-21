@@ -26,7 +26,7 @@ async function launchVm(action, settings) {
     let networkInterfaces = ([{
         network: net ? `${net}` : undefined, 
         subnetwork: sub ? `${sub}` : undefined, 
-        address: cip ? `${cip}` : undefined
+        networkIP: cip ? `${cip}` : undefined
     }]).concat(addedNetworkInterfaces);
 
     return serviceClient.launchVm({
