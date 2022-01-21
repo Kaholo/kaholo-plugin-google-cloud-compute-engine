@@ -457,7 +457,7 @@
       "params": [
         {
           "name": "creds",
-          "viewName": "Service Account Credentials",
+          "viewName": "Service Account Credentials *",
           "required": false,
           "type": "vault",
           "description": "Service account credentials",
@@ -580,7 +580,7 @@
           "required": false,
           "type": "string",
           "description": "IP range subdivision for the new subnet",
-          "placeholder": "10.0.0.0/24",
+          "placeholder": "10.54.133.0/24",
           "learnUrl": "https://cloud.google.com/vpc/docs/vpc"
         },
         {
