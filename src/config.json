@@ -356,7 +356,7 @@
       "params": [
         {
           "name": "creds",
-          "viewName": "Service Account Credentials",
+          "viewName": "Service Account Credentials *",
           "required": false,
           "type": "vault",
           "description": "Service account credentials",
@@ -375,7 +375,7 @@
         },
         {
           "name": "region",
-          "viewName": "Region *",
+          "viewName": "Region",
           "required": false,
           "type": "autocomplete",
           "autocompleteType": "function",
@@ -386,28 +386,29 @@
         },
         {
           "name": "zone",
-          "viewName": "Zone",
+          "viewName": "Zone *",
           "type": "autocomplete",
           "autocompleteType": "function",
           "functionName": "listZonesAuto",
           "description": "Zone is a subdivision of GCP regions, typically region-a, b, or c",
-          "placeholder": "us-east1-a, us-east1-b, or us-east1-c",
+          "placeholder": "select using autocomplete",
           "learnUrl": "https://cloud.google.com/compute/docs/regions-zones"
         },
         {
           "name": "vm",
-          "viewName": "VM Instance",
+          "viewName": "VM Instance *",
           "required": false,
           "type": "autocomplete",
           "autocompleteType": "function",
           "functionName": "listVmsAuto",
           "description": "VM instance to run the action on",
           "placeholder": "select using autocomplete",
-          "learnUrl": "https://cloud.google.com/compute"
+          "learnUrl": "https://cloud.google.com/compute",
+          "codedExample": "https://www.googleapis.com/compute/v1/projects/project-alpha/zones/asia-southeast1-b/instances/8692795591123456789"
         },
         {
           "name": "action",
-          "viewName": "Action",
+          "viewName": "Action *",
           "required": false,
           "type": "options",
           "options": [
@@ -875,7 +876,7 @@
           "autocompleteType": "function",
           "functionName": "listProjectsAuto",
           "description": "GCP Project defines how your app interacts with services and resources",
-          "placeholder": "project-name-username",
+          "placeholder": "select using autocomplete",
           "learnUrl": "https://cloud.google.com/resource-manager/docs/creating-managing-projects"
         },
         {
