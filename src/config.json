@@ -43,7 +43,7 @@
       "name": "waitForOperation",
       "viewName": "Default Wait For Operation End",
       "type": "boolean",
-      "description": "If checked, wait for each action to complete before moving on to next action in pipeline.",
+      "description": "If checked, wait for this action to complete before moving on to next action in pipeline.",
       "learnUrl": "https://github.com/Kaholo/kaholo-plugin-GoogleCloudComputeEngine"
     }
   ],
@@ -265,7 +265,7 @@
           "description": "The name of a VPC Network in the project with subnets in the region",
           "placeholder": "select using autocomplete",
           "learnUrl": "https://cloud.google.com/vpc/docs/using-vpc",
-          "codeExample": "global/networks/apac-test-vpc"
+          "codedExample": "global/networks/apac-test-vpc"
         },
         {
           "name": "subnetwork",
@@ -277,7 +277,7 @@
           "description": "The name of a subnet within the VPC Network",
           "placeholder": "select using autocomplete",
           "learnUrl": "https://cloud.google.com/compute/docs/reference/rest/beta/subnetworks",
-          "codeExample": "regions/asia-southeast1/subnetworks/apac-test-subneta"
+          "codedExample": "regions/asia-southeast1/subnetworks/apac-test-subneta"
         },
         {
           "name": "customInternalIp",
@@ -285,7 +285,7 @@
           "required": false,
           "type": "string",
           "description": "(not yet implemented) Assign a reserved internal IP address to the new VM",
-          "placeholder": "reserved-ip-web01",
+          "placeholder": "10.121.75.113",
           "learnUrl": "https://cloud.google.com/compute/docs/ip-addresses"
         },
         {
@@ -293,10 +293,10 @@
           "viewName": "Additional Network Interfaces",
           "required": false,
           "type": "string",
-          "description": "(not yet implemented) Network interfaces to the VM instance",
-          "placeholder": "",
+          "description": "Array of Network interfaces for the VM instance",
+          "placeholder": "[{:,','}]",
           "learnUrl": "https://cloud.google.com/vpc/docs/multiple-interfaces-concepts",
-          "codeExample": "{ \"my-vpc\", \"subnet-b\", \"\" }"
+          "codedExample": "[{network: 'https://www.googleapis.com/compute/v1/projects/gcp-proj-delta/global/networks/vpcnet-alpha', subnetwork: 'https://www.googleapis.com/compute/v1/projects/gcp-proj-delta/regions/asia-southeast1/subnetworks/subnet-bravo', address: '10.121.75.113'}]"
         },
         {
           "name": "canIpForward",
@@ -337,7 +337,7 @@
           "viewName": "Wait For Operation End",
           "required": false,
           "type": "boolean",
-          "description": "If checked, wait for each action to complete before moving on to next action in pipeline",
+          "description": "If checked, wait for this action to complete before moving on to next action in pipeline",
           "learnUrl": "https://github.com/Kaholo/kaholo-plugin-GoogleCloudComputeEngine"
         },
         {
@@ -356,7 +356,7 @@
       "params": [
         {
           "name": "creds",
-          "viewName": "Service Account Credentials",
+          "viewName": "Service Account Credentials *",
           "required": false,
           "type": "vault",
           "description": "Service account credentials",
@@ -375,7 +375,7 @@
         },
         {
           "name": "region",
-          "viewName": "Region *",
+          "viewName": "Region",
           "required": false,
           "type": "autocomplete",
           "autocompleteType": "function",
@@ -386,28 +386,29 @@
         },
         {
           "name": "zone",
-          "viewName": "Zone",
+          "viewName": "Zone *",
           "type": "autocomplete",
           "autocompleteType": "function",
           "functionName": "listZonesAuto",
           "description": "Zone is a subdivision of GCP regions, typically region-a, b, or c",
-          "placeholder": "us-east1-a, us-east1-b, or us-east1-c",
+          "placeholder": "select using autocomplete",
           "learnUrl": "https://cloud.google.com/compute/docs/regions-zones"
         },
         {
           "name": "vm",
-          "viewName": "VM Instance",
+          "viewName": "VM Instance *",
           "required": false,
           "type": "autocomplete",
           "autocompleteType": "function",
           "functionName": "listVmsAuto",
           "description": "VM instance to run the action on",
           "placeholder": "select using autocomplete",
-          "learnUrl": "https://cloud.google.com/compute"
+          "learnUrl": "https://cloud.google.com/compute",
+          "codedExample": "https://www.googleapis.com/compute/v1/projects/project-alpha/zones/asia-southeast1-b/instances/8692795591123456789"
         },
         {
           "name": "action",
-          "viewName": "Action",
+          "viewName": "Action *",
           "required": false,
           "type": "options",
           "options": [
@@ -445,7 +446,7 @@
           "viewName": "Wait For Operation End",
           "required": false,
           "type": "boolean",
-          "description": "If checked, wait for each action to complete before moving on to next action in pipeline",
+          "description": "If checked, wait for this action to complete before moving on to next action in pipeline",
           "learnUrl": "https://github.com/Kaholo/kaholo-plugin-GoogleCloudComputeEngine"
         }
       ]
@@ -456,7 +457,7 @@
       "params": [
         {
           "name": "creds",
-          "viewName": "Service Account Credentials",
+          "viewName": "Service Account Credentials *",
           "required": false,
           "type": "vault",
           "description": "Service account credentials",
@@ -478,8 +479,8 @@
           "viewName": "Network Name *",
           "required": false,
           "type": "string",
-          "description": "Name of the created network",
-          "placeholder": "network-01",
+          "description": "Name for the new VPC network",
+          "placeholder": "geotown-net-01",
           "learnUrl": "https://cloud.google.com/vpc/docs/using-vpc"
         },
         {
@@ -487,8 +488,8 @@
           "viewName": "Description",
           "required": false,
           "type": "text",
-          "description": "Description of the new network",
-          "placeholder": "This is the new network description",
+          "description": "Description for the new VPC network",
+          "placeholder": "VPC for geotown cloud infrastructure",
           "learnUrl": "https://cloud.google.com/vpc/docs/vpc"
         },
         {
@@ -496,7 +497,7 @@
           "viewName": "Auto Create Subnets",
           "required": false,
           "type": "boolean",
-          "description": "Google cloud may create subnets on creation in the new network",
+          "description": "If checked, automatically creates one default subnet in every geographical region",
           "learnUrl": "https://cloud.google.com/vpc/docs/using-vpc"
         },
         {
@@ -504,7 +505,7 @@
           "viewName": "Wait For Operation End",
           "required": false,
           "type": "boolean",
-          "description": "If checked, wait for each action to complete before moving on to next action in pipeline",
+          "description": "If checked, wait for this action to complete before moving on to next action in pipeline",
           "learnUrl": "https://github.com/Kaholo/kaholo-plugin-GoogleCloudComputeEngine"
         }
       ]
@@ -539,18 +540,18 @@
           "type": "autocomplete",
           "autocompleteType": "function",
           "functionName": "listNetworksAuto",
-          "description": "The name of a VPC Network in the project with subnets in the region",
+          "description": "The name of a VPC Network within the project",
           "placeholder": "select using autocomplete",
           "learnUrl": "https://cloud.google.com/vpc/docs/using-vpc",
-          "codeExample": "global/networks/apac-test-vpc"
+          "codedExample": "global/networks/apac-test-vpc"
         },
         {
           "name": "name",
           "viewName": "Subnet Name *",
           "required": false,
           "type": "string",
-          "description": "Subnets are regional resources. Each subnet defines a range of IP addresses. Traffic to and from instances can be controlled with network firewall rules",
-          "placeholder": "default",
+          "description": "Name for the new Subnet",
+          "placeholder": "farnorth-dmz",
           "learnUrl": "https://cloud.google.com/compute/docs/reference/rest/beta/subnetworks"
         },
         {
@@ -559,7 +560,7 @@
           "required": false,
           "type": "text",
           "description": "Description of the new subnet",
-          "placeholder": "This is a new subnet for region01",
+          "placeholder": "This is the dmz subnet for far north region",
           "learnUrl": "https://cloud.google.com/vpc/docs/using-vpc"
         },
         {
@@ -569,7 +570,7 @@
           "type": "autocomplete",
           "autocompleteType": "function",
           "functionName": "listRegionsAuto",
-          "description": "GCP region where infrastructure is or will be located",
+          "description": "GCP region where the subnet will be located",
           "placeholder": "select using autocomplete",
           "learnUrl": "https://cloud.google.com/compute/docs/regions-zones"
         },
@@ -578,8 +579,8 @@
           "viewName": "IP Range *",
           "required": false,
           "type": "string",
-          "description": "IP range subdivision for the new subnet",
-          "placeholder": "10.0.0.0/24",
+          "description": "CIDR notataion IP address range for the new subnet",
+          "placeholder": "10.54.133.0/24",
           "learnUrl": "https://cloud.google.com/vpc/docs/vpc"
         },
         {
@@ -587,7 +588,7 @@
           "viewName": "Private Google API Access",
           "required": false,
           "type": "boolean",
-          "description": "GCP provides several private access options that let virtual machine (VM) instances in Virtual Private Cloud (VPC) networks reach supported APIs and services without requiring an external IP address. Choose an option that supports the APIs and services that you need to access",
+          "description": "If checked, this enables the subnet to reach supported Google APIs and services without an external IP address",
           "learnUrl": "https://cloud.google.com/vpc/docs/private-access-options"
         },
         {
@@ -595,7 +596,7 @@
           "viewName": "Flow Logs",
           "required": false,
           "type": "boolean",
-          "description": "Allow logs to write and flow for the newly created subnet",
+          "description": "If checked, record subnet traffic to flow logs for network monitoring, forensics, real-time security analysis, and expense optimization",
           "learnUrl": "https://cloud.google.com/vpc/docs/flow-logs"
         },
         {
@@ -603,7 +604,7 @@
           "viewName": "Wait For Operation End",
           "required": false,
           "type": "boolean",
-          "description": "If checked, wait for each action to complete before moving on to next action in pipeline",
+          "description": "If checked, wait for this action to complete before moving on to next action in pipeline",
           "learnUrl": "https://github.com/Kaholo/kaholo-plugin-GoogleCloudComputeEngine"
         }
       ]
@@ -641,7 +642,7 @@
           "description": "The name of a VPC Network in the project with subnets in the region",
           "placeholder": "select using autocomplete",
           "learnUrl": "https://cloud.google.com/vpc/docs/using-vpc",
-          "codeExample": "global/networks/apac-test-vpc"
+          "codedExample": "global/networks/apac-test-vpc"
         },
         {
           "name": "region",
@@ -688,7 +689,7 @@
           "viewName": "Wait For Operation End",
           "required": false,
           "type": "boolean",
-          "description": "If checked, wait for each action to complete before moving on to next action in pipeline",
+          "description": "If checked, wait for this action to complete before moving on to next action in pipeline",
           "learnUrl": "https://github.com/Kaholo/kaholo-plugin-GoogleCloudComputeEngine"
         }
       ]
@@ -726,7 +727,7 @@
           "description": "The name of a VPC Network in the project with subnets in the region",
           "placeholder": "select using autocomplete",
           "learnUrl": "https://cloud.google.com/vpc/docs/using-vpc",
-          "codeExample": "global/networks/apac-test-vpc"
+          "codedExample": "global/networks/apac-test-vpc"
         },
         {
           "name": "name",
@@ -850,7 +851,7 @@
           "viewName": "Wait For Operation End",
           "required": false,
           "type": "boolean",
-          "description": "If checked, wait for each action to complete before moving on to next action in pipeline",
+          "description": "If checked, wait for this action to complete before moving on to next action in pipeline",
           "learnUrl": "https://github.com/Kaholo/kaholo-plugin-GoogleCloudComputeEngine"
         }
       ]
@@ -875,7 +876,7 @@
           "autocompleteType": "function",
           "functionName": "listProjectsAuto",
           "description": "GCP Project defines how your app interacts with services and resources",
-          "placeholder": "project-name-username",
+          "placeholder": "select using autocomplete",
           "learnUrl": "https://cloud.google.com/resource-manager/docs/creating-managing-projects"
         },
         {
@@ -888,7 +889,7 @@
           "description": "The name of a VPC Network in the project with subnets in the region",
           "placeholder": "select using autocomplete",
           "learnUrl": "https://cloud.google.com/vpc/docs/using-vpc",
-          "codeExample": "global/networks/apac-test-vpc"
+          "codedExample": "global/networks/apac-test-vpc"
         },
         {
           "name": "name",
@@ -940,7 +941,7 @@
           "viewName": "Wait For Operation End",
           "required": false,
           "type": "boolean",
-          "description": "If checked, wait for each action to complete before moving on to next action in pipeline",
+          "description": "If checked, wait for this action to complete before moving on to next action in pipeline",
           "learnUrl": "https://github.com/Kaholo/kaholo-plugin-GoogleCloudComputeEngine"
         }
       ]
