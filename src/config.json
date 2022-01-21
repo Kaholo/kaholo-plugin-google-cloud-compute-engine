@@ -265,7 +265,7 @@
           "description": "The name of a VPC Network in the project with subnets in the region",
           "placeholder": "select using autocomplete",
           "learnUrl": "https://cloud.google.com/vpc/docs/using-vpc",
-          "codeExample": "global/networks/apac-test-vpc"
+          "codedExample": "global/networks/apac-test-vpc"
         },
         {
           "name": "subnetwork",
@@ -277,7 +277,7 @@
           "description": "The name of a subnet within the VPC Network",
           "placeholder": "select using autocomplete",
           "learnUrl": "https://cloud.google.com/compute/docs/reference/rest/beta/subnetworks",
-          "codeExample": "regions/asia-southeast1/subnetworks/apac-test-subneta"
+          "codedExample": "regions/asia-southeast1/subnetworks/apac-test-subneta"
         },
         {
           "name": "customInternalIp",
@@ -285,7 +285,7 @@
           "required": false,
           "type": "string",
           "description": "(not yet implemented) Assign a reserved internal IP address to the new VM",
-          "placeholder": "reserved-ip-web01",
+          "placeholder": "10.121.75.113",
           "learnUrl": "https://cloud.google.com/compute/docs/ip-addresses"
         },
         {
@@ -293,10 +293,10 @@
           "viewName": "Additional Network Interfaces",
           "required": false,
           "type": "string",
-          "description": "(not yet implemented) Network interfaces to the VM instance",
-          "placeholder": "",
+          "description": "Array of Network interfaces for the VM instance",
+          "placeholder": "[{:,','}]",
           "learnUrl": "https://cloud.google.com/vpc/docs/multiple-interfaces-concepts",
-          "codeExample": "{ \"my-vpc\", \"subnet-b\", \"\" }"
+          "codedExample": "[{network: 'https://www.googleapis.com/compute/v1/projects/gcp-proj-delta/global/networks/vpcnet-alpha', subnetwork: 'https://www.googleapis.com/compute/v1/projects/gcp-proj-delta/regions/asia-southeast1/subnetworks/subnet-bravo', address: '10.121.75.113'}]"
         },
         {
           "name": "canIpForward",
@@ -542,7 +542,7 @@
           "description": "The name of a VPC Network in the project with subnets in the region",
           "placeholder": "select using autocomplete",
           "learnUrl": "https://cloud.google.com/vpc/docs/using-vpc",
-          "codeExample": "global/networks/apac-test-vpc"
+          "codedExample": "global/networks/apac-test-vpc"
         },
         {
           "name": "name",
@@ -641,7 +641,7 @@
           "description": "The name of a VPC Network in the project with subnets in the region",
           "placeholder": "select using autocomplete",
           "learnUrl": "https://cloud.google.com/vpc/docs/using-vpc",
-          "codeExample": "global/networks/apac-test-vpc"
+          "codedExample": "global/networks/apac-test-vpc"
         },
         {
           "name": "region",
@@ -726,7 +726,7 @@
           "description": "The name of a VPC Network in the project with subnets in the region",
           "placeholder": "select using autocomplete",
           "learnUrl": "https://cloud.google.com/vpc/docs/using-vpc",
-          "codeExample": "global/networks/apac-test-vpc"
+          "codedExample": "global/networks/apac-test-vpc"
         },
         {
           "name": "name",
@@ -888,7 +888,7 @@
           "description": "The name of a VPC Network in the project with subnets in the region",
           "placeholder": "select using autocomplete",
           "learnUrl": "https://cloud.google.com/vpc/docs/using-vpc",
-          "codeExample": "global/networks/apac-test-vpc"
+          "codedExample": "global/networks/apac-test-vpc"
         },
         {
           "name": "name",
