@@ -18,6 +18,17 @@ async function launchVm(action, settings) {
         throw "Must be a custom machine type for specifying cpu count or memory size.";
     }
 
+    const addedNetworkInterfaces = parsers.array(action.params.networkInterfaces);
+    const net = parsers.autocomplete(action.params.network);
+    const sub = parsers.autocomplete(action.params.subnetwork);
+    const cip = parsers.string(action.params.customInternalIp);
+
+    let networkInterfaces = ([{
+        network: net ? `${net}` : undefined, 
+        subnetwork: sub ? `${sub}` : undefined, 
+        address: cip ? `${cip}` : undefined
+    }]).concat(addedNetworkInterfaces);
+
     return serviceClient.launchVm({
         name: parsers.string(action.params.name),
         description: parsers.string(action.params.description),
@@ -32,10 +43,7 @@ async function launchVm(action, settings) {
         saAccessScopes: action.params.saAccessScopes || "default",
         allowHttp: parsers.boolean(action.params.allowHttp),
         allowHttps: parsers.boolean(action.params.allowHttps),
-        network: parsers.autocomplete(action.params.network),
-        subnetwork: parsers.autocomplete(action.params.subnetwork),
-        networkIp: parsers.autocomplete(action.params.customInternalIp),
-        networkInterfaces: parsers.autocomplete(action.params.networkInterfaces),
+        networkInterfaces,
         canIpForward: parsers.boolean(action.params.canIpForward),
         preemptible: parsers.boolean(action.params.preemptible),
         tags: parsers.array(action.params.tags),

@@ -83,8 +83,7 @@ module.exports = class GoogleComputeService extends Compute{
      * @return {object} The VM instance created, and metadata about it
      */
     async launchVm({name, description, region, zone, machineType, sourceImage, diskType, diskSizeGb, diskAutoDelete, 
-                    serviceAccount, saAccessScopes, allowHttp, allowHttps, network, subnetwork, networkIP, 
-                    networkInterfaces, canIpForward,preemptible, tags, labels, autoCreateStaticIP}, waitForOperation){
+                    serviceAccount, saAccessScopes, allowHttp, allowHttps, networkInterfaces, canIpForward,preemptible, tags, labels, autoCreateStaticIP}, waitForOperation){
         tags = tags || [];
         if (allowHttp) tags.push("http-server");
         if (allowHttps) tags.push("https-server");
@@ -96,7 +95,7 @@ module.exports = class GoogleComputeService extends Compute{
                 onHostMaintenance: preemptible ? "TERMINATE" : "MIGRATE",
                 preemptible: preemptible || false
             },
-            networkInterfaces: (network && subnetwork ? [{network, subnetwork, networkIP}] : []).concat(networkInterfaces || []),
+            networkInterfaces: networkInterfaces ? networkInterfaces : undefined,
             tags: tags.length > 0 ?  {items: tags} : undefined,
             disks: [{
                 boot: true,
