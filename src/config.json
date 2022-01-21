@@ -189,7 +189,7 @@
             }
           ],
           "description": "Boot disk type for the new VM instance",
-          "placeholder": "PD-Standard",
+          "placeholder": "select using drop-down",
           "learnUrl": "https://cloud.google.com/compute/docs/disks"
         },
         {
@@ -236,7 +236,7 @@
             }
           ],
           "description": "Choose which level of access to grant the VM",
-          "placeholder": "Allow default access | Allow full access to all Cloud API",
+          "placeholder": "select using drop-down",
           "learnUrl": "https://cloud.google.com/compute/docs/access/create-enable-service-accounts-for-instances"
         },
         {
@@ -437,7 +437,7 @@
             }
           ],
           "description": "Action to perform on the VM instance",
-          "placeholder": "Stop | Start | Restart | Get | Get External IP | Delete",
+          "placeholder": "select using drop-down",
           "learnUrl": "https://cloud.google.com/compute/docs/instances/stop-start-instance"
         },
         {
@@ -762,7 +762,7 @@
             }
           ],
           "description": "Direction of a firewall rule can be either ingress (for incoming network traffic) or egress (for outgoing network traffic). The direction is always defined from the perspective of the VM that the firewall rule applies to (the target)",
-          "placeholder": "Ingress / Egress",
+          "placeholder": "select using drop-down",
           "learnUrl": "https://cloud.google.com/vpc/docs/firewalls#direction_of_the_rule"
         },
         {
@@ -781,7 +781,7 @@
             }
           ],
           "description": "Allow or deny the access to the IP address in the request",
-          "placeholder": "Allow / Deny",
+          "placeholder": "select using drop-down",
           "learnUrl": "https://cloud.google.com/vpc/docs/firewalls#action_of_the_rule"
         },
         {
@@ -833,7 +833,7 @@
             }
           ],
           "description": "Protocols to be used in the firewall rule",
-          "placeholder": "All | AH | ESP | ICMP | IPIP | SCTP | TCP | UDP",
+          "placeholder": "select using drop-down",
           "learnUrl": "https://cloud.google.com/vpc/docs/using-firewalls"
         },
         {
