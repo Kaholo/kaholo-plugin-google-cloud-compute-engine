@@ -44,6 +44,7 @@ Launch a new virtual machine instance. You can find more on the method used from
 Perform the specified action the specified VM instance. Possible actions are:
 * Stop - Stops the VM instance in the case it is running.
 * Start - Starts the VM instance in the case it is stopeed.
+    **Option to add "start script" while starting VM. Add script commands (each in new line)
 * Restart - Restart the vm instance.
 * Get - Return all information about the VM instance.
 * Get External IP - Return only the external IP address of the VM instance.
@@ -56,6 +57,8 @@ Perform the specified action the specified VM instance. Possible actions are:
 4. Zone (Autocomplete) **Required** - The zone hosting the VM instance.
 5. VM Instance (Autocomplete) **Required** -  The VM instance to perform the action on.
 6. Action (Options) **Required** - The action to run on the VM instance. Possible values: Stop | Start | Restart | Get | Get External IP | Delete
+    ** Add Starting Script **optional**
+    ** If checked then add starting scritps command (each in new line in text box)
 7. Wait For Operation End (Boolean) **Optional** - If specified, wait until the action is finished.
 
 ## Method: Create VPC Network

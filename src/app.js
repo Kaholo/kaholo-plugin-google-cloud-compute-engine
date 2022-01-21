@@ -66,7 +66,8 @@ async function vmAction(action, settings){
     return serviceClient.vmAction({
         zoneStr: parsers.autocomplete(action.params.zone),
         vmName: parsers.autocomplete(action.params.vm),
-        action: action.params.action
+        action: action.params.action,
+        startupScript:  parsers.text(action.params.startupScript)
     }, parsers.boolean(action.params.waitForOperation));
 }
 
@@ -78,10 +79,10 @@ async function deleteVM(action, settings){
         const deleteStatus= await serviceClient.deleteAutoExtIp(parsers.autocomplete(action.params.region), (action.params.vm.value)||(parsers.autocomplete(action.params.vm )))
         resultArray.push(deleteStatus)
     }
-    const deleteResult=  await serviceClient.deleteVM({
+    const deleteResult=  await serviceClient.vmAction({
         zoneStr: parsers.autocomplete(action.params.zone),
         vmName: parsers.autocomplete(action.params.vm),
-        // action: 'Delete',
+        action: 'Delete',
     },  parsers.boolean(action.params.waitForOperation))
     
     

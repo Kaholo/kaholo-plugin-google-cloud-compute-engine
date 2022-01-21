@@ -45,6 +45,23 @@ module.exports = class GoogleComputeService extends Compute{
         );
     }
 
+    getMetadataGCP({zoneStr, name}){
+        let zone = this.zone(zoneStr);
+        const vmInfo = zone.vm(name)
+        vmInfo.getMetadata().then(function(data) {
+            // Representation of this VM as the API sees it.
+            const metadata = data[0];
+            const apiResponse = data[1];
+          
+            // Custom metadata and predefined keys.
+            const customMetadata = metadata.metadata.items
+            // const customMetadata = metadata.networkInterfaces[0].accessConfigs
+            // const customMetadata = metadata.metadata;
+            console.log(customMetadata);
+            // console.log(apiResponse);
+          });
+          return "done"
+    }
 
      /**
      * Create an external IP address for the specified instance
@@ -160,22 +177,7 @@ module.exports = class GoogleComputeService extends Compute{
         });
     }
 
-    async deleteVM ({zoneStr,vmName }, waitForOperation){
-        let vmZone = this.zone(zoneStr)
-        const vmInfo = vmZone.vm(vmName)
-        vmInfo.delete().then(data=>{
-            const operation = data[0];
-            const apiResponse = data[1];
-            operation.on('complete', function(metadata) {
-                // console.log(metadata);
-                console.log(apiResponse);
-                return "Done"
-              });
-        }).catch(err=> console.error(err))
-       
-        
-    }
-
+    
     /**
      * Execute some action on the specified instance, possible actions include: 
      * Start | Stop | Delete | Restart | Get | Get-IP(Get external IP)
@@ -187,7 +189,7 @@ module.exports = class GoogleComputeService extends Compute{
      * @param {boolean} waitForOperation whether to wait for the operation to finish before returning
      * @return {object} The vm instance the action was performed on, and it's metadata
      */
-    async vmAction({zoneStr, vmName, action}, waitForOperation) {
+    async vmAction({zoneStr, vmName, action, startupScript}, waitForOperation) {
         const zone = this.zone(zoneStr);
         const vm = zone.vm(vmName);
         let res = {};
@@ -203,6 +205,15 @@ module.exports = class GoogleComputeService extends Compute{
                 res = await vm.reset();
                 break;
             case 'Start':
+                let startScript="";
+                if(startupScript){
+                await vm.stop()
+                startupScript.forEach(item=> startScript+= `${item}\n`)
+                const newMetadata = {
+                    'startup-script': startScript,
+                    }
+                await vm.setMetadata(newMetadata)
+                }
                 res = await vm.start();
                 break;
             case 'Get':
