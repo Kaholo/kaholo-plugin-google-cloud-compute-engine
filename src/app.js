@@ -7,7 +7,12 @@ async function launchVm(action, settings) {
     
     const customCpu = parsers.number(action.params.customMachineCpuCount);
     const customMem = parsers.number(action.params.customMachineMem);
-    let machineType = parsers.autocomplete(action.params.machineType) || "custom-";
+    let apmtTest = parsers.autocomplete(action.params.machineType);
+    if (apmtTest === undefined) {
+        throw "Please specify Machine Type."
+    }
+    // action.params.machineType.id is string "334002", action.params.machineType.value is string "e2-micro"
+    let machineType = !isNaN(apmtTest) ? parsers.autocomplete(action.params.machineType.value) : apmtTest;
     if (machineType.includes('custom')){
         if (!customCpu || !customMem) {
             throw "Must provide both CPU Count and memory size for custom machine type.";
