@@ -733,7 +733,7 @@
           "viewName": "Firewall Name *",
           "required": false,
           "type": "string",
-          "description": "Firewall rules let you allow or deny traffic to and from your virtual machine (VM) instances based on a configuration you specify. By creating a firewall rule, you specify a Virtual Private Cloud (VPC) network and a set of components that define the rule",
+          "description": "Unique name for the firewall rule (lowercase letters, numbers, hypen only)",
           "placeholder": "allow-rdp-in",
           "learnUrl": "https://cloud.google.com/vpc/docs/using-firewalls"
         },
@@ -841,7 +841,7 @@
           "viewName": "Ports",
           "required": false,
           "type": "text",
-          "description": "Specify ports to allow or deny in the firewall rule.",
+          "description": "Port to match for firewall rules using TCP, UDP, or SCTP.",
           "placeholder": "3389",
           "learnUrl": "https://cloud.google.com/vpc/docs/using-firewalls"
         },
