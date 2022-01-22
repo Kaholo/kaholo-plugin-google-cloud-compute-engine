@@ -781,17 +781,18 @@
               "name": "Deny"
             }
           ],
-          "description": "Whether traffic matching IP, protocol, and/or port is Allowed (default) or Denied",
+          "description": "To either Allow (default) or Deny traffic matching IP, protocol, and/or port",
           "placeholder": "select using drop-down",
-          "learnUrl": "https://cloud.google.com/vpc/docs/firewalls#action_of_the_rule"
+          "learnUrl": "https://cloud.google.com/vpc/docs/firewalls#action_of_the_rule",
+          "codedExample": "lowercase - \"allow\" or \"deny\""
         },
         {
           "name": "ipRanges",
-          "viewName": "Ip Ranges Filter",
+          "viewName": "Ip Range Filter",
           "required": false,
           "type": "text",
-          "description": "Ranges of IP addresses for source filter (ingress) or destination filter (egress)",
-          "placeholder": "[10.52.111.0/26, 10.52.111.64/26]",
+          "description": "Range of IP addresses for source filter (ingress) or destination filter (egress)",
+          "placeholder": "10.52.111.0/24",
           "learnUrl": "https://cloud.google.com/vpc/docs/firewalls#firewall_rule_components"
         },
         {
@@ -833,16 +834,17 @@
               "name": "UDP"
             }
           ],
-          "description": "Protocol to match for the firewall rule, default is All traffic",
+          "description": "Protocol to match for the firewall rule, default is all traffic",
           "placeholder": "select using drop-down",
-          "learnUrl": "https://cloud.google.com/vpc/docs/using-firewalls"
+          "learnUrl": "https://cloud.google.com/vpc/docs/using-firewalls",
+          "codedExample": "lowercase - \"all\", \"tcp\", \"icmp\", etc."
         },
         {
           "name": "ports",
           "viewName": "Ports",
           "required": false,
           "type": "text",
-          "description": "Port to match for the firewall rule.",
+          "description": "Port to match for the firewall rules using TCP, UDP, or SCTP.",
           "placeholder": "8080",
           "learnUrl": "https://cloud.google.com/vpc/docs/using-firewalls"
         },
