@@ -734,7 +734,7 @@
           "required": false,
           "type": "string",
           "description": "Firewall rules let you allow or deny traffic to and from your virtual machine (VM) instances based on a configuration you specify. By creating a firewall rule, you specify a Virtual Private Cloud (VPC) network and a set of components that define the rule",
-          "placeholder": "myfirewall-01",
+          "placeholder": "allow-rdp-in",
           "learnUrl": "https://cloud.google.com/vpc/docs/using-firewalls"
         },
         {
@@ -842,7 +842,7 @@
           "required": false,
           "type": "text",
           "description": "Specify ports to allow or deny in the firewall rule.",
-          "placeholder": "8080",
+          "placeholder": "3389",
           "learnUrl": "https://cloud.google.com/vpc/docs/using-firewalls"
         },
         {
@@ -852,6 +852,15 @@
           "type": "boolean",
           "description": "If checked, wait for each action to complete before moving on to next action in pipeline",
           "learnUrl": "https://github.com/Kaholo/kaholo-plugin-GoogleCloudComputeEngine"
+        },
+        {
+          "name": "tags",
+          "viewName": "Network Tags",
+          "required": false,
+          "type": "text",
+          "description": "Network Tags associate firewall rules only to VMs with the same tag or tags",
+          "placeholder": "rdp-server",
+          "learnUrl": "https://cloud.google.com/vpc/docs/add-remove-network-tags"
         }
       ]
     },

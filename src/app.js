@@ -99,7 +99,8 @@ async function createFw(action, settings){
         action: action.params.action,
         ipRange: parsers.array(action.params.ipRanges).join(', '),
         protocol: action.params.protocol,
-        ports: parsers.array(action.params.ports)
+        ports: parsers.array(action.params.ports),
+        tags: parsers.array(action.params.tags)
     }
     return serviceClient.createFw(params, parsers.boolean(action.params.waitForOperation));
 }

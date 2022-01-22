@@ -240,21 +240,24 @@ module.exports = class GoogleComputeService extends Compute{
     }
     
     async createFw({networkId, name, priority, direction, action, ipRange, protocol,
-                        ports}, waitForOperation) {
+                        ports, tags}, waitForOperation) {
         const firewall = this.firewall(name);
         const fwRule = [{
             IPProtocol: protocol || 'all',
             ports
         }];
+        tags = tags || [];
         const config = removeUndefinedAndEmpty({
             network: `projects/${this.projectId}/global/networks/${networkId || `default`}`,
             destinationRanges: [],
             sourceRanges: [],
             priority:  priority || 1000,
             direction: direction || "INGRESS",
+            tags: tags.length > 0 ? {items: tags} : {items: []}
         });
         if (fwRule) config[!action || action === "allow" ? "allowed" : "denied"] = fwRule;
         if (ipRange) config[config.direction === "INGRESS" ? "sourceRanges" : "destinationRanges"] = ipRange;
+        if (tags.length > 0) config[config.direction === "INGRESS" ? "targetTags" : "sourceTags"] = tags;
         return new Promise((resolve, reject) => {
             firewall.create(config, defaultGcpCallback(resolve, reject, waitForOperation));
         });
