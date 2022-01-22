@@ -1,7 +1,7 @@
 # kaholo-plugin-GCCE
 Google Cloud Compute Engine (GCCE) plugin for Kaholo.
 
-* **Make sure to enable the compute API on google cloud.**
+**This plugin requires the Google Cloud Compute Engine API to be enabled for your project(s) in the Google Cloud Platform. If you enabled this API recently, a few minutes may be required for the action to propagate to the systems and become fully effective.**
 
 ## Settings
 1. Service Account Credentials (Vault) **Required if not in method** - Default credentials for authenticating to the google cloud API. Needs to be saved in the format of a json object or a string representing it. You Can get the credentials using this [tutorial](https://cloud.google.com/iam/docs/creating-managing-service-account-keys).
