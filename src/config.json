@@ -28,7 +28,7 @@
       "name": "region",
       "viewName": "Default Region",
       "type": "string",
-      "description": "GCP region where infrastructure is or will be located",
+      "description": "Geographical GCP region where infrastructure is or will be located",
       "placeholder": "us-east1",
       "learnUrl": "https://cloud.google.com/compute/docs/regions-zones"
     },
@@ -96,7 +96,7 @@
           "type": "autocomplete",
           "autocompleteType": "function",
           "functionName": "listRegionsAuto",
-          "description": "GCP region where infrastructure is or will be located",
+          "description": "Geographical GCP region where infrastructure is or will be located",
           "placeholder": "select using autocomplete",
           "learnUrl": "https://cloud.google.com/compute/docs/regions-zones"
         },
@@ -294,7 +294,7 @@
           "required": false,
           "type": "string",
           "description": "Array of Network interfaces for the VM instance",
-          "placeholder": "[{:,','}]",
+          "placeholder": "[{network:'https://www.googleapis.com/compute/v1/projects/gcp-proj-a/global/networks/vpc-net-a',subnetwork:'https://www.googleapis.com/compute/v1/projects/gcp-proj-a/regions/asia-southeast1/subnetworks/sub-a',networkIP:'10.55.27.103'}]",
           "learnUrl": "https://cloud.google.com/vpc/docs/multiple-interfaces-concepts",
           "codedExample": "[{network: 'https://www.googleapis.com/compute/v1/projects/gcp-proj-delta/global/networks/vpcnet-alpha', subnetwork: 'https://www.googleapis.com/compute/v1/projects/gcp-proj-delta/regions/asia-southeast1/subnetworks/subnet-bravo', address: '10.121.75.113'}]"
         },
@@ -359,7 +359,7 @@
           "viewName": "Service Account Credentials *",
           "required": false,
           "type": "vault",
-          "description": "Service account credentials",
+          "description": "Vaulted JSON document containing service account credentials as provided by GCP",
           "learnUrl": "https://cloud.google.com/docs/authentication/production"
         },
         {
@@ -380,7 +380,7 @@
           "type": "autocomplete",
           "autocompleteType": "function",
           "functionName": "listRegionsAuto",
-          "description": "GCP region where infrastructure is or will be located",
+          "description": "Geographical GCP region where infrastructure is or will be located",
           "placeholder": "select using autocomplete",
           "learnUrl": "https://cloud.google.com/compute/docs/regions-zones"
         },
@@ -460,7 +460,7 @@
           "viewName": "Service Account Credentials *",
           "required": false,
           "type": "vault",
-          "description": "Service account credentials",
+          "description": "Vaulted JSON document containing service account credentials as provided by GCP",
           "learnUrl": "https://cloud.google.com/docs/authentication/production"
         },
         {
@@ -479,7 +479,7 @@
           "viewName": "Network Name *",
           "required": false,
           "type": "string",
-          "description": "Name for the new VPC network",
+          "description": "Unique name for the new VPC network (lowercase letters, numbers, hypen only)",
           "placeholder": "geotown-net-01",
           "learnUrl": "https://cloud.google.com/vpc/docs/using-vpc"
         },
@@ -519,7 +519,7 @@
           "viewName": "Service Account Credentials *",
           "required": false,
           "type": "vault",
-          "description": "Service account credentials",
+          "description": "Vaulted JSON document containing service account credentials as provided by GCP",
           "learnUrl": "https://cloud.google.com/docs/authentication/production"
         },
         {
@@ -550,7 +550,7 @@
           "viewName": "Subnet Name *",
           "required": false,
           "type": "string",
-          "description": "Name for the new Subnet",
+          "description": "Unique name for the new subnet (lowercase letters, numbers, hypen only)",
           "placeholder": "farnorth-dmz",
           "learnUrl": "https://cloud.google.com/compute/docs/reference/rest/beta/subnetworks"
         },
@@ -570,7 +570,7 @@
           "type": "autocomplete",
           "autocompleteType": "function",
           "functionName": "listRegionsAuto",
-          "description": "GCP region where the subnet will be located",
+          "description": "Geographical GCP region where the subnet will be located",
           "placeholder": "select using autocomplete",
           "learnUrl": "https://cloud.google.com/compute/docs/regions-zones"
         },
@@ -611,14 +611,14 @@
     },
     {
       "name": "reserveIp",
-      "viewName": "Reserve IP",
+      "viewName": "Reserve Private IP Address",
       "params": [
         {
           "name": "creds",
-          "viewName": "Service Account Credentials",
+          "viewName": "Service Account Credentials *",
           "required": false,
           "type": "vault",
-          "description": "Service account credentials",
+          "description": "Vaulted JSON document containing service account credentials as provided by GCP",
           "learnUrl": "https://cloud.google.com/docs/authentication/production"
         },
         {
@@ -639,7 +639,7 @@
           "type": "autocomplete",
           "autocompleteType": "function",
           "functionName": "listNetworksAuto",
-          "description": "The name of a VPC Network in the project with subnets in the region",
+          "description": "VPC Network in which to make the address reservation",
           "placeholder": "select using autocomplete",
           "learnUrl": "https://cloud.google.com/vpc/docs/using-vpc",
           "codedExample": "global/networks/apac-test-vpc"
@@ -651,7 +651,7 @@
           "type": "autocomplete",
           "autocompleteType": "function",
           "functionName": "listRegionsAuto",
-          "description": "Subnet region",
+          "description": "Geographical GCP region of the subnet in which to make the address reservation",
           "placeholder": "select using autocomplete",
           "learnUrl": "https://cloud.google.com/dataflow/docs/guides/specifying-networks"
         },
@@ -662,16 +662,16 @@
           "type": "autocomplete",
           "autocompleteType": "function",
           "functionName": "listSubnetworksAuto",
-          "description": "The name of a subnet within the VPC Network",
+          "description": "Subnet in which to make the address reservation",
           "placeholder": "select using autocomplete",
           "learnUrl": "https://cloud.google.com/compute/docs/ip-addresses/reserve-static-internal-ip-address"
         },
         {
           "name": "resName",
-          "viewName": "Reserve name *",
+          "viewName": "Reservation name *",
           "required": false,
           "type": "string",
-          "description": "Name the reserved IP address resource",
+          "description": "Name for the reserved IP address resource",
           "placeholder": "reserve-name-01",
           "learnUrl": "https://cloud.google.com/compute/docs/ip-addresses/reserve-static-internal-ip-address"
         },
@@ -680,8 +680,8 @@
           "viewName": "IP To Reserve *",
           "required": false,
           "type": "string",
-          "description": "IP address to reserve",
-          "placeholder": "192.168.132.12",
+          "description": "IP address to reserve (within the address space of the selected subnet)",
+          "placeholder": "10.46.22.100",
           "learnUrl": "https://cloud.google.com/compute/docs/ip-addresses/reserve-static-internal-ip-address"
         },
         {
@@ -696,14 +696,14 @@
     },
     {
       "name": "createFw",
-      "viewName": "Create Firewall",
+      "viewName": "Create Firewall Rule",
       "params": [
         {
           "name": "creds",
-          "viewName": "Service Account Credentials",
+          "viewName": "Service Account Credentials *",
           "required": false,
           "type": "vault",
-          "description": "Service account credentials",
+          "description": "Vaulted JSON document containing service account credentials as provided by GCP",
           "learnUrl": "https://cloud.google.com/docs/authentication/production"
         },
         {
@@ -731,10 +731,10 @@
         },
         {
           "name": "name",
-          "viewName": "Firewall Name *",
+          "viewName": "Firewall Rule Name *",
           "required": false,
           "type": "string",
-          "description": "Firewall rules let you allow or deny traffic to and from your virtual machine (VM) instances based on a configuration you specify. By creating a firewall rule, you specify a Virtual Private Cloud (VPC) network and a set of components that define the rule",
+          "description": "Unique name for the new firewall rule (lowercase letters, numbers, hypen only)",
           "placeholder": "myfirewall-01",
           "learnUrl": "https://cloud.google.com/vpc/docs/using-firewalls"
         },
@@ -865,7 +865,7 @@
           "viewName": "Service Account Credentials *",
           "required": false,
           "type": "vault",
-          "description": "Service account credentials",
+          "description": "Vaulted JSON document containing service account credentials as provided by GCP",
           "learnUrl": "https://cloud.google.com/docs/authentication/production"
         },
         {
@@ -896,8 +896,8 @@
           "viewName": "Route Name *",
           "required": false,
           "type": "string",
-          "description": "Paths that network traffic takes from a virtual machine (VM) instance to other destinations. These destinations can be inside your Google Cloud Virtual Private Cloud (VPC) network (for example, in another VM) or outside it",
-          "placeholder": "route-name-01",
+          "description": "Unique name for the new route (lowercase letters, numbers, hypen only)",
+          "placeholder": "route-nat-egress-3b",
           "learnUrl": "https://cloud.google.com/vpc/docs/using-routes"
         },
         {
