@@ -284,7 +284,7 @@
           "viewName": "Custom Internal IP",
           "required": false,
           "type": "string",
-          "description": "(not yet implemented) Assign a reserved internal IP address to the new VM",
+          "description": "If specified, assign this specified internal IP address for the new VM instance.",
           "placeholder": "10.121.75.113",
           "learnUrl": "https://cloud.google.com/compute/docs/ip-addresses"
         },
@@ -294,9 +294,9 @@
           "required": false,
           "type": "string",
           "description": "Array of Network interfaces for the VM instance",
-          "placeholder": "[{network:'https://www.googleapis.com/compute/v1/projects/gcp-proj-a/global/networks/vpc-net-a',subnetwork:'https://www.googleapis.com/compute/v1/projects/gcp-proj-a/regions/asia-southeast1/subnetworks/sub-a',networkIP:'10.55.27.103'}]",
+          "placeholder": "[{network: 'https://www.googleapis.com/compute/v1/projects/gcp-proj-a/global/networks/vpc-net-a', subnetwork: 'https://www.googleapis.com/compute/v1/projects/gcp-proj-a/regions/asia-southeast1/subnetworks/sub-a', networkIP: '10.55.27.103'}]",
           "learnUrl": "https://cloud.google.com/vpc/docs/multiple-interfaces-concepts",
-          "codedExample": "[{network: 'https://www.googleapis.com/compute/v1/projects/gcp-proj-delta/global/networks/vpcnet-alpha', subnetwork: 'https://www.googleapis.com/compute/v1/projects/gcp-proj-delta/regions/asia-southeast1/subnetworks/subnet-bravo', address: '10.121.75.113'}]"
+          "codedExample": "[{network: 'https://www.googleapis.com/compute/v1/projects/gcp-proj-a/global/networks/vpc-net-a', subnetwork: 'https://www.googleapis.com/compute/v1/projects/gcp-proj-a/regions/asia-southeast1/subnetworks/sub-a', networkIP: '10.55.27.103'}]"
         },
         {
           "name": "canIpForward",
@@ -311,7 +311,7 @@
           "viewName": "Preemptible",
           "required": false,
           "type": "boolean",
-          "description": "A discount-priced instance that may be arbitrarly deleted by GCP prematurely, or with 24 hours maximum",
+          "description": "A discount-priced instance that may be arbitrarily deleted by GCP prematurely, or with 24 hours maximum",
           "learnUrl": "https://cloud.google.com/compute/docs/instances/create-use-preemptible"
         },
         {
@@ -319,7 +319,7 @@
           "viewName": "Tags",
           "required": false,
           "type": "text",
-          "description": "Tagging the newly created VM instance",
+          "description": "Network Tags associate VMs with firewall rules and routes with the same tag or tags",
           "placeholder": "instance-tag-01",
           "learnUrl": "https://cloud.google.com/vpc/docs/add-remove-network-tags"
         },
@@ -934,7 +934,7 @@
           "viewName": "Tags",
           "required": false,
           "type": "text",
-          "description": "You can specify a list of network tags so that the route only applies to instances that have at least one of the listed tags. If you don't specify tags, Google Cloud applies the route to all instances in the network. Next hop internal TCP/UDP load balancers do not support network tags",
+          "description": "Network Tags associate routes with only VMs assigned the same tag or tags",
           "placeholder": "route-tag-01",
           "learnUrl": "https://cloud.google.com/vpc/docs/add-remove-network-tags"
         },
