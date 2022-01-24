@@ -4,7 +4,7 @@ Google Cloud Compute Engine (GCCE) plugin for Kaholo.
 This plugin requires the following APIs to be enabled for your project(s) in the Google Cloud Platform:
 
 >**Google Cloud Compute Engine API**
-
+>
 >**Identity and Access Management (IAM) API** *
 
 If you enabled an API recently, a few minutes may be required for the action to propagate to the systems and become fully effective.
