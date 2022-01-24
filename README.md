@@ -116,34 +116,53 @@ Creates a reservation for the specified internal IP address on the specified sub
 * Wait For Operation End - as described above in plugin settings.
 
 ## Method: Create Firewall Rule
-Creates a new firewall rule for the specified VPC network. Rules can contain ranges of IP addresses and ports, but each rule must be for one specified protocol and either Ingress or Egress. If rules are needed for multiple protocols, for example, create multiple rules.
+Creates a new firewall rule for the specified VPC network. Rules can contain ranges of IP addresses and ports, but each rule must be for either all traffic or one specified protocol and either ingress or egress. Create multiple rules if necessary to cover all combinations of protocol and ingress/egress requried. **The defaults are very permissive** - if none of the optional parameters are specified, the method creates by default a rule that allows all traffic from everywhere into the subnet. This is for Kaholo user convenience only, not an advisable security practice.
+
+Rules are associated to routes and VM instances by means of Network Tags. For example a firewall rule to allow TCP ingress on port 443 (HTTPS) tagged "web-server" would allow only VM instances also tagged "web-server" to receive HTTPS web traffic. Firewall rules with no tags apply to every VM instance in the VPC network.
 
 ### Parameters
-1. Service Account Credentials (Vault) **Required if not in settings** - The credentials to use for authenticating to the google cloud API.
-2. Project (Autocomplete) **Required if not in settings** - The project of the VPC network. **You need access to the "Cloud Resource Manager API" to use autocomplete in this parameter!**
-3. VPC Network (Autocomplete) **Required** - The VPC network to create the new firewall rule for.
-4. Firewall Name (String) **Required** - The name of the new firewall rule.
-5. Priority(0 - 65535) (String) **Optional** - The priority of the new firewall rule. Default value is 1000.
-6. Direction (Options) **Optional** - The direction of the firewall rule. Possible values: 
-* Ingress - for incoming network traffic
-* Egress - for outgoing network traffic
-Default value is ingress.
-7. Action (Options) **Optional** - Whether to allow or deny access to ip addresses specified in the request. Possible values: Allow | Deny. Default value is Allow.
-8. Ip Ranges Filter (Text) **Optional** - The IP ranges the new firewall rule will be applied to. If not specified, apply on any IP address.
-9. Protocol (Options) **Required** - The protocol to allow or deny access to. Possible values: All | AH | ESP | ICMP | IPIP | SCTP | TCP | UDP.
-10. Ports (Text) **Optional** - The ports to allow or deny access to in the specified protocol. **Only relevant for protocols that use ports**.
-11. Wait For Operation End (Boolean) **Optional** - If selected, wait until the firewall rule was successfully created.
+* Service Account Credentials * - as described above in plugin settings.
+* Project * - as described above in plugin settings
+* VPC Network Name * - the VPC network in which the firewall rule is to be created
+* Firewall Name * - A name for the new firewall rule.
+* Priority - The priority of the new firewall rule. Default is 1000
+    * 0 = highest priority
+    * 65535 = lowest priority
+* Direction - The direction of the firewall rule. Possible values:
+    * Ingress - filter incoming network traffic (default)
+    * Egress - filter outgoing network traffic
+* Action - typically there's a catch-all deny rule and higher priority allow rules for a list of exceptions.
+    * Allow - permit traffic that matches the rule (default)
+    * Deny - block traffic that matches the rule
+* Ip Range Filter - The IP ranges the new firewall rule will be applied to. The default is 0.0.0.0/0 - *every* IP address.
+* Protocol - Which protocol the rules apply to if not all.
+    * All - rule applies to every protocol, every port
+    * AH, ESP, IPIP - no ports required
+    * ICMP - typically used to allow ping, no ports required 
+    * SCTP, UDP - ports are typically specified for these
+    * TCP - the most commonly specified protocol, also used with ports
+* Ports - Port or port ranges to match for firewall rules using TCP, UDP, or SCTP. Enter one port or port range per line, no commas. If not defined the rule matches every port. Commonly used examples with TCP include:
+    * no port specified - allow every TCP port
+    * `22` - SSH (Linux)
+    * `80` - HTTP
+    * `443` - HTTPS
+    * `3389` - Remote Desktop (Windows)
+    * `1025-65535` - Range matching all ephemeral addresses
+* Wait For Operation End - as described above in plugin settings.
+* Tags - Network tags to to associate the firewall rule with similarly tagged VM instances.
 
 ## Method: Create Route
-Create a new route inside the specified network.
+Create a new route inside the specified network. This directs traffic both between subnets and peering with internet gateways, VPN tunnels, load balancers, firewall instances and such. Like firewall rules, routes also accept network tags. Network tags are used to match routes with VM instances that bear the same network tag. For example a route to the internet gateway tagged "internet" would allow only VM instances also tagged "internet" access to the internet. Routes with no tags apply to every VM instance in the VPC network.
 
 ### Parameters
-1. Service Account Credentials (Vault) **Required if not in settings** - The credentials to use for authenticating to the google cloud API.
-2. Project (Autocomplete) **Required if not in settings** - The project of the network. **You need access to the "Cloud Resource Manager API" to use autocomplete in this parameter!**
-3. VPC Network (Autocomplete) **Required** - The vpc network to create the new route in.
-4. Route Name (String) **Required** - The name of the new route.
-5. Next Hop IP (String) **Required** - The IP address to route any requests with the specified destination IP to.
-6. Dest IP Range (String) **Required** - The range of IP addresses in CIDR notation, to route any traffic that is destined to an IP address in the specified range.
-7. Priority (String) **Optional** - The priority of the new route.
-8. Tags (Text) **Optional** - Tags to attach to the new route. Can enter multiple tags by specifying each with a new line.
-9. Wait For Operation End (Boolean) **Optional** - If selected, wait until the new route was successfully created.
+* Service Account Credentials * - as described above in plugin settings.
+* Project * - as described above in plugin settings
+* VPC Network Name * - the VPC network in which the route is to be created
+* Route Name * - The name of the new route.
+* Next Hop IP * - The route's destination IP address, aka gateway address.
+* Dest IP Range * - The range of destination IP addresses in CIDR notation to which this route applies.
+* Priority - The priority of the new route. Default is 1000
+    * 0 = highest priority
+    * 65535 = lowest priority
+* Tags - Network tags to to associate the route with similarly tagged VM instances.
+* Wait For Operation End - as described above in plugin settings.
