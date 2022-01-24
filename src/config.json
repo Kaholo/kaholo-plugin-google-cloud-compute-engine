@@ -734,8 +734,8 @@
           "viewName": "Firewall Rule Name *",
           "required": false,
           "type": "string",
-          "description": "Unique name for the new firewall rule (lowercase letters, numbers, hypen only)",
-          "placeholder": "rule-allow-RDP",
+          "description": "Unique name for the firewall rule (lowercase letters, numbers, hypen only)",
+          "placeholder": "allow-rdp-in",
           "learnUrl": "https://cloud.google.com/vpc/docs/using-firewalls"
         },
         {
@@ -844,8 +844,8 @@
           "viewName": "Ports",
           "required": false,
           "type": "text",
-          "description": "Port to match for the firewall rules using TCP, UDP, or SCTP.",
-          "placeholder": "8080",
+          "description": "Port to match for firewall rules using TCP, UDP, or SCTP.",
+          "placeholder": "3389",
           "learnUrl": "https://cloud.google.com/vpc/docs/using-firewalls"
         },
         {
