@@ -12,13 +12,13 @@ If you enabled an API recently, a few minutes may be required for the action to 
 \* The IAM API is needed only for autocomplete functionality of parameters Api Access Service Account and Service Account Access Scopes in method Launch VM.
 
 ## Installation
-For download, installation, upgrade, downgrade and troubleshooting of plugins in general, see `INSTALL.md` in the same location as this `README.md`.
+For download, installation, upgrade, downgrade and troubleshooting of plugins in general, see [INSTALL.md](https://github.com/Kaholo/kaholo-plugin-GoogleCloudComputeEngine/blob/master/INSTALL.md).
 
 ## Settings
 Plugin settings act as default parameter values. If configured in plugin settings, the action parameters may be left unconfigured. This is an optional convenience. Action parameters configured anyway over-ride the plugin-level settings for that parameter.
-* Default Service Account Credentials (Vault) - A Vaulted JSON document containing service account credentials as provided by GCP. [Tutorial](https://cloud.google.com/iam/docs/creating-managing-service-account-keys).
-* Default Project (String) - A GCP Project defines how your app interacts with services and resources.
-* Default Region (String) - The geographical GCP region where infrastructure is or will be located, i.e. asia-southeast1.
+* Default Service Account Credentials - A Vaulted JSON document containing service account credentials as provided by GCP. [Tutorial](https://cloud.google.com/iam/docs/creating-managing-service-account-keys).
+* Default Project - A GCP Project defines how your app interacts with services and resources.
+* Default Region - The geographical GCP region where infrastructure is or will be located, i.e. asia-southeast1.
 * Default Disk Auto Delete - If enabled, disks created with VMs will be deleted as well if the VM is deleted. Used only in method Launch VM.
 * Default Wait For Operation End - If enabled, Kaholo will wait for the Action to complete before moving along to the next Action in the Pipeline.
 
