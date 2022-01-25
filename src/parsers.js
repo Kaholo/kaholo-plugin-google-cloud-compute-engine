@@ -62,7 +62,7 @@ module.exports = {
         if (!value) return undefined;
         if (typeof(value) === "string") {
             // Google provided regexp: '(?:[a-z](?:[-a-z0-9]{0,61}[a-z0-9])?)'
-            const regex = new RegExp("^[a-z]?([-a-z0-9]{0,61})?[a-z0-9]$");
+            const regex = new RegExp("^[a-z]{1}[-a-z0-9]{0,61}[a-z0-9]{1}$");
             if (!regex.test(value)) {
                 throw `Name must start with a lowercase letter followed by up to 62 lowercase letters, numbers, or hyphens, and cannot end with a hyphen. ${value} is invalid.`;
             }
