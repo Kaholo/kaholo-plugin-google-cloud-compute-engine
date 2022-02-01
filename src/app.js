@@ -7,7 +7,12 @@ async function launchVm(action, settings) {
     
     const customCpu = parsers.number(action.params.customMachineCpuCount);
     const customMem = parsers.number(action.params.customMachineMem);
-    let machineType = parsers.autocomplete(action.params.machineType) || "custom-";
+    let apmtTest = parsers.autocomplete(action.params.machineType);
+    if (apmtTest === undefined) {
+        throw "Please specify Machine Type."
+    }
+    // action.params.machineType.id is string "334002", action.params.machineType.value is string "e2-micro"
+    let machineType = !isNaN(apmtTest) ? parsers.autocomplete(action.params.machineType.value) : apmtTest;
     if (machineType.includes('custom')){
         if (!customCpu || !customMem) {
             throw "Must provide both CPU Count and memory size for custom machine type.";
@@ -19,7 +24,7 @@ async function launchVm(action, settings) {
     }
 
     return serviceClient.launchVm({
-        name: parsers.string(action.params.name),
+        name: parsers.googleCloudName(action.params.name),
         description: parsers.string(action.params.description),
         region: parsers.autocomplete(action.params.region),
         zone: parsers.autocomplete(action.params.zone),
@@ -43,7 +48,7 @@ async function launchVm(action, settings) {
         autoCreateStaticIP: parsers.boolean(action.params.autoCreateStaticIP)
     }, parsers.boolean(action.params.autoCreateStaticIP))
 }
-
+ 
 async function vmAction(action, settings){
     const serviceClient = GoogleComputeService.from(action.params, settings);
     return serviceClient.vmAction({
@@ -53,11 +58,23 @@ async function vmAction(action, settings){
     }, parsers.boolean(action.params.waitForOperation));
 }
 
+async function deleteVM(action, settings){
+    const serviceClient = GoogleComputeService.from(action.params, settings);
+    const isDeleteStaticIP = parsers.boolean(action.params.isDeleteStaticIP)
+    if(isDeleteStaticIP) await serviceClient.deleteAutoExtIp( parsers.autocomplete(action.params.region), action.params.vm.value )
+    return serviceClient.vmAction({
+        zoneStr: parsers.autocomplete(action.params.zone),
+        vmName: parsers.autocomplete(action.params.vm),
+        action: 'Delete',
+    },  parsers.boolean(action.params.waitForOperation))
+
+}
+
 async function createVpc(action, settings){
     const serviceClient = GoogleComputeService.from(action.params, settings);
     try { 
         return await serviceClient.createVpc({
-            name: parsers.string(action.params.name),
+            name: parsers.googleCloudName(action.params.name),
             description: parsers.string(action.params.description),
             autoCreateSubnetworks: parsers.boolean(action.params.autoCreateSubnetworks)
         }, parsers.boolean(action.params.waitForOperation)) 
@@ -70,7 +87,7 @@ async function createSubnet(action, settings){
     const serviceClient = GoogleComputeService.from(action.params, settings);
     return serviceClient.createSubnet({
         networkId: parsers.autocomplete(action.params.network, true),
-        name: parsers.string(action.params.name),
+        name: parsers.googleCloudName(action.params.name),
         description: parsers.string(action.params.description),
         region: parsers.autocomplete(action.params.region, true),
         range: parsers.string(action.params.ipRange),
@@ -94,14 +111,26 @@ async function createFw(action, settings){
     const params = {
         networkId: parsers.autocomplete(action.params.network, true),
         name: parsers.string(action.params.name),
-        priority: parsers.number(action.params.priority),
-        direction: action.params.direction,
-        action: action.params.action,
-        ipRange: parsers.array(action.params.ipRanges).join(', '),
-        protocol: action.params.protocol,
+        priority: parsers.number(action.params.priority) || "1000",
+        direction: action.params.direction || "INGRESS",
+        action: action.params.action || "allow",
+        ipRange: parsers.array(action.params.ipRanges).join(', ') || "0.0.0.0/0",
+        protocol: action.params.protocol || "all",
         ports: parsers.array(action.params.ports),
         tags: parsers.array(action.params.tags)
     }
+
+    if (["tcp","udp","sctp"].includes(params.protocol)) {
+        if (params.ports == undefined || params.ports.length == 0) {
+            throw "Port ranges must be specified for rules using protocols TPC, UDP, and SCTP.";
+        }
+    }
+    else {
+        if (params.ports != undefined && params.ports.length != 0) {
+            throw "Port ranges may be specified only for protocols TCP, UDP, and SCTP.";
+        }
+    }
+
     return serviceClient.createFw(params, parsers.boolean(action.params.waitForOperation));
 }
 
@@ -109,7 +138,7 @@ async function createRoute(action, settings){
     const serviceClient = GoogleComputeService.from(action.params, settings);
     return serviceClient.createRoute({
         networkId: parsers.autocomplete(action.params.network, true),
-        name: parsers.string(action.params.name),
+        name: parsers.googleCloudName(action.params.name),
         nextHopIp: parsers.string(action.params.nextHopIp),
         destRange: parsers.string(action.params.destIpRange),
         priority: parsers.number(action.params.priority),
@@ -125,6 +154,7 @@ module.exports = {
     reserveIp, 
     createFw, 
     createRoute,
+    deleteVM,
     // autocomplete methods
     ...require("./autocomplete")
 };
