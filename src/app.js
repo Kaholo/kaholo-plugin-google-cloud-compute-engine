@@ -116,7 +116,8 @@ async function createFw(action, settings){
         action: action.params.action || "allow",
         ipRange: parsers.array(action.params.ipRanges).join(', ') || "0.0.0.0/0",
         protocol: action.params.protocol || "all",
-        ports: parsers.array(action.params.ports)
+        ports: parsers.array(action.params.ports),
+        tags: parsers.array(action.params.tags)
     }
 
     if (["tcp","udp","sctp"].includes(params.protocol)) {
