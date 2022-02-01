@@ -7,6 +7,7 @@ const iam = google.iam('v1');
 const {defaultGcpCallback, removeUndefinedAndEmpty, handleOperation, parseFields} = require('./helpers');
 const parsers = require("./parsers");
 
+
 /** Class for using the google cloud compute API(by extending it's npm packge). */
 module.exports = class GoogleComputeService extends Compute{
     /**
@@ -172,6 +173,7 @@ module.exports = class GoogleComputeService extends Compute{
             case 'Delete':
                 res = await vm.stop();
                 res = await vm.delete();
+                
                 break;
             case 'Restart':
                 res = await vm.reset();
