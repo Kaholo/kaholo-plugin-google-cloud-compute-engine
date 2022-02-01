@@ -442,6 +442,21 @@
           "learnUrl": "https://cloud.google.com/compute/docs/instances/stop-start-instance"
         },
         {
+          "name": "addScript",
+          "viewName": "Add Start Up Script",
+          "type": "boolean",
+          "description": "Check if want to add start script (for start a VM only)",
+          "learnUrl": "https://cloud.google.com/compute/docs/instances/startup-scripts/linux#api"
+        },
+        {
+          "name": "startupScript",
+          "viewName": "Start Up Script",
+          "type": "text",
+          "description": "Start Up Script that want to add in starting a VM",
+          "placeholder": "#! /bin/bash\napt update\napt -y install apache2\ncat <<EOF > /var/www/html/index.html\n<html><body><p>Linux startup script added directly.</p></body></html>",
+          "learnUrl": "https://cloud.google.com/compute/docs/instances/startup-scripts/linux#api"
+        },
+        {
           "name": "waitForOperation",
           "viewName": "Wait For Operation End",
           "required": false,

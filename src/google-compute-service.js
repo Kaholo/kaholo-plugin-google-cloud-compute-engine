@@ -1,4 +1,5 @@
 const Compute = require('@google-cloud/compute');
+// Compute.Firewall <-- left by ashish but cannot be right(?)
 const { JWT } = require('google-auth-library');
 const { google } = require('googleapis');
 const cloudresourcemanager = google.cloudresourcemanager('v1');
@@ -45,6 +46,23 @@ module.exports = class GoogleComputeService extends Compute{
         );
     }
 
+    getMetadataGCP({zoneStr, name}){
+        let zone = this.zone(zoneStr);
+        const vmInfo = zone.vm(name)
+        vmInfo.getMetadata().then(function(data) {
+            // Representation of this VM as the API sees it.
+            const metadata = data[0];
+            const apiResponse = data[1];
+
+            // Custom metadata and predefined keys.
+            const customMetadata = metadata.metadata.items
+            // const customMetadata = metadata.networkInterfaces[0].accessConfigs
+            // const customMetadata = metadata.metadata;
+            console.log(customMetadata);
+            // console.log(apiResponse);
+          });
+          return "done"
+    }
 
      /**
      * Create an external IP address for the specified instance
@@ -66,7 +84,7 @@ module.exports = class GoogleComputeService extends Compute{
         }
     }
 
-    async deleteAutoExtIp(regionStr, instanceName){
+    async deleteAutoExtIp(regionStr, instanceName) {
         const addrName = `${instanceName}-ext-addr`;
         const request = removeUndefinedAndEmpty({
             project: this.projectId,
@@ -74,7 +92,16 @@ module.exports = class GoogleComputeService extends Compute{
             address: addrName,
             auth: this.getAuthClient()
         });
-        return compute.addresses.delete(request);
+        const response = await compute.addresses.delete(request);
+        return response.data
+    }
+
+    async getIpinfo({ vm, zone }) {
+        zone = this.zone(zone);
+        const myvm = zone.vm(vm)
+        const data = await myvm.getMetadata()
+        const metadata = data[0]
+        return metadata.networkInterfaces[0].accessConfigs[0]
     }
 
      /**
@@ -161,7 +188,7 @@ module.exports = class GoogleComputeService extends Compute{
      * @param {boolean} waitForOperation whether to wait for the operation to finish before returning
      * @return {object} The vm instance the action was performed on, and it's metadata
      */
-    async vmAction({zoneStr, vmName, action}, waitForOperation) {
+    async vmAction({zoneStr, vmName, action, startupScript}, waitForOperation) {
         const zone = this.zone(zoneStr);
         const vm = zone.vm(vmName);
         let res = {};
@@ -172,12 +199,20 @@ module.exports = class GoogleComputeService extends Compute{
             case 'Delete':
                 res = await vm.stop();
                 res = await vm.delete();
-                
                 break;
             case 'Restart':
                 res = await vm.reset();
                 break;
             case 'Start':
+                let startScript = "";
+                if (startupScript) {
+                    await vm.stop()
+                    startupScript.forEach(item => startScript += `${item}\n`)
+                    const newMetadata = {
+                        'startup-script': startScript,
+                    }
+                    await vm.setMetadata(newMetadata)
+                }
                 res = await vm.start();
                 break;
             case 'Get':
