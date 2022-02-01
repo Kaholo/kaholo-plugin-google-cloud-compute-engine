@@ -8,6 +8,7 @@ const iam = google.iam('v1');
 const {defaultGcpCallback, removeUndefinedAndEmpty, handleOperation, parseFields} = require('./helpers');
 const parsers = require("./parsers");
 
+
 /** Class for using the google cloud compute API(by extending it's npm packge). */
 module.exports = class GoogleComputeService extends Compute{
     /**
@@ -92,8 +93,7 @@ module.exports = class GoogleComputeService extends Compute{
      * @return {object} The VM instance created, and metadata about it
      */
     async launchVm({name, description, region, zone, machineType, sourceImage, diskType, diskSizeGb, diskAutoDelete, 
-                    serviceAccount, saAccessScopes, allowHttp, allowHttps, network, subnetwork, networkIP, 
-                    networkInterfaces, canIpForward,preemptible, tags, labels, autoCreateStaticIP}, waitForOperation){
+                    serviceAccount, saAccessScopes, allowHttp, allowHttps, networkInterfaces, canIpForward,preemptible, tags, labels, autoCreateStaticIP}, waitForOperation){
         tags = tags || [];
         if (allowHttp) tags.push("http-server");
         if (allowHttps) tags.push("https-server");
@@ -105,7 +105,7 @@ module.exports = class GoogleComputeService extends Compute{
                 onHostMaintenance: preemptible ? "TERMINATE" : "MIGRATE",
                 preemptible: preemptible || false
             },
-            networkInterfaces: (network && subnetwork ? [{network, subnetwork, networkIP}] : []).concat(networkInterfaces || []),
+            networkInterfaces: networkInterfaces ? networkInterfaces : undefined,
             tags: tags.length > 0 ?  {items: tags} : undefined,
             disks: [{
                 boot: true,
@@ -181,6 +181,7 @@ module.exports = class GoogleComputeService extends Compute{
             case 'Delete':
                 res = await vm.stop();
                 res = await vm.delete();
+                
                 break;
             case 'Restart':
                 res = await vm.reset();
@@ -249,21 +250,24 @@ module.exports = class GoogleComputeService extends Compute{
     }
     
     async createFw({networkId, name, priority, direction, action, ipRange, protocol,
-                        ports}, waitForOperation) {
+                        ports, tags}, waitForOperation) {
         const firewall = this.firewall(name);
         const fwRule = [{
             IPProtocol: protocol || 'all',
             ports
         }];
+        tags = tags || [];
         const config = removeUndefinedAndEmpty({
             network: `projects/${this.projectId}/global/networks/${networkId || `default`}`,
             destinationRanges: [],
             sourceRanges: [],
             priority:  priority || 1000,
             direction: direction || "INGRESS",
+            tags: tags.length > 0 ? {items: tags} : {items: []}
         });
         if (fwRule) config[!action || action === "allow" ? "allowed" : "denied"] = fwRule;
         if (ipRange) config[config.direction === "INGRESS" ? "sourceRanges" : "destinationRanges"] = ipRange;
+        if (tags.length > 0) config[config.direction === "INGRESS" ? "targetTags" : "sourceTags"] = tags;
         return new Promise((resolve, reject) => {
             firewall.create(config, defaultGcpCallback(resolve, reject, waitForOperation));
         });
@@ -386,7 +390,7 @@ module.exports = class GoogleComputeService extends Compute{
             region, pageToken,
         });
         
-        return (await compute.subnetworks.list(request)).data;
+        return (await compute.subnetworks.list(request)).data.items;
     }
 
     async listVms({zone}, fields, pageToken){
