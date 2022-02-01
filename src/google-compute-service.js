@@ -1,5 +1,4 @@
 const Compute = require('@google-cloud/compute');
-// Compute.Firewall <-- left by ashish but cannot be right(?)
 const { JWT } = require('google-auth-library');
 const { google } = require('googleapis');
 const cloudresourcemanager = google.cloudresourcemanager('v1');
