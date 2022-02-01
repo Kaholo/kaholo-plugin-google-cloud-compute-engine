@@ -111,13 +111,25 @@ async function createFw(action, settings){
     const params = {
         networkId: parsers.autocomplete(action.params.network, true),
         name: parsers.string(action.params.name),
-        priority: parsers.number(action.params.priority),
-        direction: action.params.direction,
-        action: action.params.action,
-        ipRange: parsers.array(action.params.ipRanges).join(', '),
-        protocol: action.params.protocol,
+        priority: parsers.number(action.params.priority) || "1000",
+        direction: action.params.direction || "INGRESS",
+        action: action.params.action || "allow",
+        ipRange: parsers.array(action.params.ipRanges).join(', ') || "0.0.0.0/0",
+        protocol: action.params.protocol || "all",
         ports: parsers.array(action.params.ports)
     }
+
+    if (["tcp","udp","sctp"].includes(params.protocol)) {
+        if (params.ports == undefined || params.ports.length == 0) {
+            throw "Port ranges must be specified for rules using protocols TPC, UDP, and SCTP.";
+        }
+    }
+    else {
+        if (params.ports != undefined && params.ports.length != 0) {
+            throw "Port ranges may be specified only for protocols TCP, UDP, and SCTP.";
+        }
+    }
+
     return serviceClient.createFw(params, parsers.boolean(action.params.waitForOperation));
 }
 
