@@ -24,7 +24,7 @@ async function launchVm(action, settings) {
     }
 
     return serviceClient.launchVm({
-        name: parsers.string(action.params.name),
+        name: parsers.googleCloudName(action.params.name),
         description: parsers.string(action.params.description),
         region: parsers.autocomplete(action.params.region),
         zone: parsers.autocomplete(action.params.zone),
@@ -74,7 +74,7 @@ async function createVpc(action, settings){
     const serviceClient = GoogleComputeService.from(action.params, settings);
     try { 
         return await serviceClient.createVpc({
-            name: parsers.string(action.params.name),
+            name: parsers.googleCloudName(action.params.name),
             description: parsers.string(action.params.description),
             autoCreateSubnetworks: parsers.boolean(action.params.autoCreateSubnetworks)
         }, parsers.boolean(action.params.waitForOperation)) 
@@ -87,7 +87,7 @@ async function createSubnet(action, settings){
     const serviceClient = GoogleComputeService.from(action.params, settings);
     return serviceClient.createSubnet({
         networkId: parsers.autocomplete(action.params.network, true),
-        name: parsers.string(action.params.name),
+        name: parsers.googleCloudName(action.params.name),
         description: parsers.string(action.params.description),
         region: parsers.autocomplete(action.params.region, true),
         range: parsers.string(action.params.ipRange),
@@ -137,7 +137,7 @@ async function createRoute(action, settings){
     const serviceClient = GoogleComputeService.from(action.params, settings);
     return serviceClient.createRoute({
         networkId: parsers.autocomplete(action.params.network, true),
-        name: parsers.string(action.params.name),
+        name: parsers.googleCloudName(action.params.name),
         nextHopIp: parsers.string(action.params.nextHopIp),
         destRange: parsers.string(action.params.destIpRange),
         priority: parsers.number(action.params.priority),
