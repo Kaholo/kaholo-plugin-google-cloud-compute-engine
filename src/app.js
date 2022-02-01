@@ -43,7 +43,7 @@ async function launchVm(action, settings) {
         autoCreateStaticIP: parsers.boolean(action.params.autoCreateStaticIP)
     }, parsers.boolean(action.params.autoCreateStaticIP))
 }
-
+ 
 async function vmAction(action, settings){
     const serviceClient = GoogleComputeService.from(action.params, settings);
     return serviceClient.vmAction({
@@ -51,6 +51,18 @@ async function vmAction(action, settings){
         vmName: parsers.autocomplete(action.params.vm),
         action: action.params.action
     }, parsers.boolean(action.params.waitForOperation));
+}
+
+async function deleteVM(action, settings){
+    const serviceClient = GoogleComputeService.from(action.params, settings);
+    const isDeleteStaticIP = parsers.boolean(action.params.isDeleteStaticIP)
+    if(isDeleteStaticIP) await serviceClient.deleteAutoExtIp( parsers.autocomplete(action.params.region), action.params.vm.value )
+    return serviceClient.vmAction({
+        zoneStr: parsers.autocomplete(action.params.zone),
+        vmName: parsers.autocomplete(action.params.vm),
+        action: 'Delete',
+    },  parsers.boolean(action.params.waitForOperation))
+
 }
 
 async function createVpc(action, settings){
@@ -124,6 +136,7 @@ module.exports = {
     reserveIp, 
     createFw, 
     createRoute,
+    deleteVM,
     // autocomplete methods
     ...require("./autocomplete")
 };
