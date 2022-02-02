@@ -34,7 +34,7 @@ async function launchVm(action, settings) {
         networkIP: cip ? `${cip}` : undefined
     }]).concat(addedNetworkInterfaces);
 
-    return serviceClient.launchVm({
+    const vmResult = await serviceClient.launchVm({
         name: parsers.googleCloudName(action.params.name),
         description: parsers.string(action.params.description),
         region: parsers.autocomplete(action.params.region),
@@ -55,6 +55,21 @@ async function launchVm(action, settings) {
         labels: parsers.object(action.params.labels),
         autoCreateStaticIP: parsers.boolean(action.params.autoCreateStaticIP)
     }, parsers.boolean(action.params.autoCreateStaticIP))
+
+    let autoCreatedIp = parsers.boolean(action.params.autoCreateStaticIP)
+    let resultArray=[]
+    resultArray.push(vmResult)
+
+    if (autoCreatedIp && ((vmResult.name).length>0)){
+        const ipInfo = await serviceClient.getIpinfo({
+            vm: parsers.string(action.params.name),
+            zone: parsers.autocomplete(action.params.zone)
+        })
+        resultArray.push(ipInfo)
+
+    }
+    resultArray.forEach(item=>console.info(item))
+    return 'Done'
 }
  
 async function vmAction(action, settings){
@@ -62,20 +77,29 @@ async function vmAction(action, settings){
     return serviceClient.vmAction({
         zoneStr: parsers.autocomplete(action.params.zone),
         vmName: parsers.autocomplete(action.params.vm),
-        action: action.params.action
+        action: action.params.action,
+        startupScript:  parsers.text(action.params.startupScript)
     }, parsers.boolean(action.params.waitForOperation));
 }
 
 async function deleteVM(action, settings){
+    let resultArray=[]
     const serviceClient = GoogleComputeService.from(action.params, settings);
     const isDeleteStaticIP = parsers.boolean(action.params.isDeleteStaticIP)
-    if(isDeleteStaticIP) await serviceClient.deleteAutoExtIp( parsers.autocomplete(action.params.region), action.params.vm.value )
-    return serviceClient.vmAction({
+    if(isDeleteStaticIP) {
+        const deleteStatus= await serviceClient.deleteAutoExtIp(parsers.autocomplete(action.params.region), (action.params.vm.value)||(parsers.autocomplete(action.params.vm )))
+        resultArray.push(deleteStatus)
+    }
+    const deleteResult=  await serviceClient.vmAction({
         zoneStr: parsers.autocomplete(action.params.zone),
         vmName: parsers.autocomplete(action.params.vm),
         action: 'Delete',
     },  parsers.boolean(action.params.waitForOperation))
 
+
+    resultArray.push(deleteResult)
+    resultArray.forEach(item=>console.info(item))
+    return 'Done'
 }
 
 async function createVpc(action, settings){
