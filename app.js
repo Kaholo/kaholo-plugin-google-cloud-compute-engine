@@ -158,11 +158,32 @@ async function deleteVM(action, settings){
     }
 }
 
+async function createSubnet(action, settings){
+    const computeClient = GoogleComputeService.from(action.params, settings);
+
+    const subnetworkResource = removeUndefinedAndEmpty({
+        network: parsers.autocomplete(action.params.network),
+        name: parsers.googleCloudName(action.params.name),
+        description: parsers.string(action.params.description),
+        region: parsers.autocomplete(action.params.region),
+        ipCidrRange: parsers.string(action.params.ipRange),
+        privateIpGoogleAccess: parsers.boolean(action.params.privateGoogleAccess),
+        enableFlowLogs: parsers.boolean(action.params.flowLogs)
+    })
+
+    try {   
+        return await computeClient.createSubnetwork(subnetworkResource, parsers.boolean(action.params.waitForOperation));
+    } catch (error) {
+        throw error
+    }
+}
+
 module.exports = {
     createInstance,
     vmAction,
     createVpc,
     deleteVM,
+    createSubnet,
     // autocomplete methods
     ...require("./autocomplete")
 };

@@ -308,6 +308,49 @@ module.exports = class GoogleComputeService {
         })
     }
 
+    async createSubnetwork(subnetworkResource, waitForOperation) {
+        const subnetworksClient = new compute.SubnetworksClient({ credentials: this.credentials });
+
+        const request = removeUndefinedAndEmpty({
+            project: this.projectId,
+            region: subnetworkResource.region,
+            subnetworkResource
+        })
+
+        return new Promise(async (resolve, reject) => {
+            try {
+                // return Long-Running operation
+                let [operation] = await subnetworksClient.insert(request);
+
+                if (waitForOperation) {
+                    const operationsClient = new compute.RegionOperationsClient({ credentials: this.credentials });
+
+                    // Wait for the create operation to complete.
+                    while (operation.status !== 'DONE') {
+                        [operation] = await operationsClient.wait({
+                            operation: operation.name,
+                            project: this.projectId,
+                            region: subnetworkResource.region,
+                        });
+                    }
+
+                    // get subnetwork after creation
+                    let [response] = await subnetworksClient.get({
+                        subnetwork: subnetworkResource.name,
+                        project: this.projectId,
+                        region: subnetworkResource.region
+                    });
+
+                    resolve(response);
+                }
+
+                resolve(operation);
+            } catch (error) {
+                reject(error)
+            }
+        });
+    }
+
     async getInstance({ instance, project, zone }) {
         const instancesClient = new compute.InstancesClient({ credentials: this.credentials });
 
