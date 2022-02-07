@@ -132,10 +132,37 @@ async function createVpc(action, settings){
     }
 }
 
+async function deleteVM(action, settings){
+    let resultArray = [];
+    const computeClient = GoogleComputeService.from(action.params, settings);
+    const isDeleteStaticIP = parsers.boolean(action.params.isDeleteStaticIP);
+
+    try {
+        if(isDeleteStaticIP) {
+            const deleteStatus = await computeClient.deleteReservedExternalIP(parsers.autocomplete(action.params.region), parsers.autocomplete(action.params.vm, true))
+            resultArray.push(deleteStatus)
+        }
+
+        const deleteResult = await computeClient.handleAction({
+            zone: parsers.autocomplete(action.params.zone),
+            instanceName: parsers.autocomplete(action.params.vm),
+            project: parsers.autocomplete(action.params.project),
+            action: 'Delete',
+        },  parsers.boolean(action.params.waitForOperation))
+        
+        resultArray.push(deleteResult);
+        
+        return Promise.resolve(resultArray);
+    } catch (error) {
+        return Promise.reject(error);
+    }
+}
+
 module.exports = {
     createInstance,
     vmAction,
     createVpc,
+    deleteVM,
     // autocomplete methods
     ...require("./autocomplete")
 };
