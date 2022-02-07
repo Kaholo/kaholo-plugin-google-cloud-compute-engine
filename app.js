@@ -1,6 +1,6 @@
 const GoogleComputeService = require('./google-compute-service');
 const parsers = require('./parsers');
-const {removeUndefinedAndEmpty} = require('./helpers')
+const { removeUndefinedAndEmpty } = require('./helpers')
 
 async function createInstance(action, settings) {
     const computeClient = GoogleComputeService.from(action.params, settings);
@@ -112,33 +112,33 @@ async function vmAction(action, settings) {
         instanceName: parsers.autocomplete(action.params.vm),
         startUpScript: parsers.text(action.params.startScript),
         project: parsers.autocomplete(action.params.project),
-    }, 
-    parsers.boolean(action.params.waitForOperation)
+    },
+        parsers.boolean(action.params.waitForOperation)
     )
 }
 
-async function createVpc(action, settings){
+async function createVpc(action, settings) {
     const computeClient = GoogleComputeService.from(action.params, settings);
 
-    try { 
+    try {
         return await computeClient.createVPC({
             name: parsers.googleCloudName(action.params.name),
             description: parsers.string(action.params.description),
             autoCreateSubnetworks: parsers.boolean(action.params.autoCreateSubnetworks),
             project: parsers.autocomplete(action.params.project)
-        }, parsers.boolean(action.params.waitForOperation)) 
+        }, parsers.boolean(action.params.waitForOperation))
     } catch (e) {
         throw e;
     }
 }
 
-async function deleteVM(action, settings){
+async function deleteVM(action, settings) {
     let resultArray = [];
     const computeClient = GoogleComputeService.from(action.params, settings);
     const isDeleteStaticIP = parsers.boolean(action.params.isDeleteStaticIP);
 
     try {
-        if(isDeleteStaticIP) {
+        if (isDeleteStaticIP) {
             const deleteStatus = await computeClient.deleteReservedExternalIP(parsers.autocomplete(action.params.region), parsers.autocomplete(action.params.vm, true))
             resultArray.push(deleteStatus)
         }
@@ -148,17 +148,17 @@ async function deleteVM(action, settings){
             instanceName: parsers.autocomplete(action.params.vm),
             project: parsers.autocomplete(action.params.project),
             action: 'Delete',
-        },  parsers.boolean(action.params.waitForOperation))
-        
+        }, parsers.boolean(action.params.waitForOperation))
+
         resultArray.push(deleteResult);
-        
+
         return Promise.resolve(resultArray);
     } catch (error) {
         return Promise.reject(error);
     }
 }
 
-async function createSubnet(action, settings){
+async function createSubnet(action, settings) {
     const computeClient = GoogleComputeService.from(action.params, settings);
 
     const subnetworkResource = removeUndefinedAndEmpty({
@@ -171,7 +171,7 @@ async function createSubnet(action, settings){
         enableFlowLogs: parsers.boolean(action.params.flowLogs)
     })
 
-    try {   
+    try {
         return await computeClient.createSubnetwork(subnetworkResource, parsers.boolean(action.params.waitForOperation));
     } catch (error) {
         throw error
@@ -191,7 +191,7 @@ async function reservePrivateIp(action, settings) {
     });
 
     try {
-        return await computeClient.createReservedInternalIP(addressResource, parsers.boolean(action.params.waitForOperation));   
+        return await computeClient.createReservedInternalIP(addressResource, parsers.boolean(action.params.waitForOperation));
     } catch (error) {
         throw error
     }

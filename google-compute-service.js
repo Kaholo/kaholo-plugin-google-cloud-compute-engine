@@ -126,7 +126,7 @@ module.exports = class GoogleComputeService {
             let [operation] = await addressesClient.insert({ addressResource, project: this.projectId, region: addressResource.region });
 
             // wait for the operation to end
-            if(waitForOperation) {
+            if (waitForOperation) {
                 const operationsClient = new compute.RegionOperationsClient({ credentials: this.credentials });
                 while (operation.status !== 'DONE') {
                     [operation] = await operationsClient.wait({
