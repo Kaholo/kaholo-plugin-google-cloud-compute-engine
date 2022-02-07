@@ -178,12 +178,32 @@ async function createSubnet(action, settings){
     }
 }
 
+async function reservePrivateIp(action, settings) {
+    const computeClient = GoogleComputeService.from(action.params, settings);
+
+    const addressResource = removeUndefinedAndEmpty({
+        name: parsers.string(action.params.resName),
+        address: parsers.string(action.params.resIp),
+        subnetwork: parsers.autocomplete(action.params.subnet),
+        region: parsers.autocomplete(action.params.region),
+        addressType: "INTERNAL",
+        purpose: "GCE_ENDPOINT"
+    });
+
+    try {
+        return await computeClient.createReservedInternalIP(addressResource, parsers.boolean(action.params.waitForOperation));   
+    } catch (error) {
+        throw error
+    }
+}
+
 module.exports = {
     createInstance,
     vmAction,
     createVpc,
     deleteVM,
     createSubnet,
+    reservePrivateIp,
     // autocomplete methods
     ...require("./autocomplete")
 };

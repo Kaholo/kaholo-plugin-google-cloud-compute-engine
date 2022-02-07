@@ -691,6 +691,91 @@
           "learnUrl": "https://github.com/Kaholo/kaholo-plugin-GoogleCloudComputeEngine"
         }
       ]
+    },
+    {
+      "name": "reservePrivateIp",
+      "viewName": "Reserve Private IP Address",
+      "params": [
+        {
+          "name": "creds",
+          "viewName": "Service Account Credentials *",
+          "required": false,
+          "type": "vault",
+          "description": "Vaulted JSON document containing service account credentials as provided by GCP",
+          "learnUrl": "https://cloud.google.com/docs/authentication/production"
+        },
+        {
+          "name": "project",
+          "viewName": "Project *",
+          "required": false,
+          "type": "autocomplete",
+          "autocompleteType": "function",
+          "functionName": "listProjectsAuto",
+          "description": "GCP Project defines how your app interacts with services and resources",
+          "placeholder": "select using autocomplete",
+          "learnUrl": "https://cloud.google.com/resource-manager/docs/creating-managing-projects"
+        },
+        {
+          "name": "network",
+          "viewName": "VPC Network Name *",
+          "required": false,
+          "type": "autocomplete",
+          "autocompleteType": "function",
+          "functionName": "listNetworksAuto",
+          "description": "VPC Network in which to make the address reservation",
+          "placeholder": "select using autocomplete",
+          "learnUrl": "https://cloud.google.com/vpc/docs/using-vpc",
+          "codedExample": "global/networks/apac-test-vpc"
+        },
+        {
+          "name": "region",
+          "viewName": "Region *",
+          "required": false,
+          "type": "autocomplete",
+          "autocompleteType": "function",
+          "functionName": "listRegionsAuto",
+          "description": "Geographical GCP region of the subnet in which to make the address reservation",
+          "placeholder": "select using autocomplete",
+          "learnUrl": "https://cloud.google.com/dataflow/docs/guides/specifying-networks"
+        },
+        {
+          "name": "subnet",
+          "viewName": "Subnet *",
+          "required": false,
+          "type": "autocomplete",
+          "autocompleteType": "function",
+          "functionName": "listSubnetworksAuto",
+          "description": "Subnet in which to make the address reservation",
+          "placeholder": "select using autocomplete",
+          "learnUrl": "https://cloud.google.com/compute/docs/ip-addresses/reserve-static-internal-ip-address"
+        },
+        {
+          "name": "resName",
+          "viewName": "Reservation name *",
+          "required": false,
+          "type": "string",
+          "description": "Name for the reserved IP address resource",
+          "placeholder": "reserve-name-01",
+          "learnUrl": "https://cloud.google.com/compute/docs/ip-addresses/reserve-static-internal-ip-address"
+        },
+        {
+          "name": "resIp",
+          "viewName": "IP To Reserve *",
+          "required": false,
+          "type": "string",
+          "description": "IP address to reserve (within the address space of the selected subnet)",
+          "placeholder": "10.46.22.100",
+          "learnUrl": "https://cloud.google.com/compute/docs/ip-addresses/reserve-static-internal-ip-address"
+        },
+        {
+          "name": "waitForOperation",
+          "viewName": "Wait For Operation End",
+          "required": false,
+          "type": "boolean",
+          "description": "If checked, wait for this action to complete before moving on to next action in pipeline",
+          "learnUrl": "https://github.com/Kaholo/kaholo-plugin-GoogleCloudComputeEngine"
+        }
+      ]
     }
   ]
 }
