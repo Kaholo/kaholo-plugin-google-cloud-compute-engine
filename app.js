@@ -139,7 +139,14 @@ async function deleteVM(action, settings) {
 
     try {
         if (isDeleteStaticIP) {
-            const deleteStatus = await computeClient.deleteReservedExternalIP(parsers.autocomplete(action.params.region), parsers.autocomplete(action.params.vm, true))
+            const addressResource = {
+                // this need to be fixed, right now isDeleteStaticIP flag deletes only those IP addresses which were created while VM was created using Launch VM method via Kaholo.
+                name: `${parsers.autocomplete(action.params.vm, true)}-ext-addr`,
+                region: parsers.autocomplete(action.params.region),
+                project: parsers.autocomplete(action.params.project)
+            }
+
+            const deleteStatus = await computeClient.deleteReservedExternalIP(addressResource, true)
             resultArray.push(deleteStatus)
         }
 

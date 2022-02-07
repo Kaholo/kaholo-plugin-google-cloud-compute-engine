@@ -47,56 +47,50 @@ module.exports = class GoogleComputeService {
 
     /**
     * Create and reserve external IP address for the specified instance. Reservation name will be `{instanceName}-ext-addr`
-    * @param {string} region The region of the instance
-    * @param {string} instanceName The name\id of the instance to create the external IP for 
+    * @param {Object} addressResource Address object which needs to be created.
+    * @param {boolean} waitForOperation Flag whether to wait for operation to complete.
     * @return {Promise<string>} The external address created for the instance
     */
-    async createReservedExternalIP(region, instanceName) {
-        const addrName = `${instanceName}-ext-addr`;
-
-        let addressResource = {
-            name: addrName,
-            addressType: "EXTERNAL"
-        };
-
+    async createReservedExternalIP(addressResource, waitForOperation) {
         try {
             const addressesClient = new compute.AddressesClient({ credentials: this.credentials });
-            let [operation] = await addressesClient.insert({ addressResource, project: this.projectId, region });
+            let [operation] = await addressesClient.insert({ addressResource, project: this.projectId, region: addressResource.region });
 
             // wait for the operation to end
-            const operationsClient = new compute.RegionOperationsClient({ credentials: this.credentials });
-            while (operation.status !== 'DONE') {
-                [operation] = await operationsClient.wait({
-                    operation: operation.name,
-                    project: this.projectId,
-                    region
-                });
+            if(waitForOperation) {
+                const operationsClient = new compute.RegionOperationsClient({ credentials: this.credentials });
+                while (operation.status !== 'DONE') {
+                    [operation] = await operationsClient.wait({
+                        operation: operation.name,
+                        project: this.projectId,
+                        region: addressResource.region
+                    });
+                }
+    
+                // get the result of operation
+                let [response] = await addressesClient.get({ address: addressResource.name, project: this.projectId, region: addressResource.region })
+    
+                return response.address;
             }
 
-            // get the result of operation
-            let [response] = await addressesClient.get({ address: addrName, project: this.projectId, region })
-
-            return response.address;
+            return operation
         }
         catch (err) {
-            throw `Couldn't create external address with the name: ${addrName}\n${err.message || JSON.stringify(err)}`;
+            throw `Couldn't create external address with the name: ${addressResource.name}\n${err.message || JSON.stringify(err)}`;
         }
     }
 
     /**
-    * Delte reserved external IP address. Reserved IP name whic will be deleted is in this form `{instanceName}-ext-addr`
-    * @param {string} region The region of the instance
-    * @param {string} instanceName The name\id of the instance to create the external IP for 
-    * @return {Promise<string>} The external address created for the instance
+    * Delte reserved external IP address.
+    * @param {Object} addressResource Address object which needs to be deleted.
+    * @param {boolean} waitForOperation Flag whether to wait for operation to complete.
+    * @return {Promise<string>} Status/Operation of the methods completeion.
     */
-    async deleteReservedExternalIP(region, instanceName) {
-        // this address should be present in order for the method to work
-        const addrName = `${instanceName}-ext-addr`;
-
+    async deleteReservedExternalIP(addressResource, waitForOperation) {
         const request = removeUndefinedAndEmpty({
-            project: this.projectId,
-            region,
-            address: addrName
+            project: addressResource.project || this.projectId,
+            region: addressResource.region,
+            address: addressResource.name
         });
 
         try {
@@ -104,19 +98,22 @@ module.exports = class GoogleComputeService {
             let [operation] = await addressesClient.delete(request);
 
             // wait for the operation to end
-            const operationsClient = new compute.RegionOperationsClient({ credentials: this.credentials });
-            while (operation.status !== 'DONE') {
-                [operation] = await operationsClient.wait({
-                    operation: operation.name,
-                    project: this.projectId,
-                    region
-                });
+            if (waitForOperation) {
+                const operationsClient = new compute.RegionOperationsClient({ credentials: this.credentials });
+                while (operation.status !== 'DONE') {
+                    [operation] = await operationsClient.wait({
+                        operation: operation.name,
+                        project: this.projectId,
+                        region: addressResource.region
+                    });
+                }
+    
+                return operation.status;
             }
 
-            return operation.status;
-
+            return operation;
         } catch (err) {
-            throw `Couldn't delete external address with the name: ${addrName}\n${err.message || JSON.stringify(err)}`
+            throw `Couldn't delete external address with the name: ${addressResource.name}\n${err.message || JSON.stringify(err)}`
         }
     }
 
@@ -145,7 +142,7 @@ module.exports = class GoogleComputeService {
             return operation
         }
         catch (err) {
-            throw `Couldn't create internal address: ${err.message || JSON.stringify(err)}`;
+            throw `Couldn't create internal address with the name: ${addressResource.name}\n${err.message || JSON.stringify(err)}`;
         }
     }
 
@@ -161,7 +158,13 @@ module.exports = class GoogleComputeService {
 
         // create reserved external IP and write it to networkInterfaces array which will be passed to instanceResource
         if (createReservedExtIP) {
-            const natIP = await this.createReservedExternalIP(instanceResource.region, instanceResource.name);
+            const addressResource = {
+                name: `${instanceResource.name}-ext-addr`,
+                region: instanceResource.region,
+                addressType: "EXTERNAL"
+            }
+
+            const natIP = await this.createReservedExternalIP(addressResource, true);
             if (!instanceResource.networkInterfaces) {
                 instanceResource.networkInterfaces = [{ accessConfigs: [{ natIP }] }];
             }
