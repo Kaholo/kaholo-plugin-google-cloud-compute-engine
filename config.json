@@ -349,6 +349,122 @@
           "learnUrl": "https://cloud.google.com/compute/docs/ip-addresses/reserve-static-internal-ip-address"
         }
       ]
+    },
+    {
+      "name": "vmAction",
+      "viewName": "VM Action",
+      "params": [
+        {
+          "name": "creds",
+          "viewName": "Service Account Credentials *",
+          "required": false,
+          "type": "vault",
+          "description": "Vaulted JSON document containing service account credentials as provided by GCP",
+          "learnUrl": "https://cloud.google.com/docs/authentication/production"
+        },
+        {
+          "name": "project",
+          "viewName": "Project *",
+          "required": false,
+          "type": "autocomplete",
+          "autocompleteType": "function",
+          "functionName": "listProjectsAuto",
+          "description": "GCP Project defines how your app interacts with services and resources",
+          "placeholder": "select using autocomplete",
+          "learnUrl": "https://cloud.google.com/resource-manager/docs/creating-managing-projects"
+        },
+        {
+          "name": "region",
+          "viewName": "Region",
+          "required": false,
+          "type": "autocomplete",
+          "autocompleteType": "function",
+          "functionName": "listRegionsAuto",
+          "description": "Geographical GCP region where infrastructure is or will be located",
+          "placeholder": "select using autocomplete",
+          "learnUrl": "https://cloud.google.com/compute/docs/regions-zones"
+        },
+        {
+          "name": "zone",
+          "viewName": "Zone *",
+          "type": "autocomplete",
+          "autocompleteType": "function",
+          "functionName": "listZonesAuto",
+          "description": "Zone is a subdivision of GCP regions, typically region-a, b, or c",
+          "placeholder": "select using autocomplete",
+          "learnUrl": "https://cloud.google.com/compute/docs/regions-zones"
+        },
+        {
+          "name": "vm",
+          "viewName": "VM Instance *",
+          "required": false,
+          "type": "autocomplete",
+          "autocompleteType": "function",
+          "functionName": "listVmsAuto",
+          "description": "VM instance to run the action on",
+          "placeholder": "select using autocomplete",
+          "learnUrl": "https://cloud.google.com/compute",
+          "codedExample": "https://www.googleapis.com/compute/v1/projects/project-alpha/zones/asia-southeast1-b/instances/8692795591123456789"
+        },
+        {
+          "name": "action",
+          "viewName": "Action *",
+          "required": false,
+          "type": "options",
+          "options": [
+            {
+              "id": "Stop",
+              "name": "Stop"
+            },
+            {
+              "id": "Start",
+              "name": "Start"
+            },
+            {
+              "id": "Restart",
+              "name": "Restart"
+            },
+            {
+              "id": "Get",
+              "name": "Get"
+            },
+            {
+              "id": "Get-IP",
+              "name": "Get External IP"
+            },
+            {
+              "id": "Delete",
+              "name": "Delete"
+            }
+          ],
+          "description": "Action to perform on the VM instance",
+          "placeholder": "select using drop-down",
+          "learnUrl": "https://cloud.google.com/compute/docs/instances/stop-start-instance"
+        },
+        {
+          "name": "addScript",
+          "viewName": "Add Start Up Script",
+          "type": "boolean",
+          "description": "Check if want to add start script (for start a VM only)",
+          "learnUrl": "https://cloud.google.com/compute/docs/instances/startup-scripts/linux#api"
+        },
+        {
+          "name": "startupScript",
+          "viewName": "Start Up Script",
+          "type": "text",
+          "description": "Start Up Script that want to add in starting a VM",
+          "placeholder": "#! /bin/bash\napt update\napt -y install apache2\ncat <<EOF > /var/www/html/index.html\n<html><body><p>Linux startup script added directly.</p></body></html>",
+          "learnUrl": "https://cloud.google.com/compute/docs/instances/startup-scripts/linux#api"
+        },
+        {
+          "name": "waitForOperation",
+          "viewName": "Wait For Operation End",
+          "required": false,
+          "type": "boolean",
+          "description": "If checked, wait for this action to complete before moving on to next action in pipeline",
+          "learnUrl": "https://github.com/Kaholo/kaholo-plugin-GoogleCloudComputeEngine"
+        }
+      ]
     }
   ]
 }

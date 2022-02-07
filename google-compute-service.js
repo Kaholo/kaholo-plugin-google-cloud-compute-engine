@@ -182,6 +182,108 @@ module.exports = class GoogleComputeService {
         });
     }
 
+    async handleAction({action, zone, instanceName, startUpScript, project}, waitForOperation) {
+        const instancesClient = new compute.InstancesClient({ credentials: this.credentials });
+
+        let request = removeUndefinedAndEmpty({
+            instance: instanceName,
+            project: project || this.projectId,
+            zone
+        })
+
+        let res = [];
+
+        try {
+            switch (action) {
+                case 'Stop':
+                    res = await instancesClient.stop(request);
+                    break;
+                case 'Delete':
+                    res = await instancesClient.delete(request);
+                    break;
+                case 'Restart':
+                    res = await instancesClient.reset(request);
+                    break;
+                case 'Start':
+                    let startScript = "";
+
+                    if (startUpScript) {
+                        await instancesClient.stop(request);
+                        startUpScript.forEach(item => startScript += `${item}\n`)
+                        const startUpScript_Metadata = {
+                            "key": 'startup-script',
+                            "value": startScript
+                        }
+                        await instancesClient.setMetadata({...request, metadataResource: {items: [startUpScript_Metadata]}});
+                    }
+
+                    res = await instancesClient.start(request);
+                    break;
+                case 'Get':
+                    return this.getInstance(request);
+                case 'Get-IP':
+                    const instance = await this.getInstance(request);
+                    if (!instance.networkInterfaces || !instance.networkInterfaces[0].accessConfigs ||
+                        !instance.networkInterfaces[0].accessConfigs[0].natIP) {
+                        throw "No external IP found";
+                    }
+                    return instance.networkInterfaces[0].accessConfigs[0].natIP;
+                default:
+                    throw "Must provide an action to run on the VM instance!";
+            }
+        } catch (error) {
+            throw error
+        }
+
+        return new Promise(async (resolve, reject) => {
+            try {
+                if (waitForOperation) {
+                    const operationsClient = new compute.ZoneOperationsClient({ credentials: this.credentials });
+                    let operation = res[0];
+
+                    // Wait for the operation to complete.
+                    while (operation.status !== 'DONE') {
+                        [operation] = await operationsClient.wait({
+                            operation: operation.name,
+                            project: project || this.projectId,
+                            zone,
+                        });
+                    }
+
+                    // get instance after creation
+                    if (action !== "Delete") {
+                        let instance = await this.getInstance(request);
+                        resolve(instance);
+                    }
+                    
+                    resolve(operation);
+                }
+
+                resolve(res[0]);
+            } catch (error) {
+                reject(error);
+            }
+        })
+    }
+
+    async getInstance({instance, project, zone}) {
+        const instancesClient = new compute.InstancesClient({ credentials: this.credentials });
+
+        let request = removeUndefinedAndEmpty({
+            instance,
+            project,
+            zone
+        })
+
+        try {
+            let [response] = await instancesClient.get(request);
+
+            return response;
+        } catch (error) {
+            throw error
+        }
+    }
+
     async listProjects(params) {
         const projectsClient = new ProjectsClient({ credentials: this.credentials })
         let query = params.query;
@@ -372,5 +474,29 @@ module.exports = class GoogleComputeService {
         }
 
         return res;
+    }
+
+    async listInstances(params){
+        const instancesClient = new compute.InstancesClient({ credentials: this.credentials });
+        const zone = parsers.autocomplete(params.zone);
+        const project = parsers.autocomplete(params.project) || this.projectId;
+
+        const request = removeUndefinedAndEmpty({
+            project,
+            zone
+        })
+
+        let iterable = instancesClient.listAsync(request);
+        let res = [];
+
+        try {
+            for await (let instance of iterable) {
+                res.push(instance)
+            }
+        } catch (error) {
+            throw error
+        }
+
+        return res
     }
 } 

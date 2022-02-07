@@ -103,8 +103,23 @@ async function createInstance(action, settings) {
     return createResult;
 }
 
+async function vmAction(action, settings) {
+    const computeClient = GoogleComputeService.from(action.params, settings);
+
+    return computeClient.handleAction({
+        action: action.params.action,
+        zone: parsers.autocomplete(action.params.zone),
+        instanceName: parsers.autocomplete(action.params.vm),
+        startUpScript: parsers.text(action.params.startScript),
+        project: parsers.autocomplete(action.params.project),
+    }, 
+    parsers.boolean(action.params.waitForOperation)
+    )
+}
+
 module.exports = {
     createInstance,
+    vmAction,
     // autocomplete methods
     ...require("./autocomplete")
 };

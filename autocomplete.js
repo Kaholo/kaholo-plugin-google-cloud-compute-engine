@@ -82,4 +82,5 @@ module.exports = {
   listServiceAccountsAuto: listAuto("listServiceAccounts", ["email", "displayName"]),
   listNetworksAuto: listAuto("listNetworks", ["selfLink", "name"]),
   listSubnetworksAuto: listAuto("listSubnetworks", ["selfLink", "name"]),
+  listVmsAuto: listAuto("listInstances", undefined)
 }
