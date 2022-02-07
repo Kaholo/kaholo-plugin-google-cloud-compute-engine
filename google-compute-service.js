@@ -36,9 +36,9 @@ module.exports = class GoogleComputeService {
         return new GoogleComputeService(creds, project);
     }
 
-    getAuthClient(){
+    getAuthClient() {
         return new JWT(
-            this.credentials.client_email, 
+            this.credentials.client_email,
             null,
             this.credentials.private_key,
             ['https://www.googleapis.com/auth/cloud-platform']
@@ -182,7 +182,7 @@ module.exports = class GoogleComputeService {
         });
     }
 
-    async handleAction({action, zone, instanceName, startUpScript, project}, waitForOperation) {
+    async handleAction({ action, zone, instanceName, startUpScript, project }, waitForOperation) {
         const instancesClient = new compute.InstancesClient({ credentials: this.credentials });
 
         let request = removeUndefinedAndEmpty({
@@ -214,7 +214,7 @@ module.exports = class GoogleComputeService {
                             "key": 'startup-script',
                             "value": startScript
                         }
-                        await instancesClient.setMetadata({...request, metadataResource: {items: [startUpScript_Metadata]}});
+                        await instancesClient.setMetadata({ ...request, metadataResource: { items: [startUpScript_Metadata] } });
                     }
 
                     res = await instancesClient.start(request);
@@ -255,7 +255,7 @@ module.exports = class GoogleComputeService {
                         let instance = await this.getInstance(request);
                         resolve(instance);
                     }
-                    
+
                     resolve(operation);
                 }
 
@@ -266,7 +266,49 @@ module.exports = class GoogleComputeService {
         })
     }
 
-    async getInstance({instance, project, zone}) {
+    async createVPC({ name, description, autoCreateSubnetworks, project }, waitForOperation) {
+        const networksClient = new compute.NetworksClient({ credentials: this.credentials });
+
+        const networkResource = removeUndefinedAndEmpty({
+            name,
+            description,
+            autoCreateSubnetworks
+        });
+
+
+        return new Promise(async (resolve, reject) => {
+            try {
+                let [operation] = await networksClient.insert({ networkResource, project: project || this.projectId })
+
+                if (waitForOperation) {
+                    const operationsClient = new compute.GlobalOperationsClient({ credentials: this.credentials });
+
+                    // Wait for the create operation to complete.
+                    while (operation.status !== 'DONE') {
+                        [operation] = await operationsClient.wait({
+                            operation: operation.name,
+                            project: project || this.projectId,
+                        });
+                    }
+
+                    // get network after creation
+                    let [response] = await networksClient.get({
+                        network: name,
+                        project: project || this.projectId,
+                    });
+
+                    resolve(response);
+                }
+
+                resolve(operation);
+
+            } catch (error) {
+                reject(error)
+            }
+        })
+    }
+
+    async getInstance({ instance, project, zone }) {
         const instancesClient = new compute.InstancesClient({ credentials: this.credentials });
 
         let request = removeUndefinedAndEmpty({
@@ -379,30 +421,30 @@ module.exports = class GoogleComputeService {
         return res;
     }
 
-    async listImageProjects(params){
+    async listImageProjects(params) {
         const userProjects = await this.listProjects(params);
-        return [...userProjects, 
-            {displayName: "Debian Cloud", projectId: "debian-cloud"}, 
-            {displayName: "Windows Cloud", projectId: "windows-cloud"}, 
-            {displayName: "Ubuntu Cloud", projectId: "ubuntu-os-cloud"}, 
-            {displayName: "Ubuntu Pro Cloud", projectId: "ubuntu-os-pro-cloud"},
-            {displayName: "Google UEFI(CentOS|COS) Images", projectId: "gce-uefi-images"},
-            {displayName: "Machine Learning Images", projectId: "ml-images"},
-            {displayName: "Fedora CoreOS Cloud", projectId: "fedora-coreos-cloud"},
-            {displayName: "Windows SQL Cloud", projectId: "windows-sql-cloud"},
-            {displayName: "Windows Cloud", projectId: "windows-cloud"},
-            {displayName: "Red Hat Enterprise Linux SAP Cloud", projectId: "rhel-sap-cloud"},
-            {displayName: "SUSE Cloud", projectId: "suse-cloud"},
-            {displayName: "Rocky Linux Cloud", projectId: "rocky-linux-cloud"}
+        return [...userProjects,
+        { displayName: "Debian Cloud", projectId: "debian-cloud" },
+        { displayName: "Windows Cloud", projectId: "windows-cloud" },
+        { displayName: "Ubuntu Cloud", projectId: "ubuntu-os-cloud" },
+        { displayName: "Ubuntu Pro Cloud", projectId: "ubuntu-os-pro-cloud" },
+        { displayName: "Google UEFI(CentOS|COS) Images", projectId: "gce-uefi-images" },
+        { displayName: "Machine Learning Images", projectId: "ml-images" },
+        { displayName: "Fedora CoreOS Cloud", projectId: "fedora-coreos-cloud" },
+        { displayName: "Windows SQL Cloud", projectId: "windows-sql-cloud" },
+        { displayName: "Windows Cloud", projectId: "windows-cloud" },
+        { displayName: "Red Hat Enterprise Linux SAP Cloud", projectId: "rhel-sap-cloud" },
+        { displayName: "SUSE Cloud", projectId: "suse-cloud" },
+        { displayName: "Rocky Linux Cloud", projectId: "rocky-linux-cloud" }
         ];
     }
 
-    async listImages(params){
+    async listImages(params) {
         const imagesClient = new compute.ImagesClient({ credentials: this.credentials });
         const imageProject = parsers.autocomplete(params.imageProject);
 
-        const request = removeUndefinedAndEmpty({ 
-            project: imageProject || this.projectId, 
+        const request = removeUndefinedAndEmpty({
+            project: imageProject || this.projectId,
         });
 
         let iterable = imagesClient.listAsync(request);
@@ -415,27 +457,27 @@ module.exports = class GoogleComputeService {
         } catch (error) {
             throw error
         }
-        
+
         return res;
     }
 
-    async listServiceAccounts(params){
+    async listServiceAccounts(params) {
         const project = parsers.autocomplete(params.project) || this.projectId;
-        
-        const request = removeUndefinedAndEmpty({ 
+
+        const request = removeUndefinedAndEmpty({
             auth: this.getAuthClient(),
             name: `projects/${project}`
         });
-        
+
         return (await iam.projects.serviceAccounts.list(request)).data.accounts;
     }
 
-    async listNetworks(params){
+    async listNetworks(params) {
         const networksClient = new compute.NetworksClient({ credentials: this.credentials });
         const project = parsers.autocomplete(params.project) || this.projectId;
 
-        const request = removeUndefinedAndEmpty({ 
-            project: project, 
+        const request = removeUndefinedAndEmpty({
+            project: project,
         });
 
         let iterable = networksClient.listAsync(request);
@@ -452,12 +494,12 @@ module.exports = class GoogleComputeService {
         return res;
     }
 
-    async listSubnetworks(params){
+    async listSubnetworks(params) {
         const subnetworksClient = new compute.SubnetworksClient({ credentials: this.credentials });
         const project = parsers.autocomplete(params.project) || this.projectId;
         const region = parsers.autocomplete(params.region);
 
-        const request = removeUndefinedAndEmpty({ 
+        const request = removeUndefinedAndEmpty({
             project,
             region
         });
@@ -476,7 +518,7 @@ module.exports = class GoogleComputeService {
         return res;
     }
 
-    async listInstances(params){
+    async listInstances(params) {
         const instancesClient = new compute.InstancesClient({ credentials: this.credentials });
         const zone = parsers.autocomplete(params.zone);
         const project = parsers.autocomplete(params.project) || this.projectId;

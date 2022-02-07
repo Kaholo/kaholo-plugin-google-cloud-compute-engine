@@ -117,9 +117,25 @@ async function vmAction(action, settings) {
     )
 }
 
+async function createVpc(action, settings){
+    const computeClient = GoogleComputeService.from(action.params, settings);
+
+    try { 
+        return await computeClient.createVPC({
+            name: parsers.googleCloudName(action.params.name),
+            description: parsers.string(action.params.description),
+            autoCreateSubnetworks: parsers.boolean(action.params.autoCreateSubnetworks),
+            project: parsers.autocomplete(action.params.project)
+        }, parsers.boolean(action.params.waitForOperation)) 
+    } catch (e) {
+        throw e;
+    }
+}
+
 module.exports = {
     createInstance,
     vmAction,
+    createVpc,
     // autocomplete methods
     ...require("./autocomplete")
 };

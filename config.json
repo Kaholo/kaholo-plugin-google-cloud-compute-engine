@@ -465,6 +465,65 @@
           "learnUrl": "https://github.com/Kaholo/kaholo-plugin-GoogleCloudComputeEngine"
         }
       ]
+    },
+    {
+      "name": "createVpc",
+      "viewName": "Create VPC Network",
+      "params": [
+        {
+          "name": "creds",
+          "viewName": "Service Account Credentials *",
+          "required": false,
+          "type": "vault",
+          "description": "Vaulted JSON document containing service account credentials as provided by GCP",
+          "learnUrl": "https://cloud.google.com/docs/authentication/production"
+        },
+        {
+          "name": "project",
+          "viewName": "Project *",
+          "required": false,
+          "type": "autocomplete",
+          "autocompleteType": "function",
+          "functionName": "listProjectsAuto",
+          "description": "GCP Project defines how your app interacts with services and resources",
+          "placeholder": "select using autocomplete",
+          "learnUrl": "https://cloud.google.com/resource-manager/docs/creating-managing-projects"
+        },
+        {
+          "name": "name",
+          "viewName": "Network Name *",
+          "required": false,
+          "type": "string",
+          "description": "Unique name for the new VPC network (lowercase letters, numbers, hypen only)",
+          "placeholder": "geotown-net-01",
+          "learnUrl": "https://cloud.google.com/vpc/docs/using-vpc"
+        },
+        {
+          "name": "description",
+          "viewName": "Description",
+          "required": false,
+          "type": "text",
+          "description": "Description for the new VPC network",
+          "placeholder": "VPC for geotown cloud infrastructure",
+          "learnUrl": "https://cloud.google.com/vpc/docs/vpc"
+        },
+        {
+          "name": "autoCreateSubnetworks",
+          "viewName": "Auto Create Subnets",
+          "required": false,
+          "type": "boolean",
+          "description": "If checked, automatically creates one default subnet in every geographical region",
+          "learnUrl": "https://cloud.google.com/vpc/docs/using-vpc"
+        },
+        {
+          "name": "waitForOperation",
+          "viewName": "Wait For Operation End",
+          "required": false,
+          "type": "boolean",
+          "description": "If checked, wait for this action to complete before moving on to next action in pipeline",
+          "learnUrl": "https://github.com/Kaholo/kaholo-plugin-GoogleCloudComputeEngine"
+        }
+      ]
     }
   ]
 }
