@@ -57,7 +57,7 @@ module.exports = class GoogleComputeService {
             let [operation] = await addressesClient.insert({ addressResource, project: this.projectId, region: addressResource.region });
 
             // wait for the operation to end
-            if(waitForOperation) {
+            if (waitForOperation) {
                 const operationsClient = new compute.RegionOperationsClient({ credentials: this.credentials });
                 while (operation.status !== 'DONE') {
                     [operation] = await operationsClient.wait({
@@ -66,10 +66,10 @@ module.exports = class GoogleComputeService {
                         region: addressResource.region
                     });
                 }
-    
+
                 // get the result of operation
                 let [response] = await addressesClient.get({ address: addressResource.name, project: this.projectId, region: addressResource.region })
-    
+
                 return response.address;
             }
 
@@ -107,7 +107,7 @@ module.exports = class GoogleComputeService {
                         region: addressResource.region
                     });
                 }
-    
+
                 return operation.status;
             }
 

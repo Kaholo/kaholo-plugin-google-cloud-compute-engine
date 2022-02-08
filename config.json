@@ -7,7 +7,25 @@
   "imgUrl": "logo.png",
   "version": "2.1.6",
   "category": ["CLOUD", "COMPUTE"],
-  "keywords": ["GCP", "compute", "google", "platform", "vm", "instance", "cloud", "cluster", "project", "infra", "infrastructure", "cli", "network", "subnet", "firewall", "IP", "route"],
+  "keywords": [
+    "GCP",
+    "compute",
+    "google",
+    "platform",
+    "vm",
+    "instance",
+    "cloud",
+    "cluster",
+    "project",
+    "infra",
+    "infrastructure",
+    "cli",
+    "network",
+    "subnet",
+    "firewall",
+    "IP",
+    "route"
+  ],
   "settings": [
     {
       "name": "creds",
@@ -546,7 +564,7 @@
           "placeholder": "project-name-username",
           "learnUrl": "https://cloud.google.com/resource-manager/docs/creating-managing-projects"
         },
-        
+
         {
           "name": "region",
           "viewName": "Region",
@@ -777,7 +795,7 @@
         }
       ]
     },
-     {
+    {
       "name": "createFw",
       "viewName": "Create Firewall Rule",
       "params": [
