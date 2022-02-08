@@ -5,7 +5,7 @@
   "execProgram": "node",
   "main": "app.js",
   "imgUrl": "logo.png",
-  "version": "2.1.5",
+  "version": "2.1.6",
   "category": ["CLOUD", "COMPUTE"],
   "keywords": ["GCP", "compute", "google", "platform", "vm", "instance", "cloud", "cluster", "project", "infra", "infrastructure", "cli", "network", "subnet", "firewall", "IP", "route"],
   "settings": [
@@ -774,6 +774,179 @@
           "type": "boolean",
           "description": "If checked, wait for this action to complete before moving on to next action in pipeline",
           "learnUrl": "https://github.com/Kaholo/kaholo-plugin-GoogleCloudComputeEngine"
+        }
+      ]
+    },
+     {
+      "name": "createFw",
+      "viewName": "Create Firewall Rule",
+      "params": [
+        {
+          "name": "creds",
+          "viewName": "Service Account Credentials *",
+          "required": false,
+          "type": "vault",
+          "description": "Vaulted JSON document containing service account credentials as provided by GCP",
+          "learnUrl": "https://cloud.google.com/docs/authentication/production"
+        },
+        {
+          "name": "project",
+          "viewName": "Project *",
+          "required": false,
+          "type": "autocomplete",
+          "autocompleteType": "function",
+          "functionName": "listProjectsAuto",
+          "description": "GCP Project defines how your app interacts with services and resources",
+          "placeholder": "select using autocomplete",
+          "learnUrl": "https://cloud.google.com/resource-manager/docs/creating-managing-projects"
+        },
+        {
+          "name": "network",
+          "viewName": "VPC Network Name *",
+          "required": false,
+          "type": "autocomplete",
+          "autocompleteType": "function",
+          "functionName": "listNetworksAuto",
+          "description": "The name of a VPC Network in the project",
+          "placeholder": "select using autocomplete",
+          "learnUrl": "https://cloud.google.com/vpc/docs/using-vpc",
+          "codedExample": "global/networks/apac-test-vpc"
+        },
+        {
+          "name": "name",
+          "viewName": "Firewall Rule Name *",
+          "required": false,
+          "type": "string",
+          "description": "Unique name for the firewall rule (lowercase letters, numbers, hypen only)",
+          "placeholder": "allow-rdp-in",
+          "learnUrl": "https://cloud.google.com/vpc/docs/using-firewalls"
+        },
+        {
+          "name": "priority",
+          "viewName": "Priority (integer)",
+          "required": false,
+          "type": "string",
+          "description": "The highest priority rule applicable takes precedence. 0 = highest priority, 1000 = default, 65535 = lowest priority",
+          "placeholder": "1000",
+          "learnUrl": "https://cloud.google.com/vpc/docs/firewalls#priority_order_for_firewall_rules"
+        },
+        {
+          "name": "direction",
+          "viewName": "Direction",
+          "required": false,
+          "type": "options",
+          "options": [
+            {
+              "id": "INGRESS",
+              "name": "Ingress"
+            },
+            {
+              "id": "EGRESS",
+              "name": "Egress"
+            }
+          ],
+          "description": "Ingress (default) is inbound traffic. Egress is traffic exiting the VPC network.",
+          "placeholder": "select using drop-down",
+          "learnUrl": "https://cloud.google.com/vpc/docs/firewalls#direction_of_the_rule"
+        },
+        {
+          "name": "action",
+          "viewName": "Action",
+          "required": false,
+          "type": "options",
+          "options": [
+            {
+              "id": "allow",
+              "name": "Allow"
+            },
+            {
+              "id": "deny",
+              "name": "Deny"
+            }
+          ],
+          "description": "To either Allow (default) or Deny traffic matching IP, protocol, and/or port",
+          "placeholder": "select using drop-down",
+          "learnUrl": "https://cloud.google.com/vpc/docs/firewalls#action_of_the_rule",
+          "codedExample": "lowercase - \"allow\" or \"deny\""
+        },
+        {
+          "name": "ipRanges",
+          "viewName": "Ip Range Filter",
+          "required": false,
+          "type": "text",
+          "description": "Range of IP addresses for source filter (ingress) or destination filter (egress)",
+          "placeholder": "10.52.111.0/24",
+          "learnUrl": "https://cloud.google.com/vpc/docs/firewalls#firewall_rule_components"
+        },
+        {
+          "name": "protocol",
+          "viewName": "Protocol",
+          "required": false,
+          "type": "options",
+          "options": [
+            {
+              "id": "all",
+              "name": "All"
+            },
+            {
+              "id": "ah",
+              "name": "AH"
+            },
+            {
+              "id": "esp",
+              "name": "ESP"
+            },
+            {
+              "id": "icmp",
+              "name": "ICMP"
+            },
+            {
+              "id": "ipip",
+              "name": "IPIP"
+            },
+            {
+              "id": "sctp",
+              "name": "SCTP"
+            },
+            {
+              "id": "tcp",
+              "name": "TCP"
+            },
+            {
+              "id": "udp",
+              "name": "UDP"
+            }
+          ],
+          "description": "Protocol to match for the firewall rule, default is all traffic",
+          "placeholder": "select using drop-down",
+          "learnUrl": "https://cloud.google.com/vpc/docs/using-firewalls",
+          "codedExample": "lowercase - \"all\", \"tcp\", \"icmp\", etc."
+        },
+        {
+          "name": "ports",
+          "viewName": "Ports",
+          "required": false,
+          "type": "text",
+          "description": "Port to match for firewall rules using TCP, UDP, or SCTP.",
+          "placeholder": "3389",
+          "learnUrl": "https://cloud.google.com/vpc/docs/using-firewalls"
+        },
+        {
+          "name": "waitForOperation",
+          "viewName": "Wait For Operation End",
+          "required": false,
+          "type": "boolean",
+          "description": "If checked, wait for this action to complete before moving on to next action in pipeline",
+          "learnUrl": "https://github.com/Kaholo/kaholo-plugin-GoogleCloudComputeEngine"
+        },
+        {
+          "name": "tags",
+          "viewName": "Network Tags",
+          "required": false,
+          "type": "text",
+          "description": "Network Tags associate firewall rules only to VMs with the same tag or tags",
+          "placeholder": "rdp-server",
+          "learnUrl": "https://cloud.google.com/vpc/docs/add-remove-network-tags"
         }
       ]
     }

@@ -383,6 +383,45 @@ module.exports = class GoogleComputeService {
         });
     }
 
+    async createFirewallRule(firewallResource, waitForOperation) {
+        const firewallClient = new compute.FirewallsClient({ credentials: this.credentials });
+
+        const request = {
+            firewallResource,
+            project: this.projectId
+        }
+
+        return new Promise(async (resolve, reject) => {
+            try {
+                let [operation] = await firewallClient.insert(request);
+
+                if (waitForOperation) {
+                    const operationsClient = new compute.GlobalOperationsClient({ credentials: this.credentials });
+
+                    // Wait for the create operation to complete.
+                    while (operation.status !== 'DONE') {
+                        [operation] = await operationsClient.wait({
+                            operation: operation.name,
+                            project: this.projectId,
+                        });
+                    }
+
+                    // get subnetwork after creation
+                    let [response] = await firewallClient.get({
+                        firewall: firewallResource.name,
+                        project: this.projectId,
+                    });
+
+                    resolve(response);
+                }
+
+                resolve(operation);
+            } catch (error) {
+                reject(error);
+            }
+        })
+    }
+
     async getInstance({ instance, project, zone }) {
         const instancesClient = new compute.InstancesClient({ credentials: this.credentials });
 

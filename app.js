@@ -204,6 +204,58 @@ async function reservePrivateIp(action, settings) {
     }
 }
 
+async function createFw(action, settings) {
+    const computeClient = GoogleComputeService.from(action.params, settings);
+
+    let name = parsers.googleCloudName(action.params.name),
+        network = parsers.autocomplete(action.params.network),
+        priority = parsers.number(action.params.priority) || 1000,
+        direction = action.params.direction || "INGRESS",
+        actionFw = action.params.action || "allow",
+        ipRange = parsers.array(action.params.ipRanges) || "0.0.0.0/0",
+        protocol = action.params.protocol || "all",
+        ports = parsers.array(action.params.ports),
+        tags = parsers.array(action.params.tags);
+
+
+    let firewallResource = removeUndefinedAndEmpty({
+        name,
+        network,
+        priority: priority || 1000,
+        destinationRanges: [],
+        sourceRanges: [],
+        direction: direction || "INGRESS"
+    });
+
+    if (["tcp", "udp", "sctp"].includes(protocol)) {
+        if (ports == undefined || ports.length == 0) {
+            throw "Port ranges must be specified for rules using protocols TPC, UDP, and SCTP.";
+        }
+    }
+    else {
+        if (ports != undefined && ports.length != 0) {
+            throw "Port ranges may be specified only for protocols TCP, UDP, and SCTP.";
+        }
+    }
+
+    const fwRule = [{
+        IPProtocol: protocol || 'all',
+        ports
+    }];
+    if (fwRule) firewallResource[!actionFw || actionFw === "allow" ? "allowed" : "denied"] = fwRule;
+
+    if (ipRange) firewallResource[firewallResource.direction === "INGRESS" ? "sourceRanges" : "destinationRanges"] = ipRange;
+
+    tags = tags || [];
+    if (tags.length > 0) firewallResource[firewallResource.direction === "INGRESS" ? "targetTags" : "sourceTags"] = tags;
+
+    try {
+        return await computeClient.createFirewallRule(firewallResource, parsers.boolean(action.params.waitForOperation));
+    } catch (error) {
+        throw error;
+    }
+}
+
 module.exports = {
     createInstance,
     vmAction,
@@ -211,6 +263,7 @@ module.exports = {
     deleteVM,
     createSubnet,
     reservePrivateIp,
+    createFw,
     // autocomplete methods
     ...require("./autocomplete")
 };
