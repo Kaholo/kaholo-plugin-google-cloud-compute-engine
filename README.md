@@ -6,10 +6,14 @@ This plugin requires the following APIs to be enabled for your project(s) in the
 >**Google Cloud Compute Engine API**
 >
 >**Identity and Access Management (IAM) API** *
+>
+>**Cloud Resource Manager API** **
 
-If you enabled an API recently, a few minutes may be required for the action to propagate to the systems and become fully effective.
+APIs are enabled on a project-by-project basis. If you enabled an API recently, a few minutes may be required for the action to propagate to the systems and become fully effective.
 
 \* The IAM API is needed only for autocomplete functionality of parameters Api Access Service Account and Service Account Access Scopes in method Launch VM.
+
+\*\* The Cloud Resource Manager API is needed only for autocomplete functionality of parameter Project.
 
 ## Installation
 For download, installation, upgrade, downgrade and troubleshooting of plugins in general, see [INSTALL.md](https://github.com/Kaholo/kaholo-plugin-GoogleCloudComputeEngine/blob/master/INSTALL.md).
