@@ -47,9 +47,10 @@ async function createInstance(action, settings) {
     let zone = parsers.autocomplete(action.params.zone);
     let saAccessScopes = action.params.saAccessScopes || "default";
     let serviceAccount = parsers.autocomplete(action.params.serviceAccount);
-    let name = parsers.string(action.params.name);
-    let projectId = parsers.autocomplete(action.params.project);
-    let region = parsers.autocomplete(action.params.region);
+    let name = parsers.googleCloudName(action.params.name);
+    let projectId = parsers.autocomplete(action.params.project || settings.project);
+    let region = parsers.autocomplete(action.params.region || settings.region);
+    const waitForOperation = parsers.boolean(action.params.waitForOperation || settings.waitForOperation);
 
     // JSON representation of the instance which is going to be created
     const instanceResource = removeUndefinedAndEmpty({
@@ -97,7 +98,7 @@ async function createInstance(action, settings) {
     const createResult = await computeClient.createInstance(
         instanceResource,
         parsers.boolean(action.params.autoCreateStaticIP),
-        parsers.boolean(action.params.waitForOperation)
+        waitForOperation
     );
 
     return createResult;
@@ -105,28 +106,31 @@ async function createInstance(action, settings) {
 
 async function vmAction(action, settings) {
     const computeClient = GoogleComputeService.from(action.params, settings);
+    const waitForOperation = parsers.boolean(action.params.waitForOperation || settings.waitForOperation);
 
     return computeClient.handleAction({
         action: action.params.action,
         zone: parsers.autocomplete(action.params.zone),
         instanceName: parsers.autocomplete(action.params.vm),
         startUpScript: parsers.text(action.params.startScript),
-        project: parsers.autocomplete(action.params.project),
+        project: parsers.autocomplete(action.params.project || settings.project),
     },
-        parsers.boolean(action.params.waitForOperation)
+        waitForOperation
     )
 }
 
 async function createVpc(action, settings) {
     const computeClient = GoogleComputeService.from(action.params, settings);
+    const waitForOperation = parsers.boolean(action.params.waitForOperation || settings.waitForOperation);
+
+    const networkResource = removeUndefinedAndEmpty({
+        name: parsers.googleCloudName(action.params.name),
+        description: parsers.string(action.params.description),
+        autoCreateSubnetworks: parsers.boolean(action.params.autoCreateSubnetworks)
+    });
 
     try {
-        return await computeClient.createVPC({
-            name: parsers.googleCloudName(action.params.name),
-            description: parsers.string(action.params.description),
-            autoCreateSubnetworks: parsers.boolean(action.params.autoCreateSubnetworks),
-            project: parsers.autocomplete(action.params.project)
-        }, parsers.boolean(action.params.waitForOperation))
+        return await computeClient.createVPC(networkResource, waitForOperation)
     } catch (e) {
         throw e;
     }
@@ -136,14 +140,15 @@ async function deleteVM(action, settings) {
     let resultArray = [];
     const computeClient = GoogleComputeService.from(action.params, settings);
     const isDeleteStaticIP = parsers.boolean(action.params.isDeleteStaticIP);
+    const waitForOperation = parsers.boolean(action.params.waitForOperation || settings.waitForOperation);
 
     try {
         if (isDeleteStaticIP) {
             const addressResource = {
                 // this need to be fixed, right now isDeleteStaticIP flag deletes only those IP addresses which were created while VM was created using Launch VM method via Kaholo.
                 name: `${parsers.autocomplete(action.params.vm, true)}-ext-addr`,
-                region: parsers.autocomplete(action.params.region),
-                project: parsers.autocomplete(action.params.project)
+                region: parsers.autocomplete(action.params.region || settings.region),
+                project: parsers.autocomplete(action.params.project || settings.project)
             }
 
             const deleteStatus = await computeClient.deleteReservedExternalIP(addressResource, true)
@@ -153,9 +158,9 @@ async function deleteVM(action, settings) {
         const deleteResult = await computeClient.handleAction({
             zone: parsers.autocomplete(action.params.zone),
             instanceName: parsers.autocomplete(action.params.vm),
-            project: parsers.autocomplete(action.params.project),
+            project: parsers.autocomplete(action.params.project || settings.project),
             action: 'Delete',
-        }, parsers.boolean(action.params.waitForOperation))
+        }, waitForOperation)
 
         resultArray.push(deleteResult);
 
@@ -167,19 +172,20 @@ async function deleteVM(action, settings) {
 
 async function createSubnet(action, settings) {
     const computeClient = GoogleComputeService.from(action.params, settings);
+    const waitForOperation = parsers.boolean(action.params.waitForOperation || settings.waitForOperation);
 
     const subnetworkResource = removeUndefinedAndEmpty({
         network: parsers.autocomplete(action.params.network),
         name: parsers.googleCloudName(action.params.name),
         description: parsers.string(action.params.description),
-        region: parsers.autocomplete(action.params.region),
+        region: parsers.autocomplete(action.params.region || settings.region),
         ipCidrRange: parsers.string(action.params.ipRange),
         privateIpGoogleAccess: parsers.boolean(action.params.privateGoogleAccess),
         enableFlowLogs: parsers.boolean(action.params.flowLogs)
     })
 
     try {
-        return await computeClient.createSubnetwork(subnetworkResource, parsers.boolean(action.params.waitForOperation));
+        return await computeClient.createSubnetwork(subnetworkResource, waitForOperation);
     } catch (error) {
         throw error
     }
@@ -187,18 +193,19 @@ async function createSubnet(action, settings) {
 
 async function reservePrivateIp(action, settings) {
     const computeClient = GoogleComputeService.from(action.params, settings);
+    const waitForOperation = parsers.boolean(action.params.waitForOperation || settings.waitForOperation);
 
     const addressResource = removeUndefinedAndEmpty({
-        name: parsers.string(action.params.resName),
+        name: parsers.googleCloudName(action.params.resName),
         address: parsers.string(action.params.resIp),
         subnetwork: parsers.autocomplete(action.params.subnet),
-        region: parsers.autocomplete(action.params.region),
+        region: parsers.autocomplete(action.params.region || settings.region),
         addressType: "INTERNAL",
         purpose: "GCE_ENDPOINT"
     });
 
     try {
-        return await computeClient.createReservedInternalIP(addressResource, parsers.boolean(action.params.waitForOperation));
+        return await computeClient.createReservedInternalIP(addressResource, waitForOperation);
     } catch (error) {
         throw error
     }
@@ -206,6 +213,7 @@ async function reservePrivateIp(action, settings) {
 
 async function createFw(action, settings) {
     const computeClient = GoogleComputeService.from(action.params, settings);
+    const waitForOperation = parsers.boolean(action.params.waitForOperation || settings.waitForOperation);
 
     let name = parsers.googleCloudName(action.params.name),
         network = parsers.autocomplete(action.params.network),
@@ -250,7 +258,7 @@ async function createFw(action, settings) {
     if (tags.length > 0) firewallResource[firewallResource.direction === "INGRESS" ? "targetTags" : "sourceTags"] = tags;
 
     try {
-        return await computeClient.createFirewallRule(firewallResource, parsers.boolean(action.params.waitForOperation));
+        return await computeClient.createFirewallRule(firewallResource, waitForOperation);
     } catch (error) {
         throw error;
     }
@@ -258,6 +266,7 @@ async function createFw(action, settings) {
 
 async function createRoute(action, settings) {
     const computeClient = GoogleComputeService.from(action.params, settings);
+    const waitForOperation = parsers.boolean(action.params.waitForOperation || settings.waitForOperation);
 
     // parse params
     let network = parsers.autocomplete(action.params.network),
@@ -278,7 +287,7 @@ async function createRoute(action, settings) {
     }
 
     try {
-        return await computeClient.createRoute(routeResource, parsers.boolean(action.params.waitForOperation));
+        return await computeClient.createRoute(routeResource, waitForOperation);
     } catch (error) {
         throw error
     }

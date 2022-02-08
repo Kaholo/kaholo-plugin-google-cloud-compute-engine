@@ -298,19 +298,12 @@ module.exports = class GoogleComputeService {
         })
     }
 
-    async createVPC({ name, description, autoCreateSubnetworks, project }, waitForOperation) {
+    async createVPC(networkResource, waitForOperation) {
         const networksClient = new compute.NetworksClient({ credentials: this.credentials });
-
-        const networkResource = removeUndefinedAndEmpty({
-            name,
-            description,
-            autoCreateSubnetworks
-        });
-
 
         return new Promise(async (resolve, reject) => {
             try {
-                let [operation] = await networksClient.insert({ networkResource, project: project || this.projectId })
+                let [operation] = await networksClient.insert({ networkResource, project: this.projectId })
 
                 if (waitForOperation) {
                     const operationsClient = new compute.GlobalOperationsClient({ credentials: this.credentials });
@@ -319,14 +312,14 @@ module.exports = class GoogleComputeService {
                     while (operation.status !== 'DONE') {
                         [operation] = await operationsClient.wait({
                             operation: operation.name,
-                            project: project || this.projectId,
+                            project: this.projectId,
                         });
                     }
 
                     // get network after creation
                     let [response] = await networksClient.get({
-                        network: name,
-                        project: project || this.projectId,
+                        network: networkResource.name,
+                        project: this.projectId,
                     });
 
                     resolve(response);
@@ -549,9 +542,10 @@ module.exports = class GoogleComputeService {
     async listMachineTypes(params) {
         const machineTypesClient = new compute.MachineTypesClient({ credentials: this.credentials });
         const zone = parsers.autocomplete(params.zone);
+        const project = parsers.autocomplete(params.project) || this.projectId;
 
         const request = removeUndefinedAndEmpty({
-            project: this.projectId,
+            project,
             zone
         })
 
