@@ -422,6 +422,45 @@ module.exports = class GoogleComputeService {
         })
     }
 
+    async createRoute(routeResource, waitForOperation) {
+        const routesClient = new compute.RoutesClient({ credentials: this.credentials });
+
+        const request = removeUndefinedAndEmpty({
+            project: this.projectId,
+            routeResource
+        });
+
+        return new Promise(async (resolve, reject) => {
+            try {
+                let [operation] = await routesClient.insert(request);
+
+                if (waitForOperation) {
+                    const operationsClient = new compute.GlobalOperationsClient({ credentials: this.credentials });
+
+                    // Wait for the create operation to complete.
+                    while (operation.status !== 'DONE') {
+                        [operation] = await operationsClient.wait({
+                            operation: operation.name,
+                            project: this.projectId,
+                        });
+                    }
+
+                    // get subnetwork after creation
+                    let [response] = await routesClient.get({
+                        route: routeResource.name,
+                        project: this.projectId,
+                    });
+
+                    resolve(response);
+                }
+
+                resolve(operation);
+            } catch (error) {
+                reject(error)
+            }
+        })
+    }
+
     async getInstance({ instance, project, zone }) {
         const instancesClient = new compute.InstancesClient({ credentials: this.credentials });
 

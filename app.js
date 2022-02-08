@@ -256,6 +256,34 @@ async function createFw(action, settings) {
     }
 }
 
+async function createRoute(action, settings) {
+    const computeClient = GoogleComputeService.from(action.params, settings);
+
+    // parse params
+    let network = parsers.autocomplete(action.params.network),
+        name = parsers.googleCloudName(action.params.name),
+        nextHopIp = parsers.string(action.params.nextHopIp),
+        destRange = parsers.string(action.params.destIpRange),
+        priority = parsers.number(action.params.priority),
+        tags = parsers.array(action.params.tags);
+
+    // create routeResource
+    let routeResource = {
+        name,
+        network,
+        tags: tags && tags.length > 0 ? tags : undefined,
+        destRange,
+        priority: priority || 1000,
+        nextHopIp
+    }
+
+    try {
+        return await computeClient.createRoute(routeResource, parsers.boolean(action.params.waitForOperation));
+    } catch (error) {
+        throw error
+    }
+}
+
 module.exports = {
     createInstance,
     vmAction,
@@ -264,6 +292,7 @@ module.exports = {
     createSubnet,
     reservePrivateIp,
     createFw,
+    createRoute,
     // autocomplete methods
     ...require("./autocomplete")
 };

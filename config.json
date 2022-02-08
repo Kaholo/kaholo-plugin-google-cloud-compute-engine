@@ -967,6 +967,96 @@
           "learnUrl": "https://cloud.google.com/vpc/docs/add-remove-network-tags"
         }
       ]
+    },
+    {
+      "name": "createRoute",
+      "viewName": "Create Route",
+      "params": [
+        {
+          "name": "creds",
+          "viewName": "Service Account Credentials *",
+          "required": false,
+          "type": "vault",
+          "description": "Vaulted JSON document containing service account credentials as provided by GCP",
+          "learnUrl": "https://cloud.google.com/docs/authentication/production"
+        },
+        {
+          "name": "project",
+          "viewName": "Project *",
+          "required": false,
+          "type": "autocomplete",
+          "autocompleteType": "function",
+          "functionName": "listProjectsAuto",
+          "description": "GCP Project defines how your app interacts with services and resources",
+          "placeholder": "select using autocomplete",
+          "learnUrl": "https://cloud.google.com/resource-manager/docs/creating-managing-projects"
+        },
+        {
+          "name": "network",
+          "viewName": "VPC Network Name *",
+          "required": false,
+          "type": "autocomplete",
+          "autocompleteType": "function",
+          "functionName": "listNetworksAuto",
+          "description": "The name of a VPC Network in the project with subnets in the region",
+          "placeholder": "select using autocomplete",
+          "learnUrl": "https://cloud.google.com/vpc/docs/using-vpc",
+          "codedExample": "global/networks/apac-test-vpc"
+        },
+        {
+          "name": "name",
+          "viewName": "Route Name *",
+          "required": false,
+          "type": "string",
+          "description": "Unique name for the new route (lowercase letters, numbers, hypen only)",
+          "placeholder": "route-nat-egress-3b",
+          "learnUrl": "https://cloud.google.com/vpc/docs/using-routes"
+        },
+        {
+          "name": "nextHopIp",
+          "viewName": "Next Hop IP",
+          "required": false,
+          "type": "string",
+          "description": "Determines which subnet routes the Cloud Routers in that network advertise",
+          "placeholder": "10.10.1.10",
+          "learnUrl": "https://cloud.google.com/vpc/docs/using-routes"
+        },
+        {
+          "name": "destIpRange",
+          "viewName": "Dest IP Range",
+          "required": false,
+          "type": "string",
+          "description": "Range of IP addresses in CIDR notation",
+          "placeholder": "10.10.1.10/24",
+          "learnUrl": "https://cloud.google.com/vpc/docs/using-routes"
+        },
+        {
+          "name": "priority",
+          "viewName": "Priority",
+          "required": false,
+          "type": "string",
+          "description": "Priority of the new route",
+          "placeholder": "0",
+          "learnUrl": "https://cloud.google.com/vpc/docs/routes#static-route-next-hops"
+        },
+        {
+          "name": "tags",
+          "viewName": "Tags",
+          "required": false,
+          "type": "text",
+          "description": "Network Tags associate routes with only VMs assigned the same tag or tags",
+          "placeholder": "route-tag-01",
+          "learnUrl": "https://cloud.google.com/vpc/docs/add-remove-network-tags"
+        },
+        {
+          "name": "waitForOperation",
+          "viewName": "Wait For Operation End",
+          "required": false,
+          "type": "boolean",
+          "description": "If checked, wait for this action to complete before moving on to next action in pipeline",
+          "learnUrl": "https://github.com/Kaholo/kaholo-plugin-GoogleCloudComputeEngine"
+        }
+      ]
     }
   ]
 }
