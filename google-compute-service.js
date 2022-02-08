@@ -15,10 +15,6 @@ module.exports = class GoogleComputeService {
      * @param {string} projectId The ID of the project to make all the requests about.
      */
     constructor(credentials, projectId) {
-        // const computeOptions = { credentials };
-        // if (projectId) computeOptions.projectId = projectId;
-        // super(computeOptions);
-
         this.projectId = projectId;
         this.credentials = credentials;
     }
