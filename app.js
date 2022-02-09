@@ -124,7 +124,7 @@ async function createInstance(action, settings) {
         try {
             const fwHttpResult = await computeClient.createFirewallRule(firewallResource, waitForOperation);
             } catch (error) {
-            // throw error;
+            throw error;
         }
 
         firewallResource["name"] = `${netshortname}-allow-https`;
@@ -137,7 +137,7 @@ async function createInstance(action, settings) {
         try {
             const fwHttpsResult = await computeClient.createFirewallRule(firewallResource, waitForOperation);
             } catch (error) {
-            // throw error;
+            throw error;
         }
     }
     return createResult;
