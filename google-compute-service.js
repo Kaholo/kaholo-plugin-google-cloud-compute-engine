@@ -1,27 +1,22 @@
-const Compute = require('@google-cloud/compute');
+const compute = require('@google-cloud/compute');
+const { ProjectsClient } = require('@google-cloud/resource-manager');
 const { JWT } = require('google-auth-library');
 const { google } = require('googleapis');
-const cloudresourcemanager = google.cloudresourcemanager('v1');
-const compute = google.compute('v1');
 const iam = google.iam('v1');
-const {defaultGcpCallback, removeUndefinedAndEmpty, handleOperation, parseFields} = require('./helpers');
+const { removeUndefinedAndEmpty } = require('./helpers');
 const parsers = require("./parsers");
 
 
-/** Class for using the google cloud compute API(by extending it's npm packge). */
-module.exports = class GoogleComputeService extends Compute{
+/** Class for using the google cloud compute API. */
+module.exports = class GoogleComputeService {
     /**
      * Create a Google Cloud Compute service instance
      * @param {object} credentials The credentials of a service account to use to make the request 
      * @param {string} projectId The ID of the project to make all the requests about.
      */
     constructor(credentials, projectId) {
-        const computeOptions = { credentials };
-        if (projectId) computeOptions.projectId = projectId;
-        super(computeOptions);
-
         this.projectId = projectId;
-        this.creds = credentials;
+        this.credentials = credentials;
     }
 
     /**
@@ -30,403 +25,686 @@ module.exports = class GoogleComputeService extends Compute{
      * @param {string} settings Kaholo Settings Object
      * @return {GoogleComputeService} The Google Compute Service Client
      */
-    static from(params, settings, noProject){
+    static from(params, settings, noProject) {
         const creds = parsers.object(params.creds || settings.creds);
         if (!creds) throw "Must provide credentials to call any method in the plugin!";
         const project = noProject ? undefined : parsers.autocomplete(params.project || settings.project);
         return new GoogleComputeService(creds, project);
     }
 
-    getAuthClient(){
+    getAuthClient() {
         return new JWT(
-            this.creds.client_email, null,
-            this.creds.private_key,
+            this.credentials.client_email,
+            null,
+            this.credentials.private_key,
             ['https://www.googleapis.com/auth/cloud-platform']
         );
     }
 
-    getMetadataGCP({zoneStr, name}){
-        let zone = this.zone(zoneStr);
-        const vmInfo = zone.vm(name)
-        vmInfo.getMetadata().then(function(data) {
-            // Representation of this VM as the API sees it.
-            const metadata = data[0];
-            const apiResponse = data[1];
-
-            // Custom metadata and predefined keys.
-            const customMetadata = metadata.metadata.items
-            // const customMetadata = metadata.networkInterfaces[0].accessConfigs
-            // const customMetadata = metadata.metadata;
-            console.log(customMetadata);
-            // console.log(apiResponse);
-          });
-          return "done"
-    }
-
-     /**
-     * Create an external IP address for the specified instance
-     * @param {string} regionStr The region of the instance
-     * @param {string} instanceName The name\id of the instance to create the external IP for 
-     * @return {Promise<string>} The external address created for the instance
-     */
-    async autoCreateExtIp(regionStr, instanceName){
-        const addrName = `${instanceName}-ext-addr`;
+    /**
+    * Create and reserve external IP address for the specified instance. Reservation name will be `{instanceName}-ext-addr`
+    * @param {Object} addressResource Address object which needs to be created.
+    * @param {boolean} waitForOperation Flag whether to wait for operation to complete.
+    * @return {Promise<string>} The external address created for the instance
+    */
+    async createReservedExternalIP(addressResource, waitForOperation) {
         try {
-            const region = this.region(regionStr);
-            const [address, operation] = (await region.createAddress(addrName, {addressType: "EXTERNAL"}));
-            await handleOperation(operation);
-            const extIpAddr = (await address.getMetadata())[0].address;
-            return extIpAddr;
+            const addressesClient = new compute.AddressesClient({ credentials: this.credentials });
+            let [operation] = await addressesClient.insert({ addressResource, project: this.projectId, region: addressResource.region });
+
+            // wait for the operation to end
+            if (waitForOperation) {
+                const operationsClient = new compute.RegionOperationsClient({ credentials: this.credentials });
+                while (operation.status !== 'DONE') {
+                    [operation] = await operationsClient.wait({
+                        operation: operation.name,
+                        project: this.projectId,
+                        region: addressResource.region
+                    });
+                }
+
+                // get the result of operation
+                let [response] = await addressesClient.get({ address: addressResource.name, project: this.projectId, region: addressResource.region })
+
+                return response.address;
+            }
+
+            return operation
         }
-        catch (err){
-            throw `Couldn't create external address with the name: ${addrName}\n${err.message || JSON.stringify(err)}`;
+        catch (err) {
+            throw `Couldn't create external address with the name: ${addressResource.name}\n${err.message || JSON.stringify(err)}`;
         }
-    }
-
-    async deleteAutoExtIp(regionStr, instanceName) {
-        const addrName = `${instanceName}-ext-addr`;
-        const request = removeUndefinedAndEmpty({
-            project: this.projectId,
-            region: regionStr,
-            address: addrName,
-            auth: this.getAuthClient()
-        });
-        const response = await compute.addresses.delete(request);
-        return response.data
-    }
-
-    async getIpinfo({ vm, zone }) {
-        zone = this.zone(zone);
-        const myvm = zone.vm(vm)
-        const data = await myvm.getMetadata()
-        const metadata = data[0]
-        return metadata.networkInterfaces[0].accessConfigs[0]
-    }
-
-     /**
-     * Create a new VM instance in the specified zone
-     * @param {object} options Launch options for the instance
-     * @param {boolean} waitForOperation Whether to wait for the operation to finish before returning
-     * @return {object} The VM instance created, and metadata about it
-     */
-    async launchVm({name, description, region, zone, machineType, sourceImage, diskType, diskSizeGb, diskAutoDelete, 
-                    serviceAccount, saAccessScopes, allowHttp, allowHttps, networkInterfaces, canIpForward,preemptible, tags, labels, autoCreateStaticIP}, waitForOperation){
-        tags = tags || [];
-        if (allowHttp) tags.push("http-server");
-        if (allowHttps) tags.push("https-server");
-        const config = removeUndefinedAndEmpty({
-            machineType: machineType ? `projects/${this.projectId}/zones/${zone}/machineTypes/${machineType}` : undefined, 
-            canIpForward, labels, description,
-            scheduling: {
-                automaticRestart: !preemptible,
-                onHostMaintenance: preemptible ? "TERMINATE" : "MIGRATE",
-                preemptible: preemptible || false
-            },
-            networkInterfaces: networkInterfaces ? networkInterfaces : undefined,
-            tags: tags.length > 0 ?  {items: tags} : undefined,
-            disks: [{
-                boot: true,
-                initializeParams: { 
-                    sourceImage,
-                    diskType: diskType ? `zones/${zone}/diskTypes/${diskType}` : undefined,
-                    diskSizeGb
-                },
-                autoDelete: diskAutoDelete || false,
-                mode: "READ_WRITE",
-                type: "PERSISTENT"
-            }],
-            serviceAccounts: serviceAccount ? [{ 
-                email: serviceAccount,
-                scopes: saAccessScopes == "default" ? [
-                        "https://www.googleapis.com/auth/devstorage.read_only",
-                        "https://www.googleapis.com/auth/logging.write",
-                        "https://www.googleapis.com/auth/monitoring.write",
-                        "https://www.googleapis.com/auth/servicecontrol",
-                        "https://www.googleapis.com/auth/service.management.readonly",
-                        "https://www.googleapis.com/auth/trace.append"] : 
-                    saAccessScopes == "full" ? 
-                        ["https://www.googleapis.com/auth/cloud-platform"] :
-                    saAccessScopes
-            }] : undefined,
-        });
-
-        if (autoCreateStaticIP){
-            const natIP = await this.autoCreateExtIp(region, name);
-            if (!config.networkInterfaces) {
-                config.networkInterfaces = [{ accessConfigs: [{ natIP }]}];
-            }
-            else if (!config.networkInterfaces[0].accessConfigs){
-                config.networkInterfaces[0].accessConfigs = [{ natIP }];
-            }
-            else {
-                config.networkInterfaces[0].accessConfigs[0].natIP = natIP;
-            }
-        }
-
-        zone = this.zone(zone);
-        return new Promise((resolve, reject) => {
-            const oldReject = reject;
-            const getReject = (err) => (() => oldReject(err));
-            if (autoCreateStaticIP) reject = (err) => {
-                return this.deleteAutoExtIp(region, name)
-                        .then(getReject(err))
-                        .catch(getReject(err));
-            }
-            zone.createVM(name, config, defaultGcpCallback(resolve, reject, waitForOperation));
-        });
     }
 
     /**
-     * Execute some action on the specified instance, possible actions include: 
-     * Start | Stop | Delete | Restart | Get | Get-IP(Get external IP)
-     * @param {object} options Options for running the action.
-     * @param {string} options.zoneStr The name of the zone of the vm instance
-     * @param {string} options.vmName The name\id of the vm instance
-     * @param {string} options.action The type of action to run on the instance. Can be:
-     * Start | Stop | Delete | Restart | Get | Get-IP(Get external IP)
-     * @param {boolean} waitForOperation whether to wait for the operation to finish before returning
-     * @return {object} The vm instance the action was performed on, and it's metadata
-     */
-    async vmAction({zoneStr, vmName, action, startupScript}, waitForOperation) {
-        const zone = this.zone(zoneStr);
-        const vm = zone.vm(vmName);
-        let res = {};
-        switch (action) {
-            case 'Stop':
-                res = await vm.stop();
-                break;
-            case 'Delete':
-                res = await vm.stop();
-                res = await vm.delete();
-                break;
-            case 'Restart':
-                res = await vm.reset();
-                break;
-            case 'Start':
-                let startScript = "";
-                if (startupScript) {
-                    await vm.stop()
-                    startupScript.forEach(item => startScript += `${item}\n`)
-                    const newMetadata = {
-                        'startup-script': startScript,
-                    }
-                    await vm.setMetadata(newMetadata)
+    * Delte reserved external IP address.
+    * @param {Object} addressResource Address object which needs to be deleted.
+    * @param {boolean} waitForOperation Flag whether to wait for operation to complete.
+    * @return {Promise<string>} Status/Operation of the methods completeion.
+    */
+    async deleteReservedExternalIP(addressResource, waitForOperation) {
+        const request = removeUndefinedAndEmpty({
+            project: addressResource.project || this.projectId,
+            region: addressResource.region,
+            address: addressResource.name
+        });
+
+        try {
+            const addressesClient = new compute.AddressesClient({ credentials: this.credentials });
+            let [operation] = await addressesClient.delete(request);
+
+            // wait for the operation to end
+            if (waitForOperation) {
+                const operationsClient = new compute.RegionOperationsClient({ credentials: this.credentials });
+                while (operation.status !== 'DONE') {
+                    [operation] = await operationsClient.wait({
+                        operation: operation.name,
+                        project: this.projectId,
+                        region: addressResource.region
+                    });
                 }
-                res = await vm.start();
-                break;
-            case 'Get':
-                return vm;
-            case 'Get-IP':
-                const metadata = (await vm.getMetadata())[0];
-                if (!metadata.networkInterfaces || !metadata.networkInterfaces[0].accessConfigs ||
-                    !metadata.networkInterfaces[0].accessConfigs[0].natIP) {
-                    throw "No external IP found";
-                }
-                return metadata.networkInterfaces[0].accessConfigs[0].natIP;
-            default:
-                throw "Must provide an action to run on the VM instance!";
+
+                return operation.status;
+            }
+
+            return operation;
+        } catch (err) {
+            throw `Couldn't delete external address with the name: ${addressResource.name}\n${err.message || JSON.stringify(err)}`
         }
-        if (waitForOperation) await handleOperation(res[0]);
-        return res[1] || res;
     }
 
-    async createVpc({name, description, autoCreateSubnetworks}, waitForOperation) { // doesn't work with self methods so using the second compute api
-        const auth = this.getAuthClient();
-        const request = removeUndefinedAndEmpty({ 
-            project: this.projectId,
-            resource: {
-                name,
-                autoCreateSubnetworks, 
-                description 
-            },
-            auth
-        });
-        let result = (await compute.networks.insert(request)).data;
-        if (!waitForOperation) return result;
-        if (result.error) throw result;
-        result = (await compute.globalOperations.wait({
-            project: this.projectId,
-            operation: result.name,
-            auth
-        })).data;
-        if (result.error) throw result;
-        return result;
+    async createReservedInternalIP(addressResource, waitForOperation) {
+        try {
+            const addressesClient = new compute.AddressesClient({ credentials: this.credentials });
+            let [operation] = await addressesClient.insert({ addressResource, project: this.projectId, region: addressResource.region });
+
+            // wait for the operation to end
+            if (waitForOperation) {
+                const operationsClient = new compute.RegionOperationsClient({ credentials: this.credentials });
+                while (operation.status !== 'DONE') {
+                    [operation] = await operationsClient.wait({
+                        operation: operation.name,
+                        project: this.projectId,
+                        region: addressResource.region
+                    });
+                }
+
+                // get the result of operation
+                let [response] = await addressesClient.get({ address: addressResource.name, project: this.projectId, region: addressResource.region })
+
+                return response
+            }
+
+            return operation
+        }
+        catch (err) {
+            throw `Couldn't create internal address with the name: ${addressResource.name}\n${err.message || JSON.stringify(err)}`;
+        }
     }
-    
-    async createSubnet({networkId, name, description, region, range, privateIpGoogleAccess,
-                        enableFlowLogs}, waitForOperation) {
-        const network = this.network(networkId);
-        const config = removeUndefinedAndEmpty({ region, range, description, enableFlowLogs, privateIpGoogleAccess});
-        return new Promise((resolve, reject) => {
-            network.createSubnetwork(name, config, defaultGcpCallback(resolve, reject, waitForOperation));
-        });
-    }
-    
-    async reserveIp({subnet, name, regionStr, address}, waitForOperation) {
-        const region = this.region(regionStr);
-        const config = removeUndefinedAndEmpty({
-            subnetwork: `regions/${regionStr}/subnetworks/${subnet}`,
-            addressType: 'INTERNAL',
-            address
-        });
-        return new Promise((resolve, reject) => {
-            region.createAddress(name, config, defaultGcpCallback(resolve, reject, waitForOperation));
-        });
-    }
-    
-    async createFw({networkId, name, priority, direction, action, ipRange, protocol,
-                        ports, tags}, waitForOperation) {
-        const firewall = this.firewall(name);
-        const fwRule = [{
-            IPProtocol: protocol || 'all',
-            ports
-        }];
-        tags = tags || [];
-        const config = removeUndefinedAndEmpty({
-            network: `projects/${this.projectId}/global/networks/${networkId || `default`}`,
-            destinationRanges: [],
-            sourceRanges: [],
-            priority:  priority || 1000,
-            direction: direction || "INGRESS",
-            tags: tags.length > 0 ? {items: tags} : {items: []}
-        });
-        if (fwRule) config[!action || action === "allow" ? "allowed" : "denied"] = fwRule;
-        if (ipRange) config[config.direction === "INGRESS" ? "sourceRanges" : "destinationRanges"] = ipRange;
-        if (tags.length > 0) config[config.direction === "INGRESS" ? "targetTags" : "sourceTags"] = tags;
-        return new Promise((resolve, reject) => {
-            firewall.create(config, defaultGcpCallback(resolve, reject, waitForOperation));
+
+    /**
+    * Create a new VM instance
+    * @param {compute.protos.google.cloud.compute.v1.IInstance} instanceResource JSON representation of the instance which need to be created
+    * @param {boolean} createReservedExtIP If true creates and reserves static external IP. If false External IP is not present at all (for this version);
+    * @param {boolean} waitForOperation Whether to wait for the operation to finish before returning
+    * @return {Promise} Information about the instance if succeded, Error in the other case.
+    */
+    async createInstance(instanceResource, createReservedExtIP, waitForOperation) {
+        const instancesClient = new compute.InstancesClient({ credentials: this.credentials });
+
+        // create reserved external IP and write it to networkInterfaces array which will be passed to instanceResource
+        if (createReservedExtIP) {
+            const addressResource = {
+                name: `${instanceResource.name}-ext-addr`,
+                region: instanceResource.region,
+                addressType: "EXTERNAL"
+            }
+
+            const natIP = await this.createReservedExternalIP(addressResource, true);
+            if (!instanceResource.networkInterfaces) {
+                instanceResource.networkInterfaces = [{ accessConfigs: [{ natIP }] }];
+            }
+            else if (!instanceResource.networkInterfaces[0].accessConfigs) {
+                instanceResource.networkInterfaces[0].accessConfigs = [{ natIP }];
+            }
+            else {
+                instanceResource.networkInterfaces[0].accessConfigs[0].natIP = natIP;
+            }
+        }
+
+        return new Promise(async (resolve, reject) => {
+            try {
+                // return Long-Running operation
+                let [operation] = await instancesClient.insert({
+                    instanceResource,
+                    project: this.projectId,
+                    zone: instanceResource.zone
+                });
+
+                if (waitForOperation) {
+                    const operationsClient = new compute.ZoneOperationsClient({ credentials: this.credentials });
+
+                    // Wait for the create operation to complete.
+                    while (operation.status !== 'DONE') {
+                        [operation] = await operationsClient.wait({
+                            operation: operation.name,
+                            project: this.projectId,
+                            zone: instanceResource.zone,
+                        });
+                    }
+
+                    // get instance after creation
+                    let [response] = await instancesClient.get({
+                        instance: instanceResource.name,
+                        project: this.projectId,
+                        zone: instanceResource.zone
+                    });
+
+                    resolve(response);
+                }
+
+                resolve(operation);
+            } catch (error) {
+                reject(error)
+            }
         });
     }
 
-    async createRoute({networkId, name, nextHopIp, destRange, priority, tags}) {
+    async handleAction({ action, zone, instanceName, startUpScript, project }, waitForOperation) {
+        const instancesClient = new compute.InstancesClient({ credentials: this.credentials });
+
+        let request = removeUndefinedAndEmpty({
+            instance: instanceName,
+            project: project || this.projectId,
+            zone
+        })
+
+        let res = [];
+
+        try {
+            switch (action) {
+                case 'Stop':
+                    res = await instancesClient.stop(request);
+                    break;
+                case 'Delete':
+                    res = await instancesClient.delete(request);
+                    break;
+                case 'Restart':
+                    res = await instancesClient.reset(request);
+                    break;
+                case 'Start':
+                    let startScript = "";
+
+                    if (startUpScript) {
+                        await instancesClient.stop(request);
+                        startUpScript.forEach(item => startScript += `${item}\n`)
+                        const startUpScript_Metadata = {
+                            "key": 'startup-script',
+                            "value": startScript
+                        }
+                        await instancesClient.setMetadata({ ...request, metadataResource: { items: [startUpScript_Metadata] } });
+                    }
+
+                    res = await instancesClient.start(request);
+                    break;
+                case 'Get':
+                    return this.getInstance(request);
+                case 'Get-IP':
+                    const instance = await this.getInstance(request);
+                    if (!instance.networkInterfaces || !instance.networkInterfaces[0].accessConfigs ||
+                        !instance.networkInterfaces[0].accessConfigs[0].natIP) {
+                        throw "No external IP found";
+                    }
+                    return instance.networkInterfaces[0].accessConfigs[0].natIP;
+                default:
+                    throw "Must provide an action to run on the VM instance!";
+            }
+        } catch (error) {
+            throw error
+        }
+
+        return new Promise(async (resolve, reject) => {
+            try {
+                if (waitForOperation) {
+                    const operationsClient = new compute.ZoneOperationsClient({ credentials: this.credentials });
+                    let operation = res[0];
+
+                    // Wait for the operation to complete.
+                    while (operation.status !== 'DONE') {
+                        [operation] = await operationsClient.wait({
+                            operation: operation.name,
+                            project: project || this.projectId,
+                            zone,
+                        });
+                    }
+
+                    // get instance after creation
+                    if (action !== "Delete") {
+                        let instance = await this.getInstance(request);
+                        resolve(instance);
+                    }
+
+                    resolve(operation);
+                }
+
+                resolve(res[0]);
+            } catch (error) {
+                reject(error);
+            }
+        })
+    }
+
+    async createVPC(networkResource, waitForOperation) {
+        const networksClient = new compute.NetworksClient({ credentials: this.credentials });
+
+        return new Promise(async (resolve, reject) => {
+            try {
+                let [operation] = await networksClient.insert({ networkResource, project: this.projectId })
+
+                if (waitForOperation) {
+                    const operationsClient = new compute.GlobalOperationsClient({ credentials: this.credentials });
+
+                    // Wait for the create operation to complete.
+                    while (operation.status !== 'DONE') {
+                        [operation] = await operationsClient.wait({
+                            operation: operation.name,
+                            project: this.projectId,
+                        });
+                    }
+
+                    // get network after creation
+                    let [response] = await networksClient.get({
+                        network: networkResource.name,
+                        project: this.projectId,
+                    });
+
+                    resolve(response);
+                }
+
+                resolve(operation);
+
+            } catch (error) {
+                reject(error)
+            }
+        })
+    }
+
+    async createSubnetwork(subnetworkResource, waitForOperation) {
+        const subnetworksClient = new compute.SubnetworksClient({ credentials: this.credentials });
+
         const request = removeUndefinedAndEmpty({
             project: this.projectId,
-            resource: {
-                name, nextHopIp, destRange, tags,
-                network: `projects/${this.projectId}/global/networks/${networkId}`,
-                priority: priority || '0'
-            },
-            auth: this.getAuthClient()
+            region: subnetworkResource.region,
+            subnetworkResource
+        })
+
+        return new Promise(async (resolve, reject) => {
+            try {
+                // return Long-Running operation
+                let [operation] = await subnetworksClient.insert(request);
+
+                if (waitForOperation) {
+                    const operationsClient = new compute.RegionOperationsClient({ credentials: this.credentials });
+
+                    // Wait for the create operation to complete.
+                    while (operation.status !== 'DONE') {
+                        [operation] = await operationsClient.wait({
+                            operation: operation.name,
+                            project: this.projectId,
+                            region: subnetworkResource.region,
+                        });
+                    }
+
+                    // get subnetwork after creation
+                    let [response] = await subnetworksClient.get({
+                        subnetwork: subnetworkResource.name,
+                        project: this.projectId,
+                        region: subnetworkResource.region
+                    });
+
+                    resolve(response);
+                }
+
+                resolve(operation);
+            } catch (error) {
+                reject(error)
+            }
         });
-        return (await compute.routes.insert(request)).data;
     }
 
+    async createFirewallRule(firewallResource, waitForOperation) {
+        const firewallClient = new compute.FirewallsClient({ credentials: this.credentials });
 
-    async listProjects({query}){
-        const request = removeUndefinedAndEmpty({ 
-            auth: this.getAuthClient(),
-            filter: query ? `name:*${query}* id:*${query}*` : undefined
-        });
-        return (await cloudresourcemanager.projects.list(request)).data.projects;
+        const request = {
+            firewallResource,
+            project: this.projectId
+        }
+
+        return new Promise(async (resolve, reject) => {
+            try {
+                const getFirewall = await this.getFirewallRule(firewallResource.name);
+                if(getFirewall) throw Error(`Error: Firewall Rule with the name ${firewallResource.name} already exists!`)
+
+                let [operation] = await firewallClient.insert(request);
+
+                if (waitForOperation) {
+                    const operationsClient = new compute.GlobalOperationsClient({ credentials: this.credentials });
+
+                    // Wait for the create operation to complete.
+                    while (operation.status !== 'DONE') {
+                        [operation] = await operationsClient.wait({
+                            operation: operation.name,
+                            project: this.projectId,
+                        });
+                    }
+
+                    // get subnetwork after creation
+                    let [response] = await firewallClient.get({
+                        firewall: firewallResource.name,
+                        project: this.projectId,
+                    });
+
+                    resolve(response);
+                }
+
+                resolve(operation);
+            } catch (error) {
+                reject(error);
+            }
+        })
     }
 
-    
-    async listRegions({}, fields){
-        const request = removeUndefinedAndEmpty({ 
-            auth: this.getAuthClient(),
-            maxResults: 500,
-            project: this.projectId, 
-            fields: parseFields(fields)
-        });
-        return (await compute.regions.list(request)).data;
-    }
-    
-    
-    async listZones({region}, fields){
-        if (fields && !fields.includes("name")) fields.push("name");
-        const request = removeUndefinedAndEmpty({ 
-            auth: this.getAuthClient(),
-            maxResults: 500,
+    async createRoute(routeResource, waitForOperation) {
+        const routesClient = new compute.RoutesClient({ credentials: this.credentials });
+
+        const request = removeUndefinedAndEmpty({
             project: this.projectId,
-            fields: parseFields(fields)
+            routeResource
         });
-        const items = (await compute.zones.list(request)).data.items;
-        return items.filter(zone => !region || zone.name.includes(region));
+
+        return new Promise(async (resolve, reject) => {
+            try {
+                let [operation] = await routesClient.insert(request);
+
+                if (waitForOperation) {
+                    const operationsClient = new compute.GlobalOperationsClient({ credentials: this.credentials });
+
+                    // Wait for the create operation to complete.
+                    while (operation.status !== 'DONE') {
+                        [operation] = await operationsClient.wait({
+                            operation: operation.name,
+                            project: this.projectId,
+                        });
+                    }
+
+                    // get subnetwork after creation
+                    let [response] = await routesClient.get({
+                        route: routeResource.name,
+                        project: this.projectId,
+                    });
+
+                    resolve(response);
+                }
+
+                resolve(operation);
+            } catch (error) {
+                reject(error)
+            }
+        })
     }
-    
-    async listMachineTypes({zone}, fields, pageToken){
-        const request = removeUndefinedAndEmpty({ 
-            auth: this.getAuthClient(),
-            project: this.projectId, 
-            fields: parseFields(fields),
-            zone, pageToken
+
+    // try to get firewall rule, if it exists return it, if no return undefined
+    async getFirewallRule(firewall) {
+        const firewallClient = new compute.FirewallsClient({ credentials: this.credentials });
+
+        try {
+            const [getResponse] = await firewallClient.get({
+                firewall,
+                project: this.projectId
+            })
+
+            return getResponse
+        } catch (error) {
+            // if the reason is notFound return undefined
+            if (error && error.errors && error.errors.length > 0 && error.errors[0].reason === "notFound") return undefined
+
+            // if error is smth else, throw it
+            throw error
+        }
+    }
+
+    async getInstance({ instance, project, zone }) {
+        const instancesClient = new compute.InstancesClient({ credentials: this.credentials });
+
+        let request = removeUndefinedAndEmpty({
+            instance,
+            project,
+            zone
+        })
+
+        try {
+            let [response] = await instancesClient.get(request);
+
+            return response;
+        } catch (error) {
+            throw error
+        }
+    }
+
+    async listProjects(params) {
+        const projectsClient = new ProjectsClient({ credentials: this.credentials })
+        let query = params.query;
+
+        const request = removeUndefinedAndEmpty({
+            query: query ? `name:*${query}*` : undefined
         });
-        
-        return (await compute.machineTypes.list(request)).data;
+
+        let iterable = projectsClient.searchProjectsAsync(request);
+        let res = []
+
+        try {
+            for await (let proj of iterable) {
+                res.push(proj)
+            }
+        } catch (error) {
+            throw error
+        }
+
+        return res;
     }
-    
-    async listImageProjects({query: userProjectQuery}, fields){
-        const userProjects = await this.listProjects({userProjectQuery}, fields);
-        return [...userProjects, 
-            {name: "Debian Cloud", projectId: "debian-cloud"}, 
-            {name: "Windows Cloud", projectId: "windows-cloud"}, 
-            {name: "Ubuntu Cloud", projectId: "ubuntu-os-cloud"}, 
-            {name: "Ubuntu Pro Cloud", projectId: "ubuntu-os-pro-cloud"},
-            {name: "Google UEFI(CentOS|COS) Images", projectId: "gce-uefi-images"},
-            {name: "Machine Learning Images", projectId: "ml-images"},
-            {name: "Fedora CoreOS Cloud", projectId: "fedora-coreos-cloud"},
-            {name: "Windows SQL Cloud", projectId: "windows-sql-cloud"},
-            {name: "Windows Cloud", projectId: "windows-cloud"},
-            {name: "Red Hat Enterprise Linux SAP Cloud", projectId: "rhel-sap-cloud"},
-            {name: "SUSE Cloud", projectId: "suse-cloud"},
-            {name: "Rocky Linux Cloud", projectId: "rocky-linux-cloud"}
+
+    async listRegions() {
+        const regionsClient = new compute.RegionsClient({ credentials: this.credentials });
+
+        const request = removeUndefinedAndEmpty({
+            project: this.projectId,
+        })
+
+        let iterable = regionsClient.listAsync(request);
+        let res = [];
+
+        try {
+            for await (let region of iterable) {
+                res.push(region)
+            }
+        } catch (error) {
+            throw error
+        }
+
+        return res;
+    }
+
+    async listZones(params) {
+        const zonesClient = new compute.ZonesClient({ credentials: this.credentials });
+        const region = parsers.autocomplete(params.region);
+
+        const request = removeUndefinedAndEmpty({
+            project: this.projectId,
+            // filter: `name:${region}`
+        })
+
+        let iterable = zonesClient.listAsync(request);
+        let res = [];
+
+        try {
+            for await (let zone of iterable) {
+                res.push(zone)
+            }
+        } catch (error) {
+            throw error
+        }
+
+        return res.filter(zone => !region || zone.name.includes(region));
+        return res
+    }
+
+    async listMachineTypes(params) {
+        const machineTypesClient = new compute.MachineTypesClient({ credentials: this.credentials });
+        const zone = parsers.autocomplete(params.zone);
+        const project = parsers.autocomplete(params.project) || this.projectId;
+
+        const request = removeUndefinedAndEmpty({
+            project,
+            zone
+        })
+
+        let iterable = machineTypesClient.listAsync(request);
+        let res = [
+            { id: "custom-", name: "Custom N1(Default Custom)" },
+            { id: "n2-custom-", name: "Custom N2" },
+            { id: "n2d-custom-", name: "Custom N2D" },
+            { id: "e2-custom-", name: "Custom E2" }
+        ];
+
+        try {
+            for await (let machine of iterable) {
+                res.push(machine)
+            }
+        } catch (error) {
+            throw error
+        }
+
+        return res;
+    }
+
+    async listImageProjects(params) {
+        const userProjects = await this.listProjects(params);
+        return [...userProjects,
+        { displayName: "Debian Cloud", projectId: "debian-cloud" },
+        { displayName: "Windows Cloud", projectId: "windows-cloud" },
+        { displayName: "Ubuntu Cloud", projectId: "ubuntu-os-cloud" },
+        { displayName: "Ubuntu Pro Cloud", projectId: "ubuntu-os-pro-cloud" },
+        { displayName: "Google UEFI(CentOS|COS) Images", projectId: "gce-uefi-images" },
+        { displayName: "Machine Learning Images", projectId: "ml-images" },
+        { displayName: "Fedora CoreOS Cloud", projectId: "fedora-coreos-cloud" },
+        { displayName: "Windows SQL Cloud", projectId: "windows-sql-cloud" },
+        { displayName: "Windows Cloud", projectId: "windows-cloud" },
+        { displayName: "Red Hat Enterprise Linux SAP Cloud", projectId: "rhel-sap-cloud" },
+        { displayName: "SUSE Cloud", projectId: "suse-cloud" },
+        { displayName: "Rocky Linux Cloud", projectId: "rocky-linux-cloud" }
         ];
     }
-    
-    async listImages({zone, imageProject}, fields, pageToken){
-        const request = removeUndefinedAndEmpty({ 
-            auth: this.getAuthClient(),
-            project: imageProject || this.projectId, 
-            fields: parseFields(fields),
-            maxResults: 500,
-            zone, pageToken
+
+    async listImages(params) {
+        const imagesClient = new compute.ImagesClient({ credentials: this.credentials });
+        const imageProject = parsers.autocomplete(params.imageProject);
+
+        const request = removeUndefinedAndEmpty({
+            project: imageProject || this.projectId,
         });
-        return (await compute.images.list(request)).data;
+
+        let iterable = imagesClient.listAsync(request);
+        let res = []
+
+        try {
+            for await (let image of iterable) {
+                res.push(image)
+            }
+        } catch (error) {
+            throw error
+        }
+
+        return res;
     }
-    
-    async listServiceAccounts(){
-        const request = removeUndefinedAndEmpty({ 
+
+    async listServiceAccounts(params) {
+        const project = parsers.autocomplete(params.project) || this.projectId;
+
+        const request = removeUndefinedAndEmpty({
             auth: this.getAuthClient(),
-            name: `projects/${this.projectId}`
+            name: `projects/${project}`
         });
-        
+
         return (await iam.projects.serviceAccounts.list(request)).data.accounts;
     }
-    
-    async listNetworks({}, fields, pageToken){
-        const request = removeUndefinedAndEmpty({ 
-            auth: this.getAuthClient(),
-            project: this.projectId, 
-            fields: parseFields(fields),
-            maxResults: 500,
-            pageToken
+
+    async listNetworks(params) {
+        const networksClient = new compute.NetworksClient({ credentials: this.credentials });
+        const project = parsers.autocomplete(params.project) || this.projectId;
+
+        const request = removeUndefinedAndEmpty({
+            project: project,
         });
-        
-        return (await compute.networks.list(request)).data;
+
+        let iterable = networksClient.listAsync(request);
+        let res = [];
+
+        try {
+            for await (let network of iterable) {
+                res.push(network);
+            }
+        } catch (error) {
+            throw error
+        }
+
+        return res;
     }
 
-    async listSubnetworks({network, region}, fields, pageToken){
-        const request = removeUndefinedAndEmpty({ 
-            auth: this.getAuthClient(),
-            project: this.projectId,
-            filter: network ? `network="${network}"` : undefined, 
-            fields: parseFields(fields),
-            maxResults: 500,
-            region, pageToken,
+    async listSubnetworks(params) {
+        const subnetworksClient = new compute.SubnetworksClient({ credentials: this.credentials });
+        const project = parsers.autocomplete(params.project) || this.projectId;
+        const region = parsers.autocomplete(params.region);
+
+        const request = removeUndefinedAndEmpty({
+            project,
+            region
         });
-        
-        return (await compute.subnetworks.list(request)).data.items;
+
+        let iterable = subnetworksClient.listAsync(request);
+        let res = [];
+
+        try {
+            for await (let subnetwork of iterable) {
+                res.push(subnetwork);
+            }
+        } catch (error) {
+            throw error
+        }
+
+        return res;
     }
 
-    async listVms({zone}, fields, pageToken){
-        const request = removeUndefinedAndEmpty({ 
-            auth: this.getAuthClient(),
-            project: this.projectId, 
-            fields: parseFields(fields),
-            maxResults: 500,
-            zone, pageToken,
-        });
-        
-        return (await compute.instances.list(request)).data;
+    async listInstances(params) {
+        const instancesClient = new compute.InstancesClient({ credentials: this.credentials });
+        const zone = parsers.autocomplete(params.zone);
+        const project = parsers.autocomplete(params.project) || this.projectId;
+
+        const request = removeUndefinedAndEmpty({
+            project,
+            zone
+        })
+
+        let iterable = instancesClient.listAsync(request);
+        let res = [];
+
+        try {
+            for await (let instance of iterable) {
+                res.push(instance)
+            }
+        } catch (error) {
+            throw error
+        }
+
+        return res
     }
 } 

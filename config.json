@@ -5,9 +5,27 @@
   "execProgram": "node",
   "main": "app.js",
   "imgUrl": "logo.png",
-  "version": "2.0.4",
+  "version": "3.0.1",
   "category": ["CLOUD", "COMPUTE"],
-  "keywords": ["GCP", "compute", "google", "platform", "vm", "instance", "cloud", "cluster", "project", "infra", "infrastructure", "cli", "network", "subnet", "firewall", "IP", "route"],
+  "keywords": [
+    "GCP",
+    "compute",
+    "google",
+    "platform",
+    "vm",
+    "instance",
+    "cloud",
+    "cluster",
+    "project",
+    "infra",
+    "infrastructure",
+    "cli",
+    "network",
+    "subnet",
+    "firewall",
+    "IP",
+    "route"
+  ],
   "settings": [
     {
       "name": "creds",
@@ -49,8 +67,8 @@
   ],
   "methods": [
     {
-      "name": "launchVm",
-      "viewName": "Launch VM",
+      "name": "createInstance",
+      "viewName": "Create Instance",
       "params": [
         {
           "name": "creds",
@@ -546,7 +564,7 @@
           "placeholder": "project-name-username",
           "learnUrl": "https://cloud.google.com/resource-manager/docs/creating-managing-projects"
         },
-        
+
         {
           "name": "region",
           "viewName": "Region",
@@ -693,7 +711,7 @@
       ]
     },
     {
-      "name": "reserveIp",
+      "name": "reservePrivateIp",
       "viewName": "Reserve Private IP Address",
       "params": [
         {
