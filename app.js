@@ -128,6 +128,7 @@ async function createInstance(action, settings) {
         }
 
         firewallResource["name"] = `${netshortname}-allow-https`;
+        firewallResource["targetTags"] = ["https-server"];
         firewallResource["allowed"] = [{
             IPProtocol: 'tcp',
             ports: [443]
