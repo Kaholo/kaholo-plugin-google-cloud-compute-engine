@@ -382,6 +382,9 @@ module.exports = class GoogleComputeService {
 
         return new Promise(async (resolve, reject) => {
             try {
+                const getFirewall = await this.getFirewallRule(firewallResource.name);
+                if(getFirewall) throw Error(`Error: Firewall Rule with the name ${firewallResource.name} already exists!`)
+
                 let [operation] = await firewallClient.insert(request);
 
                 if (waitForOperation) {
@@ -448,6 +451,26 @@ module.exports = class GoogleComputeService {
                 reject(error)
             }
         })
+    }
+
+    // try to get firewall rule, if it exists return it, if no return undefined
+    async getFirewallRule(firewall) {
+        const firewallClient = new compute.FirewallsClient({ credentials: this.credentials });
+
+        try {
+            const [getResponse] = await firewallClient.get({
+                firewall,
+                project: this.projectId
+            })
+
+            return getResponse
+        } catch (error) {
+            // if the reason is notFound return undefined
+            if (error && error.errors && error.errors.length > 0 && error.errors[0].reason === "notFound") return undefined
+
+            // if error is smth else, throw it
+            throw error
+        }
     }
 
     async getInstance({ instance, project, zone }) {
