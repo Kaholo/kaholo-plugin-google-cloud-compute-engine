@@ -101,6 +101,44 @@ async function createInstance(action, settings) {
         waitForOperation
     );
 
+    // create firewall rules
+    if (parsers.boolean(action.params.allowHttp) || parsers.boolean(action.params.allowHttps)) {
+
+        const n = net.lastIndexOf('/');
+        const netshortname = net.substring(n + 1);
+
+        let firewallResource = removeUndefinedAndEmpty({
+            name: `${netshortname}-allow-http`,
+            network: net,
+            priority: 1000,
+            destinationRanges: [],
+            sourceRanges: ["0.0.0.0/0"],
+            direction: "INGRESS",
+            targetTags: ["http-server"],
+            allowed: [{
+                IPProtocol: 'tcp',
+                ports: [80]
+            }]
+        });    
+
+        try {
+            const fwHttpResult = await computeClient.createFirewallRule(firewallResource, waitForOperation);
+            } catch (error) {
+            // throw error;
+        }
+
+        firewallResource["name"] = `${netshortname}-allow-https`;
+        firewallResource["allowed"] = [{
+            IPProtocol: 'tcp',
+            ports: [443]
+        }];
+    
+        try {
+            const fwHttpsResult = await computeClient.createFirewallRule(firewallResource, waitForOperation);
+            } catch (error) {
+            // throw error;
+        }
+    }
     return createResult;
 }
 
