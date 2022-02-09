@@ -11,7 +11,7 @@ This plugin requires the following APIs to be enabled for your project(s) in the
 
 APIs are enabled on a project-by-project basis. If you enabled an API recently, a few minutes may be required for the action to propagate to the systems and become fully effective.
 
-\* The IAM API is needed only for autocomplete functionality of parameters Api Access Service Account and Service Account Access Scopes in method Launch VM.
+\* The IAM API is needed only for autocomplete functionality of parameter Api Access Service Account in method Launch VM.
 
 \*\* The Cloud Resource Manager API is needed only for autocomplete functionality of parameter Project.
 
