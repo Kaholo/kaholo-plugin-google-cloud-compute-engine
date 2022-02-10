@@ -67,7 +67,7 @@
   ],
   "methods": [
     {
-      "name": "createInstance",
+      "name": "launchVm",
       "viewName": "Create Instance",
       "params": [
         {
@@ -711,7 +711,7 @@
       ]
     },
     {
-      "name": "reservePrivateIp",
+      "name": "reserveIp",
       "viewName": "Reserve Private IP Address",
       "params": [
         {

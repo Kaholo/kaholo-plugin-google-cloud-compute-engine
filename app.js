@@ -334,12 +334,12 @@ async function createRoute(action, settings) {
 }
 
 module.exports = {
-    createInstance,
+    launchVm: createInstance,
     vmAction,
     createVpc,
     deleteVM,
     createSubnet,
-    reservePrivateIp,
+    reserveIp: reservePrivateIp,
     createFw,
     createRoute,
     // autocomplete methods
