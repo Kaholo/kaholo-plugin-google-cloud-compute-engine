@@ -681,6 +681,10 @@ module.exports = class GoogleComputeService {
             throw error
         }
 
+        res.map(item => {
+            item.name += ` | ${item.ipCidrRange}`;
+        })
+
         return res;
     }
 
