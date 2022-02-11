@@ -142,6 +142,22 @@ module.exports = class GoogleComputeService {
         }
     }
 
+    async getAddressResource(address, region) {
+        const addressesClient = new compute.AddressesClient({ credentials: this.credentials });
+
+        try {
+            let [response] = await addressesClient.get({ address, project: this.projectId, region: region})
+
+            return response;
+        } catch (error) {
+             // if the reason is notFound return undefined
+            if (error && error.errors && error.errors.length > 0 && error.errors[0].reason === "notFound") return undefined
+
+            // if error is smth else, throw it
+            throw error
+        }
+    }
+
     /**
     * Create a new VM instance
     * @param {compute.protos.google.cloud.compute.v1.IInstance} instanceResource JSON representation of the instance which need to be created
