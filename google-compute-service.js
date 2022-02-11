@@ -142,6 +142,46 @@ module.exports = class GoogleComputeService {
         }
     }
 
+    /**
+     * This method creates address resource in the specified region in the body of `addressResource` argument.
+     * @param {google.cloud.compute.v1.IAddress} addressResource JSON representation of the address to be created
+     * @param {boolean} waitForOperation Flag whether to wait for the Long-Running operation to end or not.
+     * @returns {google.cloud.compute.v1.IAddress} `IAddress` if passed `addressResource` was successfully created.
+     * @returns {google.cloud.compute.v1.IOperation} If `waitForOperation` false, Long-Running operation is returned.
+     */
+    async createAddressResource(addressResource, waitForOperation) {
+        const addressesClient = new compute.AddressesClient({ credentials: this.credentials });
+
+        try {
+            let getAddress = await this.getAddressResource(addressResource.name, addressResource.region);
+            if(getAddress) throw Error(`Error: ${getAddress.addressType} Address Resource with the name ${getAddress.name} already exists in region ${addressResource.region}!`);
+
+            let [operation] = await addressesClient.insert({ addressResource, project: this.projectId, region: addressResource.region });
+
+            // wait for the operation to end
+            if (waitForOperation) {
+                const operationsClient = new compute.RegionOperationsClient({ credentials: this.credentials });
+                while (operation.status !== 'DONE') {
+                    [operation] = await operationsClient.wait({
+                        operation: operation.name,
+                        project: this.projectId,
+                        region: addressResource.region
+                    });
+                }
+
+                // get the result of operation
+                let [response] = await addressesClient.get({ address: addressResource.name, project: this.projectId, region: addressResource.region })
+
+                return response
+            }
+
+            return operation
+        }
+        catch (err) {
+            throw err;
+        }
+    }
+
     async getAddressResource(address, region) {
         const addressesClient = new compute.AddressesClient({ credentials: this.credentials });
 
