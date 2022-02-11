@@ -75,7 +75,7 @@ async function createInstance(action, settings) {
                 diskType: diskType ? `zones/${zone}/diskTypes/${diskType}` : undefined,
                 diskSizeGb: parsers.number(action.params.diskSize) || 10
             },
-            autoDelete: parsers.boolean(action.params.diskAutoDelete) || false,
+            autoDelete: parsers.boolean(action.params.diskAutoDelete || settings.diskAutoDelete) || false,
             mode: "READ_WRITE",
             type: "PERSISTENT"
         }],
