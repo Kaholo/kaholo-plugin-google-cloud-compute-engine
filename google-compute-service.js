@@ -191,28 +191,8 @@ module.exports = class GoogleComputeService {
     * @param {boolean} waitForOperation Whether to wait for the operation to finish before returning
     * @return {Promise} Information about the instance if succeded, Error in the other case.
     */
-    async createInstance(instanceResource, createReservedExtIP, waitForOperation) {
+    async createInstance(instanceResource, waitForOperation) {
         const instancesClient = new compute.InstancesClient({ credentials: this.credentials });
-
-        // create reserved external IP and write it to networkInterfaces array which will be passed to instanceResource
-        if (createReservedExtIP) {
-            const addressResource = {
-                name: `${instanceResource.name}-ext-addr`,
-                region: instanceResource.region,
-                addressType: "EXTERNAL"
-            }
-
-            const { address: natIP } = await this.createReservedExternalIP(addressResource, true);
-            if (!instanceResource.networkInterfaces) {
-                instanceResource.networkInterfaces = [{ accessConfigs: [{ natIP }] }];
-            }
-            else if (!instanceResource.networkInterfaces[0].accessConfigs) {
-                instanceResource.networkInterfaces[0].accessConfigs = [{ natIP }];
-            }
-            else {
-                instanceResource.networkInterfaces[0].accessConfigs[0].natIP = natIP;
-            }
-        }
 
         return new Promise(async (resolve, reject) => {
             try {

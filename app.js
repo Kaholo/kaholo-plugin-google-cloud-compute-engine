@@ -50,10 +50,61 @@ async function createInstance(action, settings) {
     let name = parsers.googleCloudName(action.params.name);
     let projectId = parsers.autocomplete(action.params.project || settings.project);
     let region = parsers.autocomplete(action.params.region || settings.region);
+    let externalIPType = action.params.external_IP || "EPHEMERAL";
+    let externalReservationName = action.params.externalReservationName || `${name}-ext-addr`;
     const waitForOperation = parsers.boolean(action.params.waitForOperation || settings.waitForOperation);
 
+    try {
+        switch (externalIPType) {
+            case "NONE":
+                break;
+
+            case "EPHEMERAL":
+                if (!networkInterfaces[0].accessConfigs) {
+                    networkInterfaces[0].accessConfigs = [{ natIP: undefined }];
+                }
+                else {
+                    networkInterfaces[0].accessConfigs[0].natIP = undefined;
+                }
+                break;
+
+            case "RESERVE_STATIC_EXTERNAL":
+                let { address: natIP } = await computeClient.createReservedExternalIP({
+                    name: externalReservationName,
+                    region: region,
+                    addressType: "EXTERNAL"
+                }, true);
+
+                if (!networkInterfaces[0].accessConfigs) {
+                    networkInterfaces[0].accessConfigs = [{ natIP }];
+                }
+                else {
+                    networkInterfaces[0].accessConfigs[0].natIP = natIP;
+                }
+                break;
+
+            case "USE_STATIC_EXTERNAL":
+                let getResponse = await computeClient.getAddressResource(externalReservationName, region);
+
+                if (!getResponse) throw new Error(`Error: Reserved External Static IP with name '${externalReservationName}' was not found in region '${region}'!`)
+
+                if (!networkInterfaces[0].accessConfigs) {
+                    networkInterfaces[0].accessConfigs = [{ natIP: getResponse.address }];
+                }
+                else {
+                    networkInterfaces[0].accessConfigs[0].natIP = getResponse.address;
+                }
+                break;
+
+            default:
+                break;
+        }
+    } catch (error) {
+        throw error
+    }
+
     // JSON representation of the instance which is going to be created
-    const instanceResource = removeUndefinedAndEmpty({
+    const instanceResource = {
         name,
         machineType: machineType ? `projects/${projectId}/zones/${zone}/machineTypes/${machineType}` : undefined,
         canIpForward: parsers.boolean(action.params.canIpForward),
@@ -92,12 +143,11 @@ async function createInstance(action, settings) {
                     ["https://www.googleapis.com/auth/cloud-platform"] :
                     saAccessScopes
         }] : undefined,
-    });
+    };
 
     // create instance
     const createResult = await computeClient.createInstance(
         instanceResource,
-        parsers.boolean(action.params.autoCreateStaticIP),
         waitForOperation
     );
 
