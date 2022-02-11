@@ -41,38 +41,24 @@ module.exports = class GoogleComputeService {
         );
     }
 
+
     /**
-    * Create and reserve external IP address for the specified instance. Reservation name will be `{instanceName}-ext-addr`
+    * Create and reserve external IP address for the specified region in `addressResource`.
     * @param {Object} addressResource Address object which needs to be created.
     * @param {boolean} waitForOperation Flag whether to wait for operation to complete.
-    * @return {Promise<string>} The external address created for the instance
+    * @return {Promise<cloud.compute.v1.IAddress>} Created Adrress Resource
     */
     async createReservedExternalIP(addressResource, waitForOperation) {
         try {
-            const addressesClient = new compute.AddressesClient({ credentials: this.credentials });
-            let [operation] = await addressesClient.insert({ addressResource, project: this.projectId, region: addressResource.region });
+            let getAddress = await this.getAddressResource(addressResource.name, addressResource.region);
+            if(getAddress && getAddress.addressType === "EXTERNAL") return getAddress;
 
-            // wait for the operation to end
-            if (waitForOperation) {
-                const operationsClient = new compute.RegionOperationsClient({ credentials: this.credentials });
-                while (operation.status !== 'DONE') {
-                    [operation] = await operationsClient.wait({
-                        operation: operation.name,
-                        project: this.projectId,
-                        region: addressResource.region
-                    });
-                }
+            let createAddress = await this.createAddressResource(addressResource, waitForOperation);
 
-                // get the result of operation
-                let [response] = await addressesClient.get({ address: addressResource.name, project: this.projectId, region: addressResource.region })
-
-                return response.address;
-            }
-
-            return operation
+            return createAddress;
         }
         catch (err) {
-            throw `Couldn't create external address with the name: ${addressResource.name}\n${err.message || JSON.stringify(err)}`;
+            throw err;
         }
     }
 
@@ -216,7 +202,7 @@ module.exports = class GoogleComputeService {
                 addressType: "EXTERNAL"
             }
 
-            const natIP = await this.createReservedExternalIP(addressResource, true);
+            const { address: natIP } = await this.createReservedExternalIP(addressResource, true);
             if (!instanceResource.networkInterfaces) {
                 instanceResource.networkInterfaces = [{ accessConfigs: [{ natIP }] }];
             }
