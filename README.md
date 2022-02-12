@@ -23,7 +23,8 @@ Plugin settings act as default parameter values. If configured in plugin setting
 * Default Service Account Credentials - A Vaulted JSON document containing service account credentials as provided by GCP. [Tutorial](https://cloud.google.com/iam/docs/creating-managing-service-account-keys).
 * Default Project - A GCP Project defines how your app interacts with services and resources.
 * Default Region - The geographical GCP region where infrastructure is or will be located, i.e. asia-southeast1.
-* Default Wait For Operation End - not yet implemented. Set this at the Action vlevel.
+* Default Disk Auto Delete - not yet implemented as plugin-level setting. Set this at the Action level.
+* Default Wait For Operation End - not yet implemented as plugin-level setting. Set this at the Action level.
 
 ## Method: Launch VM
 Method Launch VM creates a new virtual machine instance. The underlying Google Cloud API method is described [here](https://cloud.google.com/compute/docs/reference/rest/v1/instances/insert).
