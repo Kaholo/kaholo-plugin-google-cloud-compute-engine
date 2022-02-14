@@ -737,7 +737,7 @@
     },
     {
       "name": "reservePrivateIp",
-      "viewName": "Reserve Private IP Address",
+      "viewName": "Reserve Static Internal IP Address",
       "params": [
         {
           "name": "creds",
