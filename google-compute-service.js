@@ -246,6 +246,10 @@ module.exports = class GoogleComputeService {
           });
         }
 
+        if (operation.error && operation.error.errors && operation.error.errors.length > 0) {
+          return Promise.reject(operation.error);
+        }
+
         // get instance after creation
         const [response] = await instancesClient.get({
           instance: instanceResource.name,

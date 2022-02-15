@@ -53,7 +53,7 @@ async function createInstance(action, settings) {
   const projectId = parsers.autocomplete(action.params.project || settings.project);
   const region = parsers.autocomplete(action.params.region || settings.region);
   const externalIPType = action.params.external_IP || "EPHEMERAL";
-  const externalReservationName = action.params.externalReservationName || `${name}-ext-addr`;
+  const externalReservationName = parsers.googleCloudName(action.params.externalReservationName || `${name}-ext-addr`);
   const waitForOperation = parsers.boolean(action.params.waitForOperation
         || settings.waitForOperation);
 
