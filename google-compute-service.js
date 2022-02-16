@@ -220,7 +220,7 @@ module.exports = class GoogleComputeService {
           });
         }
 
-        if (operation.error && operation.error.errors && operation.error.errors.length > 0) {
+        if (operation?.error?.errors?.length > 0) {
           return Promise.reject(operation.error);
         }
 
