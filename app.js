@@ -55,7 +55,7 @@ async function createInstance(action, settings) {
   const externalIPType = action.params.external_IP || "EPHEMERAL";
   const externalReservationName = parsers.googleCloudName(action.params.externalReservationName || `${name}-ext-addr`);
   const waitForOperation = parsers.boolean(action.params.waitForOperation
-        || settings.waitForOperation);
+    || settings.waitForOperation);
 
   switch (externalIPType) {
     case "NONE":
@@ -155,6 +155,47 @@ async function createInstance(action, settings) {
     instanceResource,
     waitForOperation,
   );
+
+  // create firewall rules
+  const n = net.lastIndexOf("/");
+  const netshortname = net.substring(n + 1);
+
+  const firewallResource = removeUndefinedAndEmpty({
+    name: `${netshortname}-allow-http`,
+    network: net,
+    priority: 1000,
+    destinationRanges: [],
+    sourceRanges: ["0.0.0.0/0"],
+    direction: "INGRESS",
+    targetTags: ["http-server"],
+    allowed: [{
+      IPProtocol: "tcp",
+      ports: [80],
+    }],
+  });
+
+  if (parsers.boolean(action.params.allowHttp)) {
+    try {
+      await computeClient.createFirewallRule(firewallResource, waitForOperation);
+    } catch (error) {
+      if (!error.message.includes("already exists")) { throw error; }
+    }
+  }
+
+  if (parsers.boolean(action.params.allowHttps)) {
+    firewallResource.name = `${netshortname}-allow-https`;
+    firewallResource.targetTags = ["https-server"];
+    firewallResource.allowed = [{
+      IPProtocol: "tcp",
+      ports: [443],
+    }];
+
+    try {
+      await computeClient.createFirewallRule(firewallResource, waitForOperation);
+    } catch (error) {
+      if (!error.message.includes("already exists")) { throw error; }
+    }
+  }
 
   return createResult;
 }
@@ -358,12 +399,12 @@ async function createRoute(action, settings) {
 }
 
 module.exports = {
-  createInstance,
+  launchVm: createInstance,
   vmAction,
   createVpc,
   deleteVM,
   createSubnet,
-  reservePrivateIp,
+  reserveIp: reservePrivateIp,
   createFw,
   createRoute,
   // autocomplete methods
