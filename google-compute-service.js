@@ -102,35 +102,9 @@ module.exports = class GoogleComputeService {
 
   async createReservedInternalIP(addressResource, waitForOperation) {
     try {
-      const addressesClient = new compute.AddressesClient({ credentials: this.credentials });
-      let [operation] = await addressesClient.insert({
-        addressResource,
-        project: this.projectId,
-        region: addressResource.region,
-      });
+      const createAddress = await this.createAddressResource(addressResource, waitForOperation);
 
-      // wait for the operation to end
-      if (waitForOperation) {
-        const operationsClient = new RegionOperationsClient({ credentials: this.credentials });
-        while (operation.status !== "DONE") {
-          [operation] = await operationsClient.wait({
-            operation: operation.name,
-            project: this.projectId,
-            region: addressResource.region,
-          });
-        }
-
-        // get the result of operation
-        const [response] = await addressesClient.get({
-          address: addressResource.name,
-          project: this.projectId,
-          region: addressResource.region,
-        });
-
-        return response;
-      }
-
-      return operation;
+      return createAddress;
     } catch (err) {
       throw new Error(`Couldn't create internal address with the name: ${addressResource.name}\n${err.message || JSON.stringify(err)}`);
     }
