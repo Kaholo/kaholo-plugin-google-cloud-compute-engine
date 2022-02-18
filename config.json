@@ -5,7 +5,7 @@
   "execProgram": "node",
   "main": "app.js",
   "imgUrl": "logo.png",
-  "version": "3.0.1",
+  "version": "3.1.2",
   "category": ["CLOUD", "COMPUTE"],
   "keywords": [
     "GCP",
@@ -67,7 +67,7 @@
   ],
   "methods": [
     {
-      "name": "createInstance",
+      "name": "launchVm",
       "viewName": "Create Instance",
       "params": [
         {
@@ -307,6 +307,39 @@
           "learnUrl": "https://cloud.google.com/compute/docs/ip-addresses"
         },
         {
+          "name": "external_IP",
+          "viewName": "External IP",
+          "required": false,
+          "type": "options",
+          "description": "External IP settings. Default is Ephemeral",
+          "placeholder": "Ephemeral",
+          "options": [
+            {
+              "id": "NONE",
+              "name": "None"
+            },
+            {
+              "id": "EPHEMERAL",
+              "name": "Ephemeral"
+            },
+            {
+              "id": "RESERVE_STATIC_EXTERNAL",
+              "name": "Reserve New Static IP Address"
+            },
+            {
+              "id": "USE_STATIC_EXTERNAL",
+              "name": "Use Existing Reserved Static IP"
+            }
+          ]
+        },
+        {
+          "name": "externalReservationName",
+          "viewName": "Reserved External Static IP Address Name",
+          "description": "If Reserve New Static IP Address was chosen, you can specify the reservation name, default is {instance-name}-ext-adrr. Provide reservation name here if Use Existing Reserved Static IP option was chosen",
+          "type": "string",
+          "placeholder": "{instance-name}-ext-adrr"
+        },
+        {
           "name": "networkInterfaces",
           "viewName": "Additional Network Interfaces",
           "required": false,
@@ -357,14 +390,6 @@
           "type": "boolean",
           "description": "If checked, wait for this action to complete before moving on to next action in pipeline",
           "learnUrl": "https://github.com/Kaholo/kaholo-plugin-GoogleCloudComputeEngine"
-        },
-        {
-          "name": "autoCreateStaticIP",
-          "viewName": "Auto Create Static External IP Address",
-          "required": false,
-          "type": "boolean",
-          "description": "If checked, the external IP address is reserved so it does not change or get released even if the VM is deleted",
-          "learnUrl": "https://cloud.google.com/compute/docs/ip-addresses/reserve-static-internal-ip-address"
         }
       ]
     },
@@ -711,8 +736,8 @@
       ]
     },
     {
-      "name": "reservePrivateIp",
-      "viewName": "Reserve Private IP Address",
+      "name": "reserveIp",
+      "viewName": "Reserve Static Internal IP Address",
       "params": [
         {
           "name": "creds",
