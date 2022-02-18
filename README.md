@@ -23,8 +23,8 @@ Plugin settings act as default parameter values. If configured in plugin setting
 * Default Service Account Credentials - A Vaulted JSON document containing service account credentials as provided by GCP. [Tutorial](https://cloud.google.com/iam/docs/creating-managing-service-account-keys).
 * Default Project - A GCP Project defines how your app interacts with services and resources.
 * Default Region - The geographical GCP region where infrastructure is or will be located, i.e. asia-southeast1.
-* Default Disk Auto Delete - If enabled, disks created with VMs will be deleted as well if the VM is deleted. Used only in method Launch VM.
-* Default Wait For Operation End - If enabled, Kaholo will wait for the Action to complete before moving along to the next Action in the Pipeline.
+* Default Disk Auto Delete - not yet implemented as plugin-level setting. Set this at the Action level.
+* Default Wait For Operation End - not yet implemented as plugin-level setting. Set this at the Action level.
 
 ## Method: Launch VM
 Method Launch VM creates a new virtual machine instance. The underlying Google Cloud API method is described [here](https://cloud.google.com/compute/docs/reference/rest/v1/instances/insert).
@@ -47,8 +47,8 @@ Required parameters have an asterisk (*) next to their names.
 * Disk Auto Delete - If enabled, when the new VM is deleted the disk will be also.
 * Api Access Service Account - Provide the VM access to an API access service account.
 * Service Account Access Scopes - Choose which level of access to grant the VM: `Allow default access` or `Allow full access to all Cloud APIs`.
-* Firewall - Allow HTTP traffic - If enabled, the VM is network tagged as `http-server` to allow inbound HTTP traffic.
-* Firewall - Allow HTTPS traffic - If enabled, the VM is network tagged as `https-server` to allow inbound HTTPS traffic.
+* Firewall - Allow HTTP traffic - If enabled, the VM is network tagged as `http-server` to allow inbound HTTP traffic. It will also create a similarly tagged firewall rule named `<vpcname>-allow-http`, unless a rule with that name already exists.
+* Firewall - Allow HTTPS traffic - If enabled, the VM is network tagged as `https-server` to allow inbound HTTPS traffic. It will also create a similarly tagged firewall rule named `<vpcname>-allow-https`, unless a rule with that name already exists.
 * VPC Network Name * - The name of a VPC Network in the project with subnets in the specified region.
 * Subnet * - The name of a subnet within the VPC Network for the VM's default network interface.
 * Custom Internal IP - If selected, assign this specified internal IP address for the new VM instance. Must be a valid IP address in the range of IP addresses of the subnet to host the VM instance.
@@ -122,7 +122,7 @@ Creates a reservation for the specified internal IP address on the specified sub
 ## Method: Create Firewall Rule
 Creates a new firewall rule for the specified VPC network. Rules can contain ranges of IP addresses and ports, but each rule must be for either all traffic or one specified protocol and either ingress or egress. Create multiple rules if necessary to cover all combinations of protocol and ingress/egress requried. **The defaults are very permissive** - if none of the optional parameters are specified, the method creates by default a rule that allows all traffic from everywhere into the subnet. This is for Kaholo user convenience only, not an advisable security practice.
 
-Rules are associated to routes and VM instances by means of Network Tags. For example a firewall rule to allow TCP ingress on port 443 (HTTPS) tagged "web-server" would allow only VM instances also tagged "web-server" to receive HTTPS web traffic. Firewall rules with no tags apply to every VM instance in the VPC network.
+Rules are associated to routes and VM instances by means of Network Tags. For example a firewall rule to allow TCP ingress on port 443 (HTTPS) tagged `https-server` would allow only VM instances also tagged `https-server` to receive HTTPS web traffic. Firewall rules with no tags apply to every VM instance in the VPC network.
 
 ### Parameters
 * Service Account Credentials * - as described above in plugin settings.
@@ -156,7 +156,7 @@ Rules are associated to routes and VM instances by means of Network Tags. For ex
 * Tags - Network tags to to associate the firewall rule with similarly tagged VM instances.
 
 ## Method: Create Route
-Create a new route inside the specified network. This directs traffic both between subnets and peering with internet gateways, VPN tunnels, load balancers, firewall instances and such. Like firewall rules, routes also accept network tags. Network tags are used to match routes with VM instances that bear the same network tag. For example a route to the internet gateway tagged "internet" would allow only VM instances also tagged "internet" access to the internet. Routes with no tags apply to every VM instance in the VPC network.
+Create a new route inside the specified network. This directs traffic both between subnets and peering with internet gateways, VPN tunnels, load balancers, firewall instances and such. Like firewall rules, routes also accept network tags. Network tags are used to match routes with VM instances that bear the same network tag. For example a route to the internet gateway tagged `internet` would allow only VM instances also tagged `internet` access to the internet. Routes with no tags apply to every VM instance in the VPC network.
 
 ### Parameters
 * Service Account Credentials * - as described above in plugin settings.
