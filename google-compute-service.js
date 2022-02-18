@@ -648,6 +648,7 @@ module.exports = class GoogleComputeService {
 
     const request = removeUndefinedAndEmpty({
       project: imageProject || this.projectId,
+      filter: "NOT deprecated:*",
     });
 
     const iterable = imagesClient.listAsync(request);
