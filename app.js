@@ -29,12 +29,18 @@ async function createInstance(action, settings) {
   const net = parsers.autocomplete(action.params.network);
   const sub = parsers.autocomplete(action.params.subnetwork);
   const cip = parsers.string(action.params.customInternalIp);
+  const networkTier = action.params.networkTier || "PREMIUM";
 
   // create networkInterfaces  array which will be passed to the instanceResource obj
   const networkInterfaces = ([{
     network: net ? `${net}` : undefined,
     subnetwork: sub ? `${sub}` : undefined,
     networkIP: cip ? `${cip}` : undefined,
+    accessConfigs: [
+      {
+        networkTier,
+      },
+    ],
   }]).concat(addedNetworkInterfaces);
 
   // create tags array
@@ -74,6 +80,7 @@ async function createInstance(action, settings) {
         const { address: natIP } = await computeClient.createReservedExternalIP({
           name: externalReservationName,
           region,
+          networkTier,
           addressType: "EXTERNAL",
         }, true);
 
