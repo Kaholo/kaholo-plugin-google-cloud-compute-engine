@@ -256,9 +256,9 @@ async function deleteVM(action, settings) {
         const searchIP = instance.networkInterfaces[0].accessConfigs[0].natIP;
 
         const address = await computeClient.getAddressResourceByIP(searchIP, region, project);
-        address.region = region;
 
         if (address) {
+          address.region = region;
           const deleteAddressResponse = await computeClient.deleteAddressResource(
             address,
             waitForOperation,
