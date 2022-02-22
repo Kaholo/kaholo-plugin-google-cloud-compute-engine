@@ -5,7 +5,7 @@
   "execProgram": "node",
   "main": "app.js",
   "imgUrl": "logo.png",
-  "version": "3.1.3",
+  "version": "3.1.4",
   "category": ["CLOUD", "COMPUTE"],
   "keywords": [
     "GCP",
@@ -272,6 +272,24 @@
           "type": "boolean",
           "description": "Enable a new rule in the firewall for incoming HTTPS traffic (port 443)",
           "learnUrl": "https://cloud.google.com/vpc/docs/special-configurations"
+        },
+        {
+          "name": "networkTier",
+          "viewName": "Network Service Tier",
+          "required": false,
+          "type": "options",
+          "description": "Default is Premium",
+          "placeholder": "Premium",
+          "options": [
+            {
+              "id": "PREMIUM",
+              "name": "Premium"
+            },
+            {
+              "id": "STANDARD",
+              "name": "Standard"
+            }
+          ]
         },
         {
           "name": "network",
