@@ -274,6 +274,24 @@
           "learnUrl": "https://cloud.google.com/vpc/docs/special-configurations"
         },
         {
+          "name": "networkTier",
+          "viewName": "Network Service Tier",
+          "required": false,
+          "type": "options",
+          "description": "Default is Premium",
+          "placeholder": "Premium",
+          "options": [
+            {
+              "id": "PREMIUM",
+              "name": "Premium"
+            },
+            {
+              "id": "STANDARD",
+              "name": "Standard"
+            }
+          ]
+        },
+        {
           "name": "network",
           "viewName": "VPC Network Name *",
           "required": false,
