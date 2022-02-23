@@ -248,39 +248,35 @@ async function deleteVM(action, settings) {
   const waitForOperation = parsers.boolean(action.params.waitForOperation
     || settings.waitForOperation);
 
-  try {
-    if (isDeleteStaticIP) {
-      const instance = await computeClient.getInstance({ instance: instanceName, project, zone });
+  if (isDeleteStaticIP) {
+    const instance = await computeClient.getInstance({ instance: instanceName, project, zone });
 
-      if (instance?.networkInterfaces[0]?.accessConfigs.length > 0) {
-        const searchIP = instance.networkInterfaces[0].accessConfigs[0].natIP;
+    if (instance?.networkInterfaces[0]?.accessConfigs.length > 0) {
+      const searchIP = instance.networkInterfaces[0].accessConfigs[0].natIP;
 
-        const address = await computeClient.getAddressResourceByIP(searchIP, region, project);
+      const address = await computeClient.getAddressResourceByIP(searchIP, region, project);
 
-        if (address) {
-          address.region = region;
-          const deleteAddressResponse = await computeClient.deleteAddressResource(
-            address,
-            waitForOperation,
-          );
-          resultArray.push(deleteAddressResponse);
-        }
+      if (address) {
+        address.region = region;
+        const deleteAddressResponse = computeClient.deleteAddressResource(
+          address,
+          waitForOperation,
+        );
+        resultArray.push(deleteAddressResponse);
       }
     }
-
-    const deleteResult = await computeClient.handleAction({
-      zone,
-      instanceName,
-      project,
-      action: "Delete",
-    }, waitForOperation);
-
-    resultArray.push(deleteResult);
-
-    return Promise.resolve(resultArray);
-  } catch (error) {
-    return Promise.reject(error);
   }
+
+  const deleteResult = computeClient.handleAction({
+    zone,
+    instanceName,
+    project,
+    action: "Delete",
+  }, waitForOperation);
+
+  resultArray.push(deleteResult);
+
+  return Promise.all(resultArray);
 }
 
 async function createSubnet(action, settings) {

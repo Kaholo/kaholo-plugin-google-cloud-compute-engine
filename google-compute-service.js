@@ -183,27 +183,19 @@ module.exports = class GoogleComputeService {
   async getAddressResourceByIP(searchIP, region, project) {
     const addressesClient = new compute.AddressesClient({ credentials: this.credentials });
 
-    try {
-      const request = removeUndefinedAndEmpty({
-        filter: `address="${searchIP}"`,
-        project: project || this.projectId,
-        region,
-      });
+    const request = removeUndefinedAndEmpty({
+      filter: `address="${searchIP}"`,
+      project: project || this.projectId,
+      region,
+    });
 
-      const iterable = addressesClient.listAsync(request);
+    const iterable = addressesClient.listAsync(request);
 
-      try {
-        for await (const item of iterable) {
-          if (item.address === searchIP) { return item; }
-        }
-      } catch (error) {
-        return Promise.reject(error);
-      }
-
-      return undefined;
-    } catch (error) {
-      return Promise.reject(error);
+    for await (const item of iterable) {
+      if (item.address === searchIP) { return item; }
     }
+
+    return null;
   }
 
   /**
@@ -646,7 +638,8 @@ module.exports = class GoogleComputeService {
 
   async listImageProjects(params) {
     const userProjects = await this.listProjects(params);
-    return [...userProjects,
+    return [
+      ...userProjects,
       { displayName: "Debian Cloud", projectId: "debian-cloud" },
       { displayName: "Windows Cloud", projectId: "windows-cloud" },
       { displayName: "Ubuntu Cloud", projectId: "ubuntu-os-cloud" },
