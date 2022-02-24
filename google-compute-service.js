@@ -706,7 +706,7 @@ module.exports = class GoogleComputeService {
 
     const request = removeUndefinedAndEmpty({
       project,
-      filter: `network="${network}"`,
+      filter: network && `network="${network}"`,
       region,
     });
 
