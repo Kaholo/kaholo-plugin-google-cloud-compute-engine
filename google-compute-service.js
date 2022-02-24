@@ -714,10 +714,12 @@ module.exports = class GoogleComputeService {
   async listSubnetworks(params) {
     const subnetworksClient = new compute.SubnetworksClient({ credentials: this.credentials });
     const project = parsers.autocomplete(params.project) || this.projectId;
+    const network = parsers.autocomplete(params.network);
     const region = parsers.autocomplete(params.region);
 
     const request = removeUndefinedAndEmpty({
       project,
+      filter: network && `network="${network}"`,
       region,
     });
 
