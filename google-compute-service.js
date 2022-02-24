@@ -61,17 +61,11 @@ module.exports = class GoogleComputeService {
     }
   }
 
-  /**
-    * Delte reserved external IP address.
-    * @param {Object} addressResource Address object which needs to be deleted.
-    * @param {boolean} waitForOperation Flag whether to wait for operation to complete.
-    * @return {Promise<string>} Status/Operation of the methods completeion.
-    */
-  async deleteReservedExternalIP(addressResource, waitForOperation) {
+  async deleteAddressResource(addressResource, waitForOperation) {
     const request = removeUndefinedAndEmpty({
-      project: addressResource.project || this.projectId,
-      region: addressResource.region,
       address: addressResource.name,
+      project: this.projectId,
+      region: addressResource.region,
     });
 
     try {
@@ -91,12 +85,12 @@ module.exports = class GoogleComputeService {
           });
         }
 
-        return operation.status;
+        return operation;
       }
 
       return operation;
     } catch (err) {
-      throw new Error(`Couldn't delete external address with the name: ${addressResource.name}\n${err.message || JSON.stringify(err)}`);
+      throw new Error(`Couldn't delete address with the name: ${addressResource.name}\n${err.message || JSON.stringify(err)}`);
     }
   }
 
@@ -184,6 +178,24 @@ module.exports = class GoogleComputeService {
       // if error is smth else, throw it
       throw error;
     }
+  }
+
+  async getAddressResourceByIP(searchIP, region, project) {
+    const addressesClient = new compute.AddressesClient({ credentials: this.credentials });
+
+    const request = removeUndefinedAndEmpty({
+      filter: `address="${searchIP}"`,
+      project: project || this.projectId,
+      region,
+    });
+
+    const iterable = addressesClient.listAsync(request);
+
+    for await (const item of iterable) {
+      if (item.address === searchIP) { return item; }
+    }
+
+    return null;
   }
 
   /**
@@ -626,7 +638,8 @@ module.exports = class GoogleComputeService {
 
   async listImageProjects(params) {
     const userProjects = await this.listProjects(params);
-    return [...userProjects,
+    return [
+      ...userProjects,
       { displayName: "Debian Cloud", projectId: "debian-cloud" },
       { displayName: "Windows Cloud", projectId: "windows-cloud" },
       { displayName: "Ubuntu Cloud", projectId: "ubuntu-os-cloud" },
