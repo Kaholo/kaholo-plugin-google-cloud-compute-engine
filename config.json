@@ -1108,7 +1108,6 @@
         {
           "name": "creds",
           "viewName": "Service Account Credentials",
-          "required": false,
           "type": "vault",
           "description": "Vaulted JSON document containing service account credentials as provided by GCP",
           "learnUrl": "https://cloud.google.com/docs/authentication/production"
@@ -1116,7 +1115,6 @@
         {
           "name": "project",
           "viewName": "Project",
-          "required": false,
           "type": "autocomplete",
           "autocompleteType": "function",
           "functionName": "listProjectsAuto",
@@ -1127,7 +1125,6 @@
         {
           "name": "region",
           "viewName": "Region *",
-          "required": false,
           "type": "autocomplete",
           "autocompleteType": "function",
           "functionName": "listRegionsAuto",
@@ -1138,7 +1135,6 @@
         {
           "name": "network",
           "viewName": "VPC Network Name",
-          "required": false,
           "type": "autocomplete",
           "autocompleteType": "function",
           "functionName": "listNetworksAuto",
