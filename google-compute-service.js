@@ -711,7 +711,7 @@ module.exports = class GoogleComputeService {
     return res;
   }
 
-  async listSubnetworks(params) {
+  async listSubnetworks(params, concatCIDR = true) {
     const subnetworksClient = new compute.SubnetworksClient({ credentials: this.credentials });
     const project = parsers.autocomplete(params.project) || this.projectId;
     const network = parsers.autocomplete(params.network);
@@ -735,7 +735,9 @@ module.exports = class GoogleComputeService {
     }
 
     /* eslint-disable no-param-reassign */
-    res.map((item) => { item.name += ` | ${item.ipCidrRange}`; return item; });
+    if (concatCIDR) {
+      res.map((item) => { item.name += ` | ${item.ipCidrRange}`; return item; });
+    }
     /* eslint-enable no-param-reassign */
 
     return res;

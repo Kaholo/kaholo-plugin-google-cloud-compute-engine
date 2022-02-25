@@ -5,7 +5,7 @@
   "execProgram": "node",
   "main": "app.js",
   "imgUrl": "logo.png",
-  "version": "3.1.5",
+  "version": "3.1.6",
   "category": ["CLOUD", "COMPUTE"],
   "keywords": [
     "GCP",
@@ -1098,6 +1098,50 @@
           "type": "boolean",
           "description": "If checked, wait for this action to complete before moving on to next action in pipeline",
           "learnUrl": "https://github.com/Kaholo/kaholo-plugin-GoogleCloudComputeEngine"
+        }
+      ]
+    },
+    {
+      "name": "listSubnets",
+      "viewName": "List Subnets",
+      "params": [
+        {
+          "name": "creds",
+          "viewName": "Service Account Credentials",
+          "type": "vault",
+          "description": "Vaulted JSON document containing service account credentials as provided by GCP",
+          "learnUrl": "https://cloud.google.com/docs/authentication/production"
+        },
+        {
+          "name": "project",
+          "viewName": "Project",
+          "type": "autocomplete",
+          "autocompleteType": "function",
+          "functionName": "listProjectsAuto",
+          "description": "GCP Project defines how your app interacts with services and resources",
+          "placeholder": "select using autocomplete",
+          "learnUrl": "https://cloud.google.com/resource-manager/docs/creating-managing-projects"
+        },
+        {
+          "name": "region",
+          "viewName": "Region *",
+          "type": "autocomplete",
+          "autocompleteType": "function",
+          "functionName": "listRegionsAuto",
+          "description": "Geographical GCP region where the subnet will be located",
+          "placeholder": "select using autocomplete",
+          "learnUrl": "https://cloud.google.com/compute/docs/regions-zones"
+        },
+        {
+          "name": "network",
+          "viewName": "VPC Network Name",
+          "type": "autocomplete",
+          "autocompleteType": "function",
+          "functionName": "listNetworksAuto",
+          "description": "The name of a VPC Network in the project with subnets in the region",
+          "placeholder": "select using autocomplete",
+          "learnUrl": "https://cloud.google.com/vpc/docs/using-vpc",
+          "codedExample": "global/networks/apac-test-vpc"
         }
       ]
     }
