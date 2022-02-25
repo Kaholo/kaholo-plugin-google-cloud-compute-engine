@@ -413,6 +413,14 @@ async function createRoute(action, settings) {
   }
 }
 
+async function listSubnets(action, settings) {
+  const computeClient = GoogleComputeService.from(action.params, settings);
+
+  const subnets = await computeClient.listSubnetworks(action.params, false);
+
+  return subnets;
+}
+
 module.exports = {
   launchVm: createInstance,
   vmAction,
@@ -422,6 +430,7 @@ module.exports = {
   reserveIp: reservePrivateIp,
   createFw,
   createRoute,
+  listSubnets,
   // autocomplete methods
   ...autocomplete,
 };
