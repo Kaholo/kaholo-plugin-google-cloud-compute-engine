@@ -80,6 +80,18 @@ Performs any of several operations on a specified VM. These actions include:
 * Action * - The action to perform: `Stop`, `Start`, `Restart`, `Get`, `Get External IP`, or `Delete`
 * Wait For Operation End - as described above in plugin settings
 
+## Method: Delete VM
+Deletes a specified VM. 
+
+### Parameters
+* Service Account Credentials * - as described above in plugin settings
+* Project * - as described above in plugin settings
+* Region - as described above in plugin settings
+* Zone * - Zone is a subdivision of GCP regions, typically region-a, b, or c.
+* VM Instance - The name of the VM instance to delete.
+* Wait For Operation End - as described above in plugin settings
+* Delete Static IP - Whether you want to delete static IP associated with VM.
+
 ## Method: Create VPC Network
 Create a new Virtual Private Cloud (VPC) network. 
 
