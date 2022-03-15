@@ -11,12 +11,13 @@ const parsers = require("./parsers");
 module.exports = class GoogleComputeService {
     /**
      * Create a Google Cloud Compute service instance
-     * @param {object} credentials The credentials of a service account to use to make the request 
+     * @param {object} credentials The credentials of a service account to use to make the request
      * @param {string} projectId The ID of the project to make all the requests about.
      */
-    constructor(credentials, projectId) {
+    constructor(credentials, projectId, region) {
         this.projectId = projectId;
         this.credentials = credentials;
+        this.region = region;
     }
 
     /**
@@ -29,7 +30,8 @@ module.exports = class GoogleComputeService {
         const creds = parsers.object(params.creds || settings.creds);
         if (!creds) throw "Must provide credentials to call any method in the plugin!";
         const project = noProject ? undefined : parsers.autocomplete(params.project || settings.project);
-        return new GoogleComputeService(creds, project);
+        const region = parsers.autocomplete(settings.region)
+        return new GoogleComputeService(creds, project, region);
     }
 
     getAuthClient() {
@@ -663,7 +665,7 @@ module.exports = class GoogleComputeService {
     async listSubnetworks(params) {
         const subnetworksClient = new compute.SubnetworksClient({ credentials: this.credentials });
         const project = parsers.autocomplete(params.project) || this.projectId;
-        const region = parsers.autocomplete(params.region);
+        const region = parsers.autocomplete(params.region || this.region);
 
         const request = removeUndefinedAndEmpty({
             project,
@@ -707,4 +709,4 @@ module.exports = class GoogleComputeService {
 
         return res
     }
-} 
+}
