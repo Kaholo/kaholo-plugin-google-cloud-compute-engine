@@ -14,10 +14,12 @@ module.exports = class GoogleComputeService {
      * Create a Google Cloud Compute service instance
      * @param {object} credentials The credentials of a service account to use to make the request
      * @param {string} projectId The ID of the project to make all the requests about.
+     * @param {string} region GCP region to use in requests.
      */
-  constructor(credentials, projectId) {
+  constructor(credentials, projectId, region) {
     this.projectId = projectId;
     this.credentials = credentials;
+    this.region = region;
   }
 
   /**
@@ -715,7 +717,7 @@ module.exports = class GoogleComputeService {
     const subnetworksClient = new compute.SubnetworksClient({ credentials: this.credentials });
     const project = parsers.autocomplete(params.project) || this.projectId;
     const network = parsers.autocomplete(params.network);
-    const region = parsers.autocomplete(params.region);
+    const region = parsers.autocomplete(params.region || this.region);
 
     const request = removeUndefinedAndEmpty({
       project,
