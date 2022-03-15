@@ -13,6 +13,7 @@ module.exports = class GoogleComputeService {
      * Create a Google Cloud Compute service instance
      * @param {object} credentials The credentials of a service account to use to make the request
      * @param {string} projectId The ID of the project to make all the requests about.
+     * @param {string} region GCP region to use in project
      */
     constructor(credentials, projectId, region) {
         this.projectId = projectId;
