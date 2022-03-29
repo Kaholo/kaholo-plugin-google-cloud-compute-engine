@@ -51,16 +51,21 @@ function listAuto(listFunc, fields = ["id", "name"]) {
   const parseFunc = getParseFromParam(...fields);
 
   return async (query, pluginSettings, triggerParameters) => {
-    const settings = mapAutoParams(pluginSettings); const
-      params = mapAutoParams(triggerParameters);
+    const settings = mapAutoParams(pluginSettings);
+    const params = mapAutoParams(triggerParameters);
     const client = GoogleComputeService.from(params, settings);
 
     const items = [];
 
     params.query = (query || "").trim();
 
+    const methodParams = {
+      ...params,
+      ...settings,
+    };
+
     try {
-      const result = await client[listFunc](params, fields);
+      const result = await client[listFunc](methodParams, fields);
 
       items.push(...handleResult(result.items || result, params.query, parseFunc));
 
