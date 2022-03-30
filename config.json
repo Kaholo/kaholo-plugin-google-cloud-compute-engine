@@ -456,7 +456,7 @@
           "type": "autocomplete",
           "autocompleteType": "function",
           "functionName": "listZonesAuto",
-          "description": "Zone is a subdivision of GCP regions, typically region-a, b, or c",
+          "description": "Zone is a subdivision of GCP region, typically region-a, b, or c",
           "placeholder": "select using autocomplete",
           "learnUrl": "https://cloud.google.com/compute/docs/regions-zones"
         },
@@ -467,7 +467,7 @@
           "type": "autocomplete",
           "autocompleteType": "function",
           "functionName": "listVmsAuto",
-          "description": "VM instance to run the action on",
+          "description": "VM instance on which to apply the action",
           "placeholder": "select using autocomplete",
           "learnUrl": "https://cloud.google.com/compute",
           "codedExample": "https://www.googleapis.com/compute/v1/projects/project-alpha/zones/asia-southeast1-b/instances/8692795591123456789"
@@ -509,17 +509,17 @@
         },
         {
           "name": "addScript",
-          "viewName": "Add Start Up Script",
+          "viewName": "Add Startup Script",
           "type": "boolean",
-          "description": "Check if want to add start script (for start a VM only)",
+          "description": "For action \"Start\" only, check to add a startup script as instance metadata.",
           "learnUrl": "https://cloud.google.com/compute/docs/instances/startup-scripts/linux#api"
         },
         {
           "name": "startupScript",
-          "viewName": "Start Up Script",
+          "viewName": "Startup Script",
           "type": "text",
-          "description": "Start Up Script that want to add in starting a VM",
-          "placeholder": "#! /bin/bash\napt update\napt -y install apache2\ncat <<EOF > /var/www/html/index.html\n<html><body><p>Linux startup script added directly.</p></body></html>",
+          "description": "The script to add if \"Add Startup Script\" is checked",
+          "placeholder": "#!/bin/bash\nsystemctl start nginx",
           "learnUrl": "https://cloud.google.com/compute/docs/instances/startup-scripts/linux#api"
         },
         {
@@ -557,8 +557,8 @@
         },
         {
           "name": "name",
-          "viewName": "Network Name *",
-          "required": false,
+          "viewName": "Network Name",
+          "required": true,
           "type": "string",
           "description": "Unique name for the new VPC network (lowercase letters, numbers, hypen only)",
           "placeholder": "geotown-net-01",
@@ -633,7 +633,7 @@
           "type": "autocomplete",
           "autocompleteType": "function",
           "functionName": "listZonesAuto",
-          "description": "Zone is a subdivision of GCP regions, typically region-a, b, or c",
+          "description": "Zone is a subdivision of GCP region, typically region-a, b, or c",
           "placeholder": "us-east1-c",
           "learnUrl": "https://cloud.google.com/compute/docs/regions-zones"
         },
@@ -644,7 +644,7 @@
           "type": "autocomplete",
           "autocompleteType": "function",
           "functionName": "listVmsAuto",
-          "description": "VM instance to run the action on",
+          "description": "VM instance to delete",
           "placeholder": "instance-01",
           "learnUrl": "https://cloud.google.com/compute"
         },
@@ -661,7 +661,7 @@
           "viewName": "Delete Static IP",
           "required": false,
           "type": "boolean",
-          "description": "Check if want to delete static IP associated with VM",
+          "description": "Check to also delete the static IP attached to this VM",
           "learnUrl": "https://github.com/Kaholo/kaholo-plugin-GoogleCloudComputeEngine"
         }
       ]
@@ -691,8 +691,8 @@
         },
         {
           "name": "network",
-          "viewName": "VPC Network Name *",
-          "required": false,
+          "viewName": "VPC Network Name",
+          "required": true,
           "type": "autocomplete",
           "autocompleteType": "function",
           "functionName": "listNetworksAuto",
@@ -703,8 +703,8 @@
         },
         {
           "name": "name",
-          "viewName": "Subnet Name *",
-          "required": false,
+          "viewName": "Subnet Name",
+          "required": true,
           "type": "string",
           "description": "Unique name for the new subnet (lowercase letters, numbers, hypen only)",
           "placeholder": "farnorth-dmz",
@@ -732,8 +732,8 @@
         },
         {
           "name": "ipRange",
-          "viewName": "IP Range *",
-          "required": false,
+          "viewName": "IP Range",
+          "required": true,
           "type": "string",
           "description": "CIDR notataion IP address range for the new subnet",
           "placeholder": "10.54.133.0/24",
@@ -790,7 +790,7 @@
         },
         {
           "name": "network",
-          "viewName": "VPC Network Name *",
+          "viewName": "VPC Network Name",
           "required": false,
           "type": "autocomplete",
           "autocompleteType": "function",
@@ -813,8 +813,8 @@
         },
         {
           "name": "subnet",
-          "viewName": "Subnet *",
-          "required": false,
+          "viewName": "Subnet",
+          "required": true,
           "type": "autocomplete",
           "autocompleteType": "function",
           "functionName": "listSubnetworksAuto",
@@ -824,8 +824,8 @@
         },
         {
           "name": "resName",
-          "viewName": "Reservation name *",
-          "required": false,
+          "viewName": "Reservation name",
+          "required": true,
           "type": "string",
           "description": "Name for the reserved IP address resource",
           "placeholder": "reserve-name-01",
@@ -833,8 +833,8 @@
         },
         {
           "name": "resIp",
-          "viewName": "IP To Reserve *",
-          "required": false,
+          "viewName": "IP To Reserve",
+          "required": true,
           "type": "string",
           "description": "IP address to reserve (within the address space of the selected subnet)",
           "placeholder": "10.46.22.100",
@@ -887,8 +887,8 @@
         },
         {
           "name": "name",
-          "viewName": "Firewall Rule Name *",
-          "required": false,
+          "viewName": "Firewall Rule Name",
+          "required": true,
           "type": "string",
           "description": "Unique name for the firewall rule (lowercase letters, numbers, hypen only)",
           "placeholder": "allow-rdp-in",
@@ -1048,8 +1048,8 @@
         },
         {
           "name": "network",
-          "viewName": "VPC Network Name *",
-          "required": false,
+          "viewName": "VPC Network Name",
+          "required": true,
           "type": "autocomplete",
           "autocompleteType": "function",
           "functionName": "listNetworksAuto",
@@ -1060,8 +1060,8 @@
         },
         {
           "name": "name",
-          "viewName": "Route Name *",
-          "required": false,
+          "viewName": "Route Name",
+          "required": true,
           "type": "string",
           "description": "Unique name for the new route (lowercase letters, numbers, hypen only)",
           "placeholder": "route-nat-egress-3b",
@@ -1070,7 +1070,7 @@
         {
           "name": "nextHopIp",
           "viewName": "Next Hop IP",
-          "required": false,
+          "required": true,
           "type": "string",
           "description": "Determines which subnet routes the Cloud Routers in that network advertise",
           "placeholder": "10.10.1.10",
@@ -1079,7 +1079,7 @@
         {
           "name": "destIpRange",
           "viewName": "Dest IP Range",
-          "required": false,
+          "required": true,
           "type": "string",
           "description": "Range of IP addresses in CIDR notation",
           "placeholder": "10.10.1.10/24",
@@ -1090,8 +1090,8 @@
           "viewName": "Priority",
           "required": false,
           "type": "string",
-          "description": "Priority of the new route",
-          "placeholder": "0",
+          "description": "Priority of the new route. 0 = highest priority, 1000 = default, 65535 = lowest priority",
+          "placeholder": "1000",
           "learnUrl": "https://cloud.google.com/vpc/docs/routes#static-route-next-hops"
         },
         {
@@ -1154,7 +1154,7 @@
           "type": "autocomplete",
           "autocompleteType": "function",
           "functionName": "listNetworksAuto",
-          "description": "The name of a VPC Network in the project with subnets in the region",
+          "description": "The name of the VPC Network for which to list subnets. Leave empty to list all subnets.",
           "placeholder": "select using autocomplete",
           "learnUrl": "https://cloud.google.com/vpc/docs/using-vpc",
           "codedExample": "global/networks/apac-test-vpc"
