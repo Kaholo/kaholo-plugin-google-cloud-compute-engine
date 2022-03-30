@@ -5,26 +5,30 @@
   "execProgram": "node",
   "main": "app.js",
   "imgUrl": "logo.png",
-  "version": "3.1.6",
+  "version": "3.1.7",
   "category": ["CLOUD", "COMPUTE"],
   "keywords": [
-    "GCP",
-    "compute",
-    "google",
-    "platform",
-    "vm",
-    "instance",
+    "address",
+    "cli",
     "cloud",
     "cluster",
-    "project",
+    "compute",
+    "firewall",
+    "gcloud",
+    "GCP",
+    "google",
     "infra",
     "infrastructure",
-    "cli",
-    "network",
-    "subnet",
-    "firewall",
+    "instance",
     "IP",
-    "route"
+    "network",
+    "platform",
+    "project",
+    "route",
+    "static",
+    "subnet",
+    "vm",
+    "VPC"
   ],
   "settings": [
     {
@@ -36,9 +40,9 @@
     },
     {
       "name": "project",
-      "viewName": "Default Project Name",
+      "viewName": "Default Project",
       "type": "string",
-      "description": "GCP Project defines how your app interacts with services and resources",
+      "description": "Google Cloud project forms the basis for creating, enabling, and using all Google Cloud services including managing APIs and managing permissions for Google Cloud resources",
       "placeholder": "project-alpha",
       "learnUrl": "https://cloud.google.com/resource-manager/docs/creating-managing-projects"
     },
@@ -52,16 +56,16 @@
     },
     {
       "name": "diskAutoDelete",
-      "viewName": "Default Disk Auto Delete",
+      "viewName": "Disk Auto Delete",
       "type": "boolean",
-      "description": "If checked, when the new VM is deleted the disk will be also",
+      "description": "If checked, when the new VM is deleted the disk will be also. This overrides the action-level setting.",
       "learnUrl": "https://cloud.google.com/compute/docs/disks/add-persistent-disk"
     },
     {
       "name": "waitForOperation",
-      "viewName": "Default Wait For Operation End",
+      "viewName": "Wait For Operation End",
       "type": "boolean",
-      "description": "If checked, wait for this action to complete before moving on to next action in pipeline.",
+      "description": "If checked, wait for the action to complete before moving on to next action in pipeline. This overrides the action-level setting.",
       "learnUrl": "https://github.com/Kaholo/kaholo-plugin-GoogleCloudComputeEngine"
     }
   ],
@@ -85,16 +89,16 @@
           "type": "autocomplete",
           "autocompleteType": "function",
           "functionName": "listProjectsAuto",
-          "description": "GCP Project defines how your app interacts with services and resources",
+          "description": "Google Cloud project forms the basis for creating, enabling, and using all Google Cloud services including managing APIs and managing permissions for Google Cloud resources",
           "placeholder": "select using autocomplete",
           "learnUrl": "https://cloud.google.com/resource-manager/docs/creating-managing-projects"
         },
         {
           "name": "name",
-          "viewName": "Name *",
-          "required": false,
+          "viewName": "Name",
+          "required": true,
           "type": "string",
-          "description": "Unique name for the new VM (lowercase letters, numbers, hypen only)",
+          "description": "Unique name for the new VM (lowercase letters, numbers, hypens only)",
           "placeholder": "web-tst-02a",
           "learnUrl": "https://cloud.google.com/compute/docs/instances/create-start-instance"
         },
@@ -114,25 +118,25 @@
           "type": "autocomplete",
           "autocompleteType": "function",
           "functionName": "listRegionsAuto",
-          "description": "Geographical GCP region where infrastructure is or will be located",
+          "description": "Geographical GCP region where the VM will be created",
           "placeholder": "select using autocomplete",
           "learnUrl": "https://cloud.google.com/compute/docs/regions-zones"
         },
         {
           "name": "zone",
-          "viewName": "Zone *",
-          "required": false,
+          "viewName": "Zone",
+          "required": true,
           "type": "autocomplete",
           "autocompleteType": "function",
           "functionName": "listZonesAuto",
-          "description": "Zone is a subdivision of GCP regions, typically region-a, b, or c",
+          "description": "Zone is a subdivision of region, typically region-a, b, or c",
           "placeholder": "select using autocomplete",
           "learnUrl": "https://cloud.google.com/compute/docs/regions-zones"
         },
         {
           "name": "machineType",
           "viewName": "Machine Type *",
-          "required": false,
+          "required": true,
           "type": "autocomplete",
           "autocompleteType": "function",
           "functionName": "listMachineTypesAuto",
@@ -166,19 +170,19 @@
           "type": "autocomplete",
           "autocompleteType": "function",
           "functionName": "listImageProjectsAuto",
-          "description": "Select a standard GCP image project",
+          "description": "GCP Image projects provide a grouping of simliar or related images",
           "placeholder": "select using autocomplete",
           "learnUrl": "https://cloud.google.com/compute/docs/instances/create-start-instance",
           "codedExample": "ubuntu-os-cloud"
         },
         {
           "name": "image",
-          "viewName": "Image *",
-          "required": false,
+          "viewName": "Image",
+          "required": true,
           "type": "autocomplete",
           "autocompleteType": "function",
           "functionName": "listImagesAuto",
-          "description": "Image on boot for the VM instance.",
+          "description": "Compute Engine uses your selected image to create a persistent boot disk for each instance.",
           "placeholder": "select using autocomplete",
           "learnUrl": "https://cloud.google.com/compute/docs/images",
           "codedExample": "projects/ubuntu-os-cloud/global/images/ubuntu-minimal-2004-focal-v20220110b"
@@ -206,7 +210,7 @@
               "name": "Local SSD"
             }
           ],
-          "description": "Boot disk type for the new VM instance",
+          "description": "Boot disk type for the new VM instance affects price and performance characteristics. (Default is PD-Standard)",
           "placeholder": "select using drop-down",
           "learnUrl": "https://cloud.google.com/compute/docs/disks"
         },
@@ -215,7 +219,7 @@
           "viewName": "Boot Disk Size (GB)",
           "required": false,
           "type": "string",
-          "description": "The size in GB of the boot disk",
+          "description": "The size in GB of the boot disk (Default is 10)",
           "placeholder": "10",
           "learnUrl": "https://cloud.google.com/compute/docs/disks"
         },
@@ -224,7 +228,7 @@
           "viewName": "Disk Auto Delete",
           "required": false,
           "type": "boolean",
-          "description": "If checked, when the new VM is deleted the disk will be also",
+          "description": "If checked, when the new VM is deleted the disk will be also.",
           "learnUrl": "https://cloud.google.com/compute/docs/disks/add-persistent-disk"
         },
         {
@@ -234,7 +238,7 @@
           "type": "autocomplete",
           "autocompleteType": "function",
           "functionName": "listServiceAccountsAuto",
-          "description": "Provide the VM access to an API access service account",
+          "description": "Apps running on your instances can authorize and interact with Google Cloud APIs only if a service account is attached. (Default is none)",
           "placeholder": "select using autocomplete",
           "learnUrl": "https://cloud.google.com/iam/docs/service-accounts"
         },
@@ -253,7 +257,7 @@
               "name": "Allow full access to all Cloud APIs"
             }
           ],
-          "description": "Choose which level of access to grant the VM",
+          "description": "When service account is attached, choose the level of access to grant.",
           "placeholder": "select using drop-down",
           "learnUrl": "https://cloud.google.com/compute/docs/access/create-enable-service-accounts-for-instances"
         },
@@ -262,7 +266,7 @@
           "viewName": "Firewall - Allow HTTP traffic",
           "required": false,
           "type": "boolean",
-          "description": "Enable a new rule in the firewall for incoming HTTP traffic (port 80)",
+          "description": "Enables incoming HTTP traffic (port 80) to this VM",
           "learnUrl": "https://cloud.google.com/vpc/docs/special-configurations"
         },
         {
@@ -270,7 +274,7 @@
           "viewName": "Firewall - Allow HTTPS traffic",
           "required": false,
           "type": "boolean",
-          "description": "Enable a new rule in the firewall for incoming HTTPS traffic (port 443)",
+          "description": "Enables incoming HTTPS traffic (port 443) to this VM",
           "learnUrl": "https://cloud.google.com/vpc/docs/special-configurations"
         },
         {
@@ -278,7 +282,7 @@
           "viewName": "Network Service Tier",
           "required": false,
           "type": "options",
-          "description": "Default is Premium",
+          "description": "Network tier affects price and performance characteristics of the network interface. (Default is Premium)",
           "placeholder": "Premium",
           "options": [
             {
@@ -293,7 +297,7 @@
         },
         {
           "name": "network",
-          "viewName": "VPC Network Name *",
+          "viewName": "VPC Network Name",
           "required": false,
           "type": "autocomplete",
           "autocompleteType": "function",
@@ -305,12 +309,12 @@
         },
         {
           "name": "subnetwork",
-          "viewName": "Subnet *",
-          "required": false,
+          "viewName": "Subnet",
+          "required": true,
           "type": "autocomplete",
           "autocompleteType": "function",
           "functionName": "listSubnetworksAuto",
-          "description": "The name of a subnet within the VPC Network",
+          "description": "A subnet within the region where the VM will be attached to the network",
           "placeholder": "select using autocomplete",
           "learnUrl": "https://cloud.google.com/compute/docs/reference/rest/beta/subnetworks",
           "codedExample": "regions/asia-southeast1/subnetworks/apac-test-subneta"
@@ -320,7 +324,7 @@
           "viewName": "Custom Internal IP",
           "required": false,
           "type": "string",
-          "description": "If specified, assign this specified internal IP address for the new VM instance.",
+          "description": "A specific internal IP address to assign to the new VM instance. (Default is an arbitrary interal IP address)",
           "placeholder": "10.121.75.113",
           "learnUrl": "https://cloud.google.com/compute/docs/ip-addresses"
         },
@@ -329,7 +333,7 @@
           "viewName": "External IP",
           "required": false,
           "type": "options",
-          "description": "External IP settings. Default is Ephemeral",
+          "description": "External IP address options. (Default is Ephemeral, an arbitrary IP address that may be converted to static later)",
           "placeholder": "Ephemeral",
           "options": [
             {
@@ -353,16 +357,16 @@
         {
           "name": "externalReservationName",
           "viewName": "Reserved External Static IP Address Name",
-          "description": "If Reserve New Static IP Address was chosen, you can specify the reservation name, default is {instance-name}-ext-adrr. Provide reservation name here if Use Existing Reserved Static IP option was chosen",
+          "description": "For Reserve New Static IP Address, specify the new reservation name here. For Use Existing Reserved Static IP, specify existing reservation name. (Default is {instance-name}-ext-adrr)",
           "type": "string",
-          "placeholder": "{instance-name}-ext-adrr"
+          "placeholder": "web-tst-02a-ext-adrr"
         },
         {
           "name": "networkInterfaces",
           "viewName": "Additional Network Interfaces",
           "required": false,
           "type": "string",
-          "description": "Array of Network interfaces for the VM instance",
+          "description": "Array of additional Network interfaces for the VM instance",
           "placeholder": "[{network: 'https://www.googleapis.com/compute/v1/projects/gcp-proj-a/global/networks/vpc-net-a', subnetwork: 'https://www.googleapis.com/compute/v1/projects/gcp-proj-a/regions/asia-southeast1/subnetworks/sub-a', networkIP: '10.55.27.103'}]",
           "learnUrl": "https://cloud.google.com/vpc/docs/multiple-interfaces-concepts",
           "codedExample": "[{network: 'https://www.googleapis.com/compute/v1/projects/gcp-proj-a/global/networks/vpc-net-a', subnetwork: 'https://www.googleapis.com/compute/v1/projects/gcp-proj-a/regions/asia-southeast1/subnetworks/sub-a', networkIP: '10.55.27.103'}]"
@@ -372,7 +376,7 @@
           "viewName": "Can IP Forward",
           "required": false,
           "type": "boolean",
-          "description": "Enable if this VM instance is going to be used as network device, e.g. NAT, router or firewall. Otherwise Google will block through packets due to strict source/destination checking.",
+          "description": "Enable if this VM instance is going to be used as network device, e.g. NAT, router or firewall. Otherwise through packets are blocked by strict source/destination checking.",
           "learnUrl": "https://cloud.google.com/vpc/docs/using-routes"
         },
         {
@@ -380,7 +384,7 @@
           "viewName": "Preemptible",
           "required": false,
           "type": "boolean",
-          "description": "A discount-priced instance that may be arbitrarily deleted by GCP prematurely, or with 24 hours maximum",
+          "description": "A discount-priced instance that may be arbitrarily deleted by GCP prematurely, with 24 hour maximum lifecycle",
           "learnUrl": "https://cloud.google.com/compute/docs/instances/create-use-preemptible"
         },
         {
@@ -388,7 +392,7 @@
           "viewName": "Tags",
           "required": false,
           "type": "text",
-          "description": "Network Tags associate VMs with firewall rules and routes with the same tag or tags",
+          "description": "Network Tags associate VMs to firewall rules and routes with the same tag(s)",
           "placeholder": "instance-tag-01",
           "learnUrl": "https://cloud.google.com/vpc/docs/add-remove-network-tags"
         },
@@ -397,8 +401,8 @@
           "viewName": "Labels",
           "required": false,
           "type": "text",
-          "description": "Customized label to the VM instance.",
-          "placeholder": "production-01",
+          "description": "labels are a key-value pairs that help organize Google Cloud resources.",
+          "placeholder": "environment=staging",
           "learnUrl": "https://cloud.google.com/resource-manager/docs/creating-managing-labels"
         },
         {
@@ -406,7 +410,7 @@
           "viewName": "Wait For Operation End",
           "required": false,
           "type": "boolean",
-          "description": "If checked, wait for this action to complete before moving on to next action in pipeline",
+          "description": "If checked, Kaholo will wait for this action to complete before moving on to next action in the pipeline.",
           "learnUrl": "https://github.com/Kaholo/kaholo-plugin-GoogleCloudComputeEngine"
         }
       ]
@@ -430,24 +434,25 @@
           "type": "autocomplete",
           "autocompleteType": "function",
           "functionName": "listProjectsAuto",
-          "description": "GCP Project defines how your app interacts with services and resources",
+          "description": "Google Cloud project forms the basis for creating, enabling, and using all Google Cloud services including managing APIs and managing permissions for Google Cloud resources",
           "placeholder": "select using autocomplete",
           "learnUrl": "https://cloud.google.com/resource-manager/docs/creating-managing-projects"
         },
         {
           "name": "region",
-          "viewName": "Region",
+          "viewName": "Region *",
           "required": false,
           "type": "autocomplete",
           "autocompleteType": "function",
           "functionName": "listRegionsAuto",
-          "description": "Geographical GCP region where infrastructure is or will be located",
+          "description": "Geographical GCP region where the VM is located",
           "placeholder": "select using autocomplete",
           "learnUrl": "https://cloud.google.com/compute/docs/regions-zones"
         },
         {
           "name": "zone",
-          "viewName": "Zone *",
+          "viewName": "Zone",
+          "required": true,
           "type": "autocomplete",
           "autocompleteType": "function",
           "functionName": "listZonesAuto",
@@ -457,8 +462,8 @@
         },
         {
           "name": "vm",
-          "viewName": "VM Instance *",
-          "required": false,
+          "viewName": "VM Instance",
+          "required": true,
           "type": "autocomplete",
           "autocompleteType": "function",
           "functionName": "listVmsAuto",
@@ -546,7 +551,7 @@
           "type": "autocomplete",
           "autocompleteType": "function",
           "functionName": "listProjectsAuto",
-          "description": "GCP Project defines how your app interacts with services and resources",
+          "description": "Google Cloud project forms the basis for creating, enabling, and using all Google Cloud services including managing APIs and managing permissions for Google Cloud resources",
           "placeholder": "select using autocomplete",
           "learnUrl": "https://cloud.google.com/resource-manager/docs/creating-managing-projects"
         },
@@ -592,18 +597,20 @@
       "params": [
         {
           "name": "creds",
-          "viewName": "Service Account Credentials",
+          "viewName": "Service Account Credentials *",
+          "required": false,
           "type": "vault",
           "description": "Service account credentials",
           "learnUrl": "https://cloud.google.com/docs/authentication/production"
         },
         {
           "name": "project",
-          "viewName": "Project",
+          "viewName": "Project *",
+          "required": false,
           "type": "autocomplete",
           "autocompleteType": "function",
           "functionName": "listProjectsAuto",
-          "description": "Project name",
+          "description": "Google Cloud project forms the basis for creating, enabling, and using all Google Cloud services including managing APIs and managing permissions for Google Cloud resources",
           "placeholder": "project-name-username",
           "learnUrl": "https://cloud.google.com/resource-manager/docs/creating-managing-projects"
         },
@@ -611,26 +618,29 @@
         {
           "name": "region",
           "viewName": "Region",
+          "required": false,
           "type": "autocomplete",
           "autocompleteType": "function",
           "functionName": "listRegionsAuto",
-          "description": "Region name",
+          "description": "Geographical GCP region where the VM is located",
           "placeholder": "us-east1",
           "learnUrl": "https://cloud.google.com/compute/docs/regions-zones"
         },
         {
           "name": "zone",
           "viewName": "Zone",
+          "required": true,
           "type": "autocomplete",
           "autocompleteType": "function",
           "functionName": "listZonesAuto",
-          "description": "Zone name",
+          "description": "Zone is a subdivision of GCP regions, typically region-a, b, or c",
           "placeholder": "us-east1-c",
           "learnUrl": "https://cloud.google.com/compute/docs/regions-zones"
         },
         {
           "name": "vm",
           "viewName": "VM Instance",
+          "required": true,
           "type": "autocomplete",
           "autocompleteType": "function",
           "functionName": "listVmsAuto",
@@ -641,6 +651,7 @@
         {
           "name": "waitForOperation",
           "viewName": "Wait For Operation End",
+          "required": false,
           "type": "boolean",
           "description": "Waiting until the operation is completed before moving on to the next operation",
           "learnUrl": "https://github.com/Kaholo/kaholo-plugin-GoogleCloudComputeEngine"
@@ -648,6 +659,7 @@
         {
           "name": "isDeleteStaticIP",
           "viewName": "Delete Static IP",
+          "required": false,
           "type": "boolean",
           "description": "Check if want to delete static IP associated with VM",
           "learnUrl": "https://github.com/Kaholo/kaholo-plugin-GoogleCloudComputeEngine"
@@ -673,7 +685,7 @@
           "type": "autocomplete",
           "autocompleteType": "function",
           "functionName": "listProjectsAuto",
-          "description": "GCP Project defines how your app interacts with services and resources",
+          "description": "Google Cloud project forms the basis for creating, enabling, and using all Google Cloud services including managing APIs and managing permissions for Google Cloud resources",
           "placeholder": "select using autocomplete",
           "learnUrl": "https://cloud.google.com/resource-manager/docs/creating-managing-projects"
         },
@@ -772,7 +784,7 @@
           "type": "autocomplete",
           "autocompleteType": "function",
           "functionName": "listProjectsAuto",
-          "description": "GCP Project defines how your app interacts with services and resources",
+          "description": "Google Cloud project forms the basis for creating, enabling, and using all Google Cloud services including managing APIs and managing permissions for Google Cloud resources",
           "placeholder": "select using autocomplete",
           "learnUrl": "https://cloud.google.com/resource-manager/docs/creating-managing-projects"
         },
@@ -857,7 +869,7 @@
           "type": "autocomplete",
           "autocompleteType": "function",
           "functionName": "listProjectsAuto",
-          "description": "GCP Project defines how your app interacts with services and resources",
+          "description": "Google Cloud project forms the basis for creating, enabling, and using all Google Cloud services including managing APIs and managing permissions for Google Cloud resources",
           "placeholder": "select using autocomplete",
           "learnUrl": "https://cloud.google.com/resource-manager/docs/creating-managing-projects"
         },
@@ -978,7 +990,7 @@
               "name": "UDP"
             }
           ],
-          "description": "Protocol to match for the firewall rule, default is all traffic",
+          "description": "Protocol to match for the firewall rule (Default=All)",
           "placeholder": "select using drop-down",
           "learnUrl": "https://cloud.google.com/vpc/docs/using-firewalls",
           "codedExample": "lowercase - \"all\", \"tcp\", \"icmp\", etc."
@@ -1030,7 +1042,7 @@
           "type": "autocomplete",
           "autocompleteType": "function",
           "functionName": "listProjectsAuto",
-          "description": "GCP Project defines how your app interacts with services and resources",
+          "description": "Google Cloud project forms the basis for creating, enabling, and using all Google Cloud services including managing APIs and managing permissions for Google Cloud resources",
           "placeholder": "select using autocomplete",
           "learnUrl": "https://cloud.google.com/resource-manager/docs/creating-managing-projects"
         },
@@ -1107,24 +1119,27 @@
       "params": [
         {
           "name": "creds",
-          "viewName": "Service Account Credentials",
+          "viewName": "Service Account Credentials *",
+          "required": false,
           "type": "vault",
           "description": "Vaulted JSON document containing service account credentials as provided by GCP",
           "learnUrl": "https://cloud.google.com/docs/authentication/production"
         },
         {
           "name": "project",
-          "viewName": "Project",
+          "viewName": "Project *",
+          "required": false,
           "type": "autocomplete",
           "autocompleteType": "function",
           "functionName": "listProjectsAuto",
-          "description": "GCP Project defines how your app interacts with services and resources",
+          "description": "Google Cloud project forms the basis for creating, enabling, and using all Google Cloud services including managing APIs and managing permissions for Google Cloud resources",
           "placeholder": "select using autocomplete",
           "learnUrl": "https://cloud.google.com/resource-manager/docs/creating-managing-projects"
         },
         {
           "name": "region",
           "viewName": "Region *",
+          "required": false,
           "type": "autocomplete",
           "autocompleteType": "function",
           "functionName": "listRegionsAuto",
@@ -1135,6 +1150,7 @@
         {
           "name": "network",
           "viewName": "VPC Network Name",
+          "required": false,
           "type": "autocomplete",
           "autocompleteType": "function",
           "functionName": "listNetworksAuto",
