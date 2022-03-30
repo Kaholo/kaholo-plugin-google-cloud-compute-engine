@@ -65,7 +65,7 @@
       "name": "waitForOperation",
       "viewName": "Wait For Operation End",
       "type": "boolean",
-      "description": "If checked, wait for the action to complete before moving on to next action in pipeline. This overrides the action-level setting.",
+      "description": "If checked, Kaholo will wait for this action to complete before moving on to next action in the pipeline. This overrides the action-level setting.",
       "learnUrl": "https://github.com/Kaholo/kaholo-plugin-GoogleCloudComputeEngine"
     }
   ],
@@ -402,7 +402,7 @@
           "required": false,
           "type": "text",
           "description": "labels are a key-value pairs that help organize Google Cloud resources.",
-          "placeholder": "environment=staging",
+          "placeholder": "{\"environment\": \"staging\", \"deploy-date\": \"20220330\"}",
           "learnUrl": "https://cloud.google.com/resource-manager/docs/creating-managing-labels"
         },
         {
@@ -527,7 +527,7 @@
           "viewName": "Wait For Operation End",
           "required": false,
           "type": "boolean",
-          "description": "If checked, wait for this action to complete before moving on to next action in pipeline",
+          "description": "If checked, Kaholo will wait for this action to complete before moving on to next action in the pipeline.",
           "learnUrl": "https://github.com/Kaholo/kaholo-plugin-GoogleCloudComputeEngine"
         }
       ]
@@ -586,7 +586,7 @@
           "viewName": "Wait For Operation End",
           "required": false,
           "type": "boolean",
-          "description": "If checked, wait for this action to complete before moving on to next action in pipeline",
+          "description": "If checked, Kaholo will wait for this action to complete before moving on to next action in the pipeline.",
           "learnUrl": "https://github.com/Kaholo/kaholo-plugin-GoogleCloudComputeEngine"
         }
       ]
@@ -653,7 +653,7 @@
           "viewName": "Wait For Operation End",
           "required": false,
           "type": "boolean",
-          "description": "Waiting until the operation is completed before moving on to the next operation",
+          "description": "If checked, Kaholo will wait for this action to complete before moving on to next action in the pipeline.",
           "learnUrl": "https://github.com/Kaholo/kaholo-plugin-GoogleCloudComputeEngine"
         },
         {
@@ -760,7 +760,7 @@
           "viewName": "Wait For Operation End",
           "required": false,
           "type": "boolean",
-          "description": "If checked, wait for this action to complete before moving on to next action in pipeline",
+          "description": "If checked, Kaholo will wait for this action to complete before moving on to next action in the pipeline.",
           "learnUrl": "https://github.com/Kaholo/kaholo-plugin-GoogleCloudComputeEngine"
         }
       ]
@@ -845,7 +845,7 @@
           "viewName": "Wait For Operation End",
           "required": false,
           "type": "boolean",
-          "description": "If checked, wait for this action to complete before moving on to next action in pipeline",
+          "description": "If checked, Kaholo will wait for this action to complete before moving on to next action in the pipeline.",
           "learnUrl": "https://github.com/Kaholo/kaholo-plugin-GoogleCloudComputeEngine"
         }
       ]
@@ -1009,7 +1009,7 @@
           "viewName": "Wait For Operation End",
           "required": false,
           "type": "boolean",
-          "description": "If checked, wait for this action to complete before moving on to next action in pipeline",
+          "description": "If checked, Kaholo will wait for this action to complete before moving on to next action in the pipeline.",
           "learnUrl": "https://github.com/Kaholo/kaholo-plugin-GoogleCloudComputeEngine"
         },
         {
@@ -1108,7 +1108,7 @@
           "viewName": "Wait For Operation End",
           "required": false,
           "type": "boolean",
-          "description": "If checked, wait for this action to complete before moving on to next action in pipeline",
+          "description": "If checked, Kaholo will wait for this action to complete before moving on to next action in the pipeline.",
           "learnUrl": "https://github.com/Kaholo/kaholo-plugin-GoogleCloudComputeEngine"
         }
       ]
