@@ -32,7 +32,8 @@ module.exports = class GoogleComputeService {
     const creds = parsers.object(params.creds || settings.creds);
     if (!creds) { throw new Error("Must provide credentials to call any method in the plugin!"); }
     const project = parsers.autocomplete(params.project || settings.project) || undefined;
-    return new GoogleComputeService(creds, project);
+    const region = parsers.autocomplete(params.region || settings.region);
+    return new GoogleComputeService(creds, project, region);
   }
 
   getAuthClient() {
@@ -717,13 +718,15 @@ module.exports = class GoogleComputeService {
     const subnetworksClient = new compute.SubnetworksClient({ credentials: this.credentials });
     const project = parsers.autocomplete(params.project) || this.projectId;
     const network = parsers.autocomplete(params.network);
-    const region = parsers.autocomplete(params.region || this.region);
+    const region = parsers.autocomplete(params.region) || this.region;
 
     const request = removeUndefinedAndEmpty({
       project,
-      filter: network && `network="${network}"`,
       region,
     });
+    if (network) {
+      request.filter = `network="${network}"`;
+    }
 
     const iterable = subnetworksClient.listAsync(request);
     const res = [];
