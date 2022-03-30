@@ -60,8 +60,8 @@ function listAuto(listFunc, fields = ["id", "name"]) {
     params.query = (query || "").trim();
 
     const methodParams = {
-      ...params,
       ...settings,
+      ...params,
     };
 
     try {
