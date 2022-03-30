@@ -17,7 +17,24 @@ function parseFields(fields, prefix = "items") {
   return fields.sort().map((field) => `${prefix}/${field}`).join(", ");
 }
 
+async function addStartupScript({ instancesClient, vmRequest, scriptText }) {
+  const startUpScriptMetadata = {
+    key: "startup-script",
+    value: scriptText,
+  };
+  const [vmResult] = await instancesClient.get(vmRequest);
+  const { fingerprint } = vmResult.metadata;
+  return instancesClient.setMetadata({
+    ...vmRequest,
+    metadataResource: {
+      fingerprint,
+      items: [startUpScriptMetadata],
+    },
+  });
+}
+
 module.exports = {
   removeUndefinedAndEmpty,
   parseFields,
+  addStartupScript,
 };

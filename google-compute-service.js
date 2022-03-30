@@ -5,7 +5,7 @@ const { JWT } = require("google-auth-library");
 const { google } = require("googleapis");
 
 const iam = google.iam("v1");
-const { removeUndefinedAndEmpty } = require("./helpers");
+const { removeUndefinedAndEmpty, addStartupScript } = require("./helpers");
 const parsers = require("./parsers");
 
 /** Class for using the google cloud compute API. */
@@ -256,7 +256,7 @@ module.exports = class GoogleComputeService {
   }
 
   async handleAction({
-    action, zone, instanceName, startUpScript, project,
+    action, zone, instanceName, startUpScript, project, addScriptFlag,
   }, waitForOperation) {
     const instancesClient = new compute.InstancesClient({ credentials: this.credentials });
 
@@ -266,38 +266,45 @@ module.exports = class GoogleComputeService {
       zone,
     });
 
+    const canAddStartUpScript = startUpScript && addScriptFlag;
     let res = [];
 
     try {
       switch (action) {
         case "Stop":
           res = await instancesClient.stop(request);
+          if (canAddStartUpScript) {
+            await addStartupScript({
+              instancesClient,
+              scriptText: startUpScript,
+              vmRequest: request,
+            });
+          }
           break;
         case "Delete":
           res = await instancesClient.delete(request);
           break;
         case "Restart":
-          res = await instancesClient.reset(request);
-          break;
-        case "Start": {
-          let startScript = "";
-
-          if (startUpScript) {
-            await instancesClient.stop(request);
-            startUpScript.forEach((item) => { startScript += `${item}\n`; });
-            const startUpScriptMetadata = {
-              key: "startup-script",
-              value: startScript,
-            };
-            await instancesClient.setMetadata({
-              ...request,
-              metadataResource: { items: [startUpScriptMetadata] },
+          await instancesClient.stop(request);
+          if (canAddStartUpScript) {
+            await addStartupScript({
+              instancesClient,
+              scriptText: startUpScript,
+              vmRequest: request,
             });
           }
-
           res = await instancesClient.start(request);
           break;
-        }
+        case "Start":
+          if (canAddStartUpScript) {
+            await addStartupScript({
+              instancesClient,
+              scriptText: startUpScript,
+              vmRequest: request,
+            });
+          }
+          res = await instancesClient.start(request);
+          break;
         case "Get":
           return this.getInstance(request);
         case "Get-IP": {
