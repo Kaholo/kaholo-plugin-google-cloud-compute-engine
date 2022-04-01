@@ -186,24 +186,24 @@
         {
           "name": "diskType",
           "viewName": "Boot Disk Type",
-          "required": false,
           "type": "options",
+          "default": "pd-standard",
           "options": [
             {
               "id": "pd-standard",
-              "name": "PD-Standard"
+              "name": "Standard persistent disk"
             },
             {
               "id": "pd-balanced",
-              "name": "PD-Balanced"
+              "name": "Balanced persistent disk"
             },
             {
               "id": "pd-ssd",
-              "name": "PD-SSD"
+              "name": "SSD persistent disk"
             },
             {
-              "id": "local-ssd",
-              "name": "Local SSD"
+              "id": "pd-extreme",
+              "name": "Extreme persistent disk"
             }
           ],
           "description": "Boot disk type for the new VM instance",
