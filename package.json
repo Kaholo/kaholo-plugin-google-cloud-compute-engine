@@ -10,11 +10,11 @@
   "author": "Kaholo team (Amit Alon and Roy Talyosef)",
   "license": "ISC",
   "dependencies": {
-    "@google-cloud/compute": "^3.1.1",
-    "@google-cloud/resource-manager": "^3.0.0",
-    "google-auth-library": "^7.11.0",
-    "googleapis": "^95.0.0",
-    "lodash": "^4.17.21"
+    "@google-cloud/compute": "3.1.1",
+    "@google-cloud/resource-manager": "3.0.0",
+    "google-auth-library": "7.11.0",
+    "googleapis": "95.0.0",
+    "lodash": "4.17.21"
   },
   "devDependencies": {
     "eslint": "^8.8.0",
