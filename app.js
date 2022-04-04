@@ -164,45 +164,52 @@ async function createInstance(action, settings) {
   );
 
   // create firewall rules
-  if (net) {
-    const n = net.lastIndexOf("/");
-    const netshortname = net.substring(n + 1);
-
-    const firewallResource = removeUndefinedAndEmpty({
-      name: `${netshortname}-allow-http`,
-      network: net,
-      priority: 1000,
-      destinationRanges: [],
-      sourceRanges: ["0.0.0.0/0"],
-      direction: "INGRESS",
-      targetTags: ["http-server"],
-      allowed: [{
-        IPProtocol: "tcp",
-        ports: [80],
-      }],
+  let resolvedNet = net;
+  if (!resolvedNet) {
+    const instanceInfo = await computeClient.getInstance({
+      instance: name,
+      project: projectId,
+      zone,
     });
+    resolvedNet = instanceInfo.networkInterfaces[0].network;
+  }
+  const n = resolvedNet.lastIndexOf("/");
+  const netshortname = resolvedNet.substring(n + 1);
 
-    if (parsers.boolean(action.params.allowHttp)) {
-      try {
-        await computeClient.createFirewallRule(firewallResource, waitForOperation);
-      } catch (error) {
-        if (!error.message.includes("already exists")) { throw error; }
-      }
+  const firewallResource = removeUndefinedAndEmpty({
+    name: `${netshortname}-allow-http`,
+    network: resolvedNet,
+    priority: 1000,
+    destinationRanges: [],
+    sourceRanges: ["0.0.0.0/0"],
+    direction: "INGRESS",
+    targetTags: ["http-server"],
+    allowed: [{
+      IPProtocol: "tcp",
+      ports: [80],
+    }],
+  });
+
+  if (parsers.boolean(action.params.allowHttp)) {
+    try {
+      await computeClient.createFirewallRule(firewallResource, waitForOperation);
+    } catch (error) {
+      if (!error.message.includes("already exists")) { throw error; }
     }
+  }
 
-    if (parsers.boolean(action.params.allowHttps)) {
-      firewallResource.name = `${netshortname}-allow-https`;
-      firewallResource.targetTags = ["https-server"];
-      firewallResource.allowed = [{
-        IPProtocol: "tcp",
-        ports: [443],
-      }];
+  if (parsers.boolean(action.params.allowHttps)) {
+    firewallResource.name = `${netshortname}-allow-https`;
+    firewallResource.targetTags = ["https-server"];
+    firewallResource.allowed = [{
+      IPProtocol: "tcp",
+      ports: [443],
+    }];
 
-      try {
-        await computeClient.createFirewallRule(firewallResource, waitForOperation);
-      } catch (error) {
-        if (!error.message.includes("already exists")) { throw error; }
-      }
+    try {
+      await computeClient.createFirewallRule(firewallResource, waitForOperation);
+    } catch (error) {
+      if (!error.message.includes("already exists")) { throw error; }
     }
   }
 
