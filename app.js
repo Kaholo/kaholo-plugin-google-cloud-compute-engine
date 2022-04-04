@@ -164,12 +164,21 @@ async function createInstance(action, settings) {
   );
 
   // create firewall rules
-  const n = net.lastIndexOf("/");
-  const netshortname = net.substring(n + 1);
+  let instanceNetworkInterfaceName = net;
+  if (!instanceNetworkInterfaceName) {
+    const instanceInfo = await computeClient.getInstance({
+      instance: name,
+      project: projectId,
+      zone,
+    });
+    instanceNetworkInterfaceName = instanceInfo.networkInterfaces[0].network;
+  }
+  const networkNameIndex = instanceNetworkInterfaceName.lastIndexOf("/");
+  const networkShortName = instanceNetworkInterfaceName.substring(networkNameIndex + 1);
 
   const firewallResource = removeUndefinedAndEmpty({
-    name: `${netshortname}-allow-http`,
-    network: net,
+    name: `${networkShortName}-allow-http`,
+    network: instanceNetworkInterfaceName,
     priority: 1000,
     destinationRanges: [],
     sourceRanges: ["0.0.0.0/0"],
@@ -190,7 +199,7 @@ async function createInstance(action, settings) {
   }
 
   if (parsers.boolean(action.params.allowHttps)) {
-    firewallResource.name = `${netshortname}-allow-https`;
+    firewallResource.name = `${networkShortName}-allow-https`;
     firewallResource.targetTags = ["https-server"];
     firewallResource.allowed = [{
       IPProtocol: "tcp",
