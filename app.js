@@ -51,7 +51,7 @@ async function createInstance(action, settings) {
 
   // get all params, parse them
   const preemptible = parsers.boolean(action.params.preemptible);
-  const diskType = action.params.diskType || "pd-standard";
+  const { diskType } = action.params;
   const zone = parsers.autocomplete(action.params.zone);
   const saAccessScopes = action.params.saAccessScopes || "default";
   const serviceAccount = parsers.autocomplete(action.params.serviceAccount);
