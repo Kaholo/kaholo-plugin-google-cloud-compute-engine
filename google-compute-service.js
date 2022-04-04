@@ -3,6 +3,7 @@ const { RegionOperationsClient } = require("@google-cloud/compute");
 const { ProjectsClient } = require("@google-cloud/resource-manager");
 const { JWT } = require("google-auth-library");
 const { google } = require("googleapis");
+const _ = require("lodash");
 
 const iam = google.iam("v1");
 const { removeUndefinedAndEmpty, addStartupScript } = require("./helpers");
@@ -201,6 +202,28 @@ module.exports = class GoogleComputeService {
     return null;
   }
 
+  async addLabels({
+    instance, labels, zone,
+  }) {
+    const instancesClient = new compute.InstancesClient({ credentials: this.credentials });
+    const { labelFingerprint } = await this.getInstance({
+      instance,
+      project: this.projectId,
+      zone,
+    });
+    // SDK or API is broken when trying to set more than one label at once
+    // Temporary workaround: set labels one by one
+    return instancesClient.setLabels({
+      instance,
+      project: this.projectId,
+      zone,
+      instancesSetLabelsRequestResource: {
+        labelFingerprint,
+        labels,
+      },
+    });
+  }
+
   /**
     * Create a new VM instance
     * @param {compute.protos.google.cloud.compute.v1.IInstance} instanceResource JSON
@@ -212,14 +235,22 @@ module.exports = class GoogleComputeService {
     */
   async createInstance(instanceResource, waitForOperation) {
     const instancesClient = new compute.InstancesClient({ credentials: this.credentials });
-
+    const { labels } = instanceResource;
     try {
       // return Long-Running operation
       let [operation] = await instancesClient.insert({
-        instanceResource,
+        instanceResource: _.omit(instanceResource, "labels"),
         project: this.projectId,
         zone: instanceResource.zone,
       });
+
+      if (labels) {
+        await this.addLabels({
+          labels,
+          zone: instanceResource.zone,
+          instance: instanceResource.name,
+        });
+      }
 
       if (waitForOperation) {
         const operationsClient = new compute.ZoneOperationsClient({
