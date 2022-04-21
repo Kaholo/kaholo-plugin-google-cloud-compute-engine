@@ -431,6 +431,14 @@ async function listSubnets(action, settings) {
   return subnets;
 }
 
+async function listFirewallRules({ params }, settings) {
+  const computeClient = GoogleComputeService.from(params, settings);
+  const firewallRules = await computeClient.listFirewallRules({
+    vpc: params.vpcNetwork.id,
+  });
+  return firewallRules;
+}
+
 module.exports = {
   launchVm: createInstance,
   vmAction,
@@ -441,6 +449,7 @@ module.exports = {
   createFw,
   createRoute,
   listSubnets,
+  listFirewallRules,
   // autocomplete methods
   ...autocomplete,
 };
