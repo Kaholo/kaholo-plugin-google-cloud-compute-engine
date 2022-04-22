@@ -435,7 +435,7 @@ async function listSubnets(action, settings) {
 async function addProjectMetadata({ params }, settings) {
   const computeClient = GoogleComputeService.from(params, settings);
   const payload = prepareAddProjectMetadata(params);
-  return computeClient.setCommonInstanceMetadata(payload, params.overwrite);
+  return computeClient.setCommonInstanceMetadata(payload);
 }
 
 module.exports = {
