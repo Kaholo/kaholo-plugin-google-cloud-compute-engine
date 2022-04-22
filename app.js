@@ -2,6 +2,7 @@ const GoogleComputeService = require("./google-compute-service");
 const parsers = require("./parsers");
 const { removeUndefinedAndEmpty } = require("./helpers");
 const autocomplete = require("./autocomplete");
+const { prepareAddProjectMetadata } = require("./payload-functions");
 
 async function createInstance(action, settings) {
   const computeClient = GoogleComputeService.from(action.params, settings);
@@ -431,6 +432,12 @@ async function listSubnets(action, settings) {
   return subnets;
 }
 
+async function addProjectMetadata({ params }, settings) {
+  const computeClient = GoogleComputeService.from(params, settings);
+  const payload = prepareAddProjectMetadata(params);
+  return computeClient.setCommonInstanceMetadata(payload, params.overwrite);
+}
+
 module.exports = {
   launchVm: createInstance,
   vmAction,
@@ -441,6 +448,7 @@ module.exports = {
   createFw,
   createRoute,
   listSubnets,
+  addProjectMetadata,
   // autocomplete methods
   ...autocomplete,
 };

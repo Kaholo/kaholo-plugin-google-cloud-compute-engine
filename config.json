@@ -1144,6 +1144,56 @@
           "codedExample": "global/networks/apac-test-vpc"
         }
       ]
+    },
+    {
+      "name": "addProjectMetadata",
+      "viewName": "Add Project Metadata",
+      "params": [
+        {
+          "name": "creds",
+          "viewName": "Service Account Credentials",
+          "type": "vault",
+          "description": "Vaulted JSON document containing service account credentials as provided by GCP",
+          "learnUrl": "https://cloud.google.com/docs/authentication/production"
+        },
+        {
+          "name": "project",
+          "viewName": "Project",
+          "type": "autocomplete",
+          "autocompleteType": "function",
+          "functionName": "listProjectsAuto",
+          "description": "GCP Project defines how your app interacts with services and resources",
+          "placeholder": "select using autocomplete",
+          "learnUrl": "https://cloud.google.com/resource-manager/docs/creating-managing-projects"
+        },
+        {
+          "name": "metadataKey",
+          "viewName": "Key",
+          "type": "string",
+          "description": "Metadata key.",
+          "placeholder": "test-key"
+        },
+        {
+          "name": "metadataValue",
+          "viewName": "Value",
+          "type": "text",
+          "description": "Metadata value.",
+          "placeholder": "test-value"
+        },
+        {
+          "name": "sshKey",
+          "viewName": "SSH Key",
+          "type": "string",
+          "description": "SSH public key for remote access, if provided Key and Value parameters are ignored.",
+          "placeholder": "ssh-rsa AAAAB3NzaC1yc2EAAAADAQABAAABAQCZonWpdQz<snip>V4XHAzd7S5ljznmC4895SuI9o5iQJqAZU= bob@kaholo.io"
+        },
+        {
+          "name": "overwrite",
+          "viewName": "Overwrite",
+          "type": "boolean",
+          "description": "Overwrite metadata value if given key already exists, also applies to SSH Key."
+        }
+      ]
     }
   ]
 }

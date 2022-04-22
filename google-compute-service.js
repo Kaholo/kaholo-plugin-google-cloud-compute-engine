@@ -809,4 +809,26 @@ module.exports = class GoogleComputeService {
 
     return res;
   }
+
+  async setCommonInstanceMetadata(params, overwrite = false) {
+    const projectsClient = new compute.ProjectsClient({ credentials: this.credentials });
+    const project = parsers.autocomplete(params.project) || this.projectId;
+
+    const [{
+      commonInstanceMetadata: { fingerprint, items: existingItems },
+    }] = await projectsClient.get({ project });
+
+    const items = [
+      ...(overwrite ? existingItems.filter(({ key }) => key !== params.key) : existingItems),
+      _.pick(params, ["key", "value"]),
+    ];
+
+    return projectsClient.setCommonInstanceMetadata({
+      project,
+      metadataResource: {
+        fingerprint,
+        items,
+      },
+    }).then(([result]) => result);
+  }
 };
