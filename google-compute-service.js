@@ -812,7 +812,7 @@ module.exports = class GoogleComputeService {
 
   async setCommonInstanceMetadata(params) {
     const projectsClient = new compute.ProjectsClient({ credentials: this.credentials });
-    const project = parsers.autocomplete(params.project) || this.projectId;
+    const project = params.project || this.projectId;
 
     const [{
       commonInstanceMetadata: { fingerprint, items: existingItems },
