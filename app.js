@@ -438,6 +438,14 @@ async function addProjectMetadata({ params }, settings) {
   return computeClient.setCommonInstanceMetadata(payload);
 }
 
+async function listFirewallRules({ params }, settings) {
+  const computeClient = GoogleComputeService.from(params, settings);
+  const firewallRules = await computeClient.listFirewallRules({
+    vpc: params.vpcNetwork.id,
+  });
+  return firewallRules;
+}
+
 module.exports = {
   launchVm: createInstance,
   vmAction,
@@ -449,6 +457,7 @@ module.exports = {
   createRoute,
   listSubnets,
   addProjectMetadata,
+  listFirewallRules,
   // autocomplete methods
   ...autocomplete,
 };

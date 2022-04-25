@@ -831,4 +831,17 @@ module.exports = class GoogleComputeService {
       },
     }).then(([result]) => result);
   }
+
+  async listFirewallRules(params) {
+    const firewallsClient = new compute.FirewallsClient({ credentials: this.credentials });
+    const project = params.project || this.projectId;
+    const payload = {
+      project,
+    };
+    if (params.vpc) {
+      payload.filter = `network="${params.vpc}"`;
+    }
+    const [result] = await firewallsClient.list(payload);
+    return result;
+  }
 };
