@@ -812,7 +812,7 @@ module.exports = class GoogleComputeService {
 
   async listFirewallRules(params) {
     const firewallsClient = new compute.FirewallsClient({ credentials: this.credentials });
-    const project = parsers.autocomplete(params.project) || this.projectId;
+    const project = params.project || this.projectId;
     const payload = {
       project,
     };
