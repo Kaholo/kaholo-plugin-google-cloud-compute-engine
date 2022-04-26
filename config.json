@@ -1194,6 +1194,38 @@
           "description": "Overwrite metadata value if given key already exists, also applies to SSH Key."
         }
       ]
+    },
+    {
+      "name": "listFirewallRules",
+      "viewName": "List Firewall Rules",
+      "params": [
+        {
+          "name": "creds",
+          "viewName": "Service Account Credentials",
+          "type": "vault",
+          "description": "Vaulted JSON document containing service account credentials as provided by GCP.",
+          "learnUrl": "https://cloud.google.com/docs/authentication/production"
+        },
+        {
+          "name": "project",
+          "viewName": "Project",
+          "type": "autocomplete",
+          "autocompleteType": "function",
+          "functionName": "listProjectsAuto",
+          "description": "GCP Project defines how your app interacts with services and resources.",
+          "placeholder": "select using autocomplete",
+          "learnUrl": "https://cloud.google.com/resource-manager/docs/creating-managing-projects"
+        },
+        {
+          "name": "vpcNetwork",
+          "viewName": "VPC Network",
+          "type": "autocomplete",
+          "autocompleteType": "function",
+          "functionName": "listNetworksAuto",
+          "description": "If selected, only firewall rules in this network will be displayed.",
+          "learnUrl": "https://cloud.google.com/vpc/docs/vpc#firewall_rules"
+        }
+      ]
     }
   ]
 }
