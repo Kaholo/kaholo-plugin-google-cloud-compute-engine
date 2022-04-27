@@ -33,8 +33,17 @@ async function addStartupScript({ instancesClient, vmRequest, scriptText }) {
   });
 }
 
+function extractUsernameFromSshPublicKey(sshKey) {
+  const email = sshKey.split(" ")[2];
+  if (!email) {
+    throw new Error("Invalid format of SSH Public Key. Expected format:\"ssh-[algorithm] [key] [username]\"");
+  }
+  return email.split("@")[0];
+}
+
 module.exports = {
   removeUndefinedAndEmpty,
   parseFields,
   addStartupScript,
+  extractUsernameFromSshPublicKey,
 };
