@@ -31,8 +31,9 @@ function filterItems(items, query) {
     const qWords = query.split(/[. ]/g).map((word) => word.toLowerCase()); // split by '.' or ' ' and make lower case
     itemsResult.filter((item) => qWords.every((word) => item.value.toLowerCase().includes(word)));
     itemsResult.sort(
-      (w1, w2) => w2.value.toLowerCase().indexOf(qWords[0])
-        - w1.value.toLowerCase().indexOf(qWords[0]),
+      (w1, w2) => (
+        w2.value.toLowerCase().indexOf(qWords[0]) - w1.value.toLowerCase().indexOf(qWords[0])
+      ),
     );
   }
   return itemsResult.splice(0, MAX_RESULTS);
@@ -51,16 +52,21 @@ function listAuto(listFunc, fields = ["id", "name"]) {
   const parseFunc = getParseFromParam(...fields);
 
   return async (query, pluginSettings, triggerParameters) => {
-    const settings = mapAutoParams(pluginSettings); const
-      params = mapAutoParams(triggerParameters);
+    const settings = mapAutoParams(pluginSettings);
+    const params = mapAutoParams(triggerParameters);
     const client = GoogleComputeService.from(params, settings);
 
     const items = [];
 
     params.query = (query || "").trim();
 
+    const methodParams = {
+      ...settings,
+      ...params,
+    };
+
     try {
-      const result = await client[listFunc](params, fields);
+      const result = await client[listFunc](methodParams, fields);
 
       items.push(...handleResult(result.items || result, params.query, parseFunc));
 

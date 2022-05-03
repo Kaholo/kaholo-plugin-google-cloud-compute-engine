@@ -2,6 +2,7 @@ const GoogleComputeService = require("./google-compute-service");
 const parsers = require("./parsers");
 const { removeUndefinedAndEmpty } = require("./helpers");
 const autocomplete = require("./autocomplete");
+const { prepareAddProjectMetadata } = require("./payload-functions");
 
 async function createInstance(action, settings) {
   const computeClient = GoogleComputeService.from(action.params, settings);
@@ -51,7 +52,7 @@ async function createInstance(action, settings) {
 
   // get all params, parse them
   const preemptible = parsers.boolean(action.params.preemptible);
-  const diskType = action.params.diskType || "pd-standard";
+  const { diskType } = action.params;
   const zone = parsers.autocomplete(action.params.zone);
   const saAccessScopes = action.params.saAccessScopes || "default";
   const serviceAccount = parsers.autocomplete(action.params.serviceAccount);
@@ -164,12 +165,21 @@ async function createInstance(action, settings) {
   );
 
   // create firewall rules
-  const n = net.lastIndexOf("/");
-  const netshortname = net.substring(n + 1);
+  let instanceNetworkInterfaceName = net;
+  if (!instanceNetworkInterfaceName) {
+    const instanceInfo = await computeClient.getInstance({
+      instance: name,
+      project: projectId,
+      zone,
+    });
+    instanceNetworkInterfaceName = instanceInfo.networkInterfaces[0].network;
+  }
+  const networkNameIndex = instanceNetworkInterfaceName.lastIndexOf("/");
+  const networkShortName = instanceNetworkInterfaceName.substring(networkNameIndex + 1);
 
   const firewallResource = removeUndefinedAndEmpty({
-    name: `${netshortname}-allow-http`,
-    network: net,
+    name: `${networkShortName}-allow-http`,
+    network: instanceNetworkInterfaceName,
     priority: 1000,
     destinationRanges: [],
     sourceRanges: ["0.0.0.0/0"],
@@ -190,7 +200,7 @@ async function createInstance(action, settings) {
   }
 
   if (parsers.boolean(action.params.allowHttps)) {
-    firewallResource.name = `${netshortname}-allow-https`;
+    firewallResource.name = `${networkShortName}-allow-https`;
     firewallResource.targetTags = ["https-server"];
     firewallResource.allowed = [{
       IPProtocol: "tcp",
@@ -218,7 +228,8 @@ async function vmAction(action, settings) {
       action: action.params.action,
       zone: parsers.autocomplete(action.params.zone),
       instanceName: parsers.autocomplete(action.params.vm),
-      startUpScript: parsers.text(action.params.startScript),
+      startUpScript: parsers.string(action.params.startupScript),
+      addScriptFlag: parsers.boolean(action.params.addScript),
       project: parsers.autocomplete(action.params.project || settings.project),
     },
     waitForOperation,
@@ -421,6 +432,20 @@ async function listSubnets(action, settings) {
   return subnets;
 }
 
+async function addProjectMetadata({ params }, settings) {
+  const computeClient = GoogleComputeService.from(params, settings);
+  const payload = prepareAddProjectMetadata(params);
+  return computeClient.setCommonInstanceMetadata(payload);
+}
+
+async function listFirewallRules({ params }, settings) {
+  const computeClient = GoogleComputeService.from(params, settings);
+  const firewallRules = await computeClient.listFirewallRules({
+    vpc: params.vpcNetwork.id,
+  });
+  return firewallRules;
+}
+
 module.exports = {
   launchVm: createInstance,
   vmAction,
@@ -431,6 +456,8 @@ module.exports = {
   createFw,
   createRoute,
   listSubnets,
+  addProjectMetadata,
+  listFirewallRules,
   // autocomplete methods
   ...autocomplete,
 };

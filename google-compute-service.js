@@ -3,9 +3,10 @@ const { RegionOperationsClient } = require("@google-cloud/compute");
 const { ProjectsClient } = require("@google-cloud/resource-manager");
 const { JWT } = require("google-auth-library");
 const { google } = require("googleapis");
+const _ = require("lodash");
 
 const iam = google.iam("v1");
-const { removeUndefinedAndEmpty } = require("./helpers");
+const { removeUndefinedAndEmpty, addStartupScript } = require("./helpers");
 const parsers = require("./parsers");
 
 /** Class for using the google cloud compute API. */
@@ -32,7 +33,8 @@ module.exports = class GoogleComputeService {
     const creds = parsers.object(params.creds || settings.creds);
     if (!creds) { throw new Error("Must provide credentials to call any method in the plugin!"); }
     const project = parsers.autocomplete(params.project || settings.project) || undefined;
-    return new GoogleComputeService(creds, project);
+    const region = parsers.autocomplete(params.region || settings.region);
+    return new GoogleComputeService(creds, project, region);
   }
 
   getAuthClient() {
@@ -200,6 +202,28 @@ module.exports = class GoogleComputeService {
     return null;
   }
 
+  async addLabels({
+    instance, labels, zone,
+  }) {
+    const instancesClient = new compute.InstancesClient({ credentials: this.credentials });
+    const { labelFingerprint } = await this.getInstance({
+      instance,
+      project: this.projectId,
+      zone,
+    });
+    // SDK or API is broken when trying to set more than one label at once
+    // Temporary workaround: set labels one by one
+    return instancesClient.setLabels({
+      instance,
+      project: this.projectId,
+      zone,
+      instancesSetLabelsRequestResource: {
+        labelFingerprint,
+        labels,
+      },
+    });
+  }
+
   /**
     * Create a new VM instance
     * @param {compute.protos.google.cloud.compute.v1.IInstance} instanceResource JSON
@@ -211,14 +235,22 @@ module.exports = class GoogleComputeService {
     */
   async createInstance(instanceResource, waitForOperation) {
     const instancesClient = new compute.InstancesClient({ credentials: this.credentials });
-
+    const { labels } = instanceResource;
     try {
       // return Long-Running operation
       let [operation] = await instancesClient.insert({
-        instanceResource,
+        instanceResource: _.omit(instanceResource, "labels"),
         project: this.projectId,
         zone: instanceResource.zone,
       });
+
+      if (labels) {
+        await this.addLabels({
+          labels,
+          zone: instanceResource.zone,
+          instance: instanceResource.name,
+        });
+      }
 
       if (waitForOperation) {
         const operationsClient = new compute.ZoneOperationsClient({
@@ -255,7 +287,7 @@ module.exports = class GoogleComputeService {
   }
 
   async handleAction({
-    action, zone, instanceName, startUpScript, project,
+    action, zone, instanceName, startUpScript, project, addScriptFlag,
   }, waitForOperation) {
     const instancesClient = new compute.InstancesClient({ credentials: this.credentials });
 
@@ -265,38 +297,45 @@ module.exports = class GoogleComputeService {
       zone,
     });
 
+    const canAddStartUpScript = startUpScript && addScriptFlag;
     let res = [];
 
     try {
       switch (action) {
         case "Stop":
           res = await instancesClient.stop(request);
+          if (canAddStartUpScript) {
+            await addStartupScript({
+              instancesClient,
+              scriptText: startUpScript,
+              vmRequest: request,
+            });
+          }
           break;
         case "Delete":
           res = await instancesClient.delete(request);
           break;
         case "Restart":
-          res = await instancesClient.reset(request);
-          break;
-        case "Start": {
-          let startScript = "";
-
-          if (startUpScript) {
-            await instancesClient.stop(request);
-            startUpScript.forEach((item) => { startScript += `${item}\n`; });
-            const startUpScriptMetadata = {
-              key: "startup-script",
-              value: startScript,
-            };
-            await instancesClient.setMetadata({
-              ...request,
-              metadataResource: { items: [startUpScriptMetadata] },
+          await instancesClient.stop(request);
+          if (canAddStartUpScript) {
+            await addStartupScript({
+              instancesClient,
+              scriptText: startUpScript,
+              vmRequest: request,
             });
           }
-
           res = await instancesClient.start(request);
           break;
-        }
+        case "Start":
+          if (canAddStartUpScript) {
+            await addStartupScript({
+              instancesClient,
+              scriptText: startUpScript,
+              vmRequest: request,
+            });
+          }
+          res = await instancesClient.start(request);
+          break;
         case "Get":
           return this.getInstance(request);
         case "Get-IP": {
@@ -717,13 +756,15 @@ module.exports = class GoogleComputeService {
     const subnetworksClient = new compute.SubnetworksClient({ credentials: this.credentials });
     const project = parsers.autocomplete(params.project) || this.projectId;
     const network = parsers.autocomplete(params.network);
-    const region = parsers.autocomplete(params.region || this.region);
+    const region = parsers.autocomplete(params.region) || this.region;
 
     const request = removeUndefinedAndEmpty({
       project,
-      filter: network && `network="${network}"`,
       region,
     });
+    if (network) {
+      request.filter = `network="${network}"`;
+    }
 
     const iterable = subnetworksClient.listAsync(request);
     const res = [];
@@ -767,5 +808,40 @@ module.exports = class GoogleComputeService {
     }
 
     return res;
+  }
+
+  async setCommonInstanceMetadata(params) {
+    const projectsClient = new compute.ProjectsClient({ credentials: this.credentials });
+    const project = params.project || this.projectId;
+
+    const [{
+      commonInstanceMetadata: { fingerprint, items: existingItems },
+    }] = await projectsClient.get({ project });
+
+    const items = [
+      ...(params.overwrite ? existingItems.filter(({ key }) => key !== params.key) : existingItems),
+      _.pick(params, ["key", "value"]),
+    ];
+
+    return projectsClient.setCommonInstanceMetadata({
+      project,
+      metadataResource: {
+        fingerprint,
+        items,
+      },
+    }).then(([result]) => result);
+  }
+
+  async listFirewallRules(params) {
+    const firewallsClient = new compute.FirewallsClient({ credentials: this.credentials });
+    const project = params.project || this.projectId;
+    const payload = {
+      project,
+    };
+    if (params.vpc) {
+      payload.filter = `network="${params.vpc}"`;
+    }
+    const [result] = await firewallsClient.list(payload);
+    return result;
   }
 };

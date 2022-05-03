@@ -5,8 +5,8 @@
   "execProgram": "node",
   "main": "app.js",
   "imgUrl": "logo.png",
-  "version": "3.1.7",
-  "category": ["CLOUD", "COMPUTE"],
+  "version": "3.3.1",
+  "category": ["COMPUTE"],
   "keywords": [
     "address",
     "cli",
@@ -190,24 +190,24 @@
         {
           "name": "diskType",
           "viewName": "Boot Disk Type",
-          "required": false,
           "type": "options",
+          "default": "pd-standard",
           "options": [
             {
               "id": "pd-standard",
-              "name": "PD-Standard"
+              "name": "Standard persistent disk"
             },
             {
               "id": "pd-balanced",
-              "name": "PD-Balanced"
+              "name": "Balanced persistent disk"
             },
             {
               "id": "pd-ssd",
-              "name": "PD-SSD"
+              "name": "SSD persistent disk"
             },
             {
-              "id": "local-ssd",
-              "name": "Local SSD"
+              "id": "pd-extreme",
+              "name": "Extreme persistent disk"
             }
           ],
           "description": "Boot disk type for the new VM instance affects price and performance characteristics. (Default is PD-Standard)",
@@ -511,7 +511,7 @@
           "name": "addScript",
           "viewName": "Add Startup Script",
           "type": "boolean",
-          "description": "For action \"Start\" only, check to add a startup script as instance metadata.",
+          "description": "For actions \"Start\", \"Stop\", and \"Restart\" only, check to add a startup script as instance metadata.",
           "learnUrl": "https://cloud.google.com/compute/docs/instances/startup-scripts/linux#api"
         },
         {
@@ -1158,6 +1158,88 @@
           "placeholder": "select using autocomplete",
           "learnUrl": "https://cloud.google.com/vpc/docs/using-vpc",
           "codedExample": "global/networks/apac-test-vpc"
+        }
+      ]
+    },
+    {
+      "name": "addProjectMetadata",
+      "viewName": "Add Project Metadata",
+      "params": [
+        {
+          "name": "creds",
+          "viewName": "Service Account Credentials",
+          "type": "vault",
+          "description": "Vaulted JSON document containing service account credentials as provided by GCP",
+          "learnUrl": "https://cloud.google.com/docs/authentication/production"
+        },
+        {
+          "name": "project",
+          "viewName": "Project",
+          "type": "autocomplete",
+          "autocompleteType": "function",
+          "functionName": "listProjectsAuto",
+          "description": "GCP Project defines how your app interacts with services and resources",
+          "placeholder": "select using autocomplete",
+          "learnUrl": "https://cloud.google.com/resource-manager/docs/creating-managing-projects"
+        },
+        {
+          "name": "metadataKey",
+          "viewName": "Key",
+          "type": "string",
+          "description": "Metadata key.",
+          "placeholder": "test-key"
+        },
+        {
+          "name": "metadataValue",
+          "viewName": "Value",
+          "type": "text",
+          "description": "Metadata value.",
+          "placeholder": "test-value"
+        },
+        {
+          "name": "sshKey",
+          "viewName": "SSH Key",
+          "type": "string",
+          "description": "SSH public key for remote access, if provided Key and Value parameters are ignored.",
+          "placeholder": "ssh-rsa AAAAB3NzaC1yc2EAAAADAQABAAABAQCZonWpdQz<snip>V4XHAzd7S5ljznmC4895SuI9o5iQJqAZU= bob@kaholo.io"
+        },
+        {
+          "name": "overwrite",
+          "viewName": "Overwrite",
+          "type": "boolean",
+          "description": "Overwrite metadata value if given key already exists, also applies to SSH Key."
+        }
+      ]
+    },
+    {
+      "name": "listFirewallRules",
+      "viewName": "List Firewall Rules",
+      "params": [
+        {
+          "name": "creds",
+          "viewName": "Service Account Credentials",
+          "type": "vault",
+          "description": "Vaulted JSON document containing service account credentials as provided by GCP.",
+          "learnUrl": "https://cloud.google.com/docs/authentication/production"
+        },
+        {
+          "name": "project",
+          "viewName": "Project",
+          "type": "autocomplete",
+          "autocompleteType": "function",
+          "functionName": "listProjectsAuto",
+          "description": "GCP Project defines how your app interacts with services and resources.",
+          "placeholder": "select using autocomplete",
+          "learnUrl": "https://cloud.google.com/resource-manager/docs/creating-managing-projects"
+        },
+        {
+          "name": "vpcNetwork",
+          "viewName": "VPC Network",
+          "type": "autocomplete",
+          "autocompleteType": "function",
+          "functionName": "listNetworksAuto",
+          "description": "If selected, only firewall rules in this network will be displayed.",
+          "learnUrl": "https://cloud.google.com/vpc/docs/vpc#firewall_rules"
         }
       ]
     }
