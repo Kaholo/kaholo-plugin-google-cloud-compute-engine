@@ -26,14 +26,19 @@
     "IP",
     "route"
   ],
+  "auth": {
+    "authId": "gcpAccount",
+    "params": [
+      {
+        "name": "creds",
+        "viewName": "Service Account Credentials",
+        "type": "vault",
+        "description": "Vaulted JSON document containing service account credentials as provided by GCP",
+        "learnUrl": "https://cloud.google.com/docs/authentication/production"
+      }
+    ]
+  },
   "settings": [
-    {
-      "name": "creds",
-      "viewName": "Default Service Account Credentials",
-      "type": "vault",
-      "description": "Vaulted JSON document containing service account credentials as provided by GCP",
-      "learnUrl": "https://cloud.google.com/docs/authentication/production"
-    },
     {
       "name": "project",
       "viewName": "Default Project Name",
@@ -70,14 +75,6 @@
       "name": "launchVm",
       "viewName": "Create Instance",
       "params": [
-        {
-          "name": "creds",
-          "viewName": "Service Account Credentials *",
-          "required": false,
-          "type": "vault",
-          "description": "Vaulted JSON document containing service account credentials as provided by GCP",
-          "learnUrl": "https://cloud.google.com/docs/authentication/production"
-        },
         {
           "name": "project",
           "viewName": "Project *",
@@ -416,14 +413,6 @@
       "viewName": "VM Action",
       "params": [
         {
-          "name": "creds",
-          "viewName": "Service Account Credentials *",
-          "required": false,
-          "type": "vault",
-          "description": "Vaulted JSON document containing service account credentials as provided by GCP",
-          "learnUrl": "https://cloud.google.com/docs/authentication/production"
-        },
-        {
           "name": "project",
           "viewName": "Project *",
           "required": false,
@@ -532,14 +521,6 @@
       "viewName": "Create VPC Network",
       "params": [
         {
-          "name": "creds",
-          "viewName": "Service Account Credentials *",
-          "required": false,
-          "type": "vault",
-          "description": "Vaulted JSON document containing service account credentials as provided by GCP",
-          "learnUrl": "https://cloud.google.com/docs/authentication/production"
-        },
-        {
           "name": "project",
           "viewName": "Project *",
           "required": false,
@@ -590,13 +571,6 @@
       "name": "deleteVM",
       "viewName": "Delete VM",
       "params": [
-        {
-          "name": "creds",
-          "viewName": "Service Account Credentials",
-          "type": "vault",
-          "description": "Service account credentials",
-          "learnUrl": "https://cloud.google.com/docs/authentication/production"
-        },
         {
           "name": "project",
           "viewName": "Project",
@@ -658,14 +632,6 @@
       "name": "createSubnet",
       "viewName": "Create Subnet",
       "params": [
-        {
-          "name": "creds",
-          "viewName": "Service Account Credentials *",
-          "required": false,
-          "type": "vault",
-          "description": "Vaulted JSON document containing service account credentials as provided by GCP",
-          "learnUrl": "https://cloud.google.com/docs/authentication/production"
-        },
         {
           "name": "project",
           "viewName": "Project *",
@@ -758,14 +724,6 @@
       "viewName": "Reserve Static Internal IP Address",
       "params": [
         {
-          "name": "creds",
-          "viewName": "Service Account Credentials *",
-          "required": false,
-          "type": "vault",
-          "description": "Vaulted JSON document containing service account credentials as provided by GCP",
-          "learnUrl": "https://cloud.google.com/docs/authentication/production"
-        },
-        {
           "name": "project",
           "viewName": "Project *",
           "required": false,
@@ -842,14 +800,6 @@
       "name": "createFw",
       "viewName": "Create Firewall Rule",
       "params": [
-        {
-          "name": "creds",
-          "viewName": "Service Account Credentials *",
-          "required": false,
-          "type": "vault",
-          "description": "Vaulted JSON document containing service account credentials as provided by GCP",
-          "learnUrl": "https://cloud.google.com/docs/authentication/production"
-        },
         {
           "name": "project",
           "viewName": "Project *",
@@ -1016,14 +966,6 @@
       "viewName": "Create Route",
       "params": [
         {
-          "name": "creds",
-          "viewName": "Service Account Credentials *",
-          "required": false,
-          "type": "vault",
-          "description": "Vaulted JSON document containing service account credentials as provided by GCP",
-          "learnUrl": "https://cloud.google.com/docs/authentication/production"
-        },
-        {
           "name": "project",
           "viewName": "Project *",
           "required": false,
@@ -1106,13 +1048,6 @@
       "viewName": "List Subnets",
       "params": [
         {
-          "name": "creds",
-          "viewName": "Service Account Credentials",
-          "type": "vault",
-          "description": "Vaulted JSON document containing service account credentials as provided by GCP",
-          "learnUrl": "https://cloud.google.com/docs/authentication/production"
-        },
-        {
           "name": "project",
           "viewName": "Project",
           "type": "autocomplete",
@@ -1149,13 +1084,6 @@
       "name": "addProjectMetadata",
       "viewName": "Add Project Metadata",
       "params": [
-        {
-          "name": "creds",
-          "viewName": "Service Account Credentials",
-          "type": "vault",
-          "description": "Vaulted JSON document containing service account credentials as provided by GCP",
-          "learnUrl": "https://cloud.google.com/docs/authentication/production"
-        },
         {
           "name": "project",
           "viewName": "Project",
@@ -1199,13 +1127,6 @@
       "name": "listFirewallRules",
       "viewName": "List Firewall Rules",
       "params": [
-        {
-          "name": "creds",
-          "viewName": "Service Account Credentials",
-          "type": "vault",
-          "description": "Vaulted JSON document containing service account credentials as provided by GCP.",
-          "learnUrl": "https://cloud.google.com/docs/authentication/production"
-        },
         {
           "name": "project",
           "viewName": "Project",
