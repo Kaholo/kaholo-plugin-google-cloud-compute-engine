@@ -14,10 +14,10 @@ async function createInstance(action, settings) {
     throw new Error("Please specify Machine Type.");
   }
   let machineType = !Number.isNaN(apmtTest)
-    ? parsers.autocomplete(action.params.machineType.value)
+    ? parsers.autocomplete(action.params.machineType)
     : apmtTest;
 
-  if (machineType.includes("custom")) {
+  if (machineType?.includes("custom")) {
     if (!customCpu || !customMem) {
       throw new Error("Must provide both CPU Count and memory size for custom machine type.");
     }
