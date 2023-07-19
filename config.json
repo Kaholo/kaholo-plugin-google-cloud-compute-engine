@@ -30,7 +30,7 @@
     "authId": "gcpAccount",
     "params": [
       {
-        "name": "creds",
+        "name": "credentials",
         "viewName": "Service Account Credentials",
         "type": "vault",
         "description": "Vaulted JSON document containing service account credentials as provided by GCP",
