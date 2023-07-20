@@ -81,7 +81,7 @@ module.exports = {
   listProjectsAuto: listAuto("listProjects", ["projectId", "displayName"]),
   listRegionsAuto: listAuto("listRegions", ["name"]),
   listZonesAuto: listAuto("listZones", ["name"]),
-  listMachineTypesAuto: listAuto("listMachineTypes", ["id", "name"]),
+  listMachineTypesAuto: listAuto("listMachineTypes", ["name"]),
   listImageProjectsAuto: listAuto("listImageProjects", ["projectId", "displayName"]),
   listImagesAuto: listAuto("listImages", ["selfLink", "name"]),
   listServiceAccountsAuto: listAuto("listServiceAccounts", ["email", "displayName"]),
