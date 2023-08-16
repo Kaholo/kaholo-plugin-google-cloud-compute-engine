@@ -1,39 +1,48 @@
 {
   "name": "Google-Cloud-Compute-Engine",
+  "viewName": "Google Cloud Compute Engine",
+  "description": "Google Cloud Platform managed virtual machines",
   "type": "executer",
   "exposeRoute": false,
   "execProgram": "node",
   "main": "app.js",
   "imgUrl": "logo.png",
-  "version": "3.3.0",
-  "category": ["CLOUD", "COMPUTE"],
+  "version": "3.4.0",
+  "category": ["Compute"],
   "keywords": [
     "GCP",
-    "compute",
     "google",
-    "platform",
-    "vm",
-    "instance",
     "cloud",
-    "cluster",
-    "project",
-    "infra",
+    "platform",
+    "compute",
+    "vm",
+    "virtual",
+    "machines",
+    "instance",
     "infrastructure",
-    "cli",
     "network",
     "subnet",
     "firewall",
     "IP",
-    "route"
+    "address",
+    "route",
+    "image",
+    "snapshot"
   ],
+  "auth": {
+    "authId": "gcpAccount",
+    "params": [
+      {
+        "name": "credentials",
+        "viewName": "Service Account Credentials",
+        "type": "vault",
+        "required": true,
+        "description": "Vaulted JSON document containing service account credentials as provided by GCP",
+        "learnUrl": "https://cloud.google.com/iam/docs/keys-create-delete"
+      }
+    ]
+  },
   "settings": [
-    {
-      "name": "creds",
-      "viewName": "Default Service Account Credentials",
-      "type": "vault",
-      "description": "Vaulted JSON document containing service account credentials as provided by GCP",
-      "learnUrl": "https://cloud.google.com/docs/authentication/production"
-    },
     {
       "name": "project",
       "viewName": "Default Project Name",
@@ -71,17 +80,9 @@
       "viewName": "Create Instance",
       "params": [
         {
-          "name": "creds",
-          "viewName": "Service Account Credentials *",
-          "required": false,
-          "type": "vault",
-          "description": "Vaulted JSON document containing service account credentials as provided by GCP",
-          "learnUrl": "https://cloud.google.com/docs/authentication/production"
-        },
-        {
           "name": "project",
-          "viewName": "Project *",
-          "required": false,
+          "viewName": "Project",
+          "required": true,
           "type": "autocomplete",
           "autocompleteType": "function",
           "functionName": "listProjectsAuto",
@@ -91,8 +92,8 @@
         },
         {
           "name": "name",
-          "viewName": "Name *",
-          "required": false,
+          "viewName": "Name",
+          "required": true,
           "type": "string",
           "description": "Unique name for the new VM (lowercase letters, numbers, hypen only)",
           "placeholder": "web-tst-02a",
@@ -109,8 +110,8 @@
         },
         {
           "name": "region",
-          "viewName": "Region *",
-          "required": false,
+          "viewName": "Region",
+          "required": true,
           "type": "autocomplete",
           "autocompleteType": "function",
           "functionName": "listRegionsAuto",
@@ -120,8 +121,8 @@
         },
         {
           "name": "zone",
-          "viewName": "Zone *",
-          "required": false,
+          "viewName": "Zone",
+          "required": true,
           "type": "autocomplete",
           "autocompleteType": "function",
           "functionName": "listZonesAuto",
@@ -131,8 +132,8 @@
         },
         {
           "name": "machineType",
-          "viewName": "Machine Type *",
-          "required": false,
+          "viewName": "Machine Type",
+          "required": true,
           "type": "autocomplete",
           "autocompleteType": "function",
           "functionName": "listMachineTypesAuto",
@@ -162,7 +163,7 @@
         {
           "name": "imageProject",
           "viewName": "Image Project",
-          "required": false,
+          "required": true,
           "type": "autocomplete",
           "autocompleteType": "function",
           "functionName": "listImageProjectsAuto",
@@ -173,8 +174,8 @@
         },
         {
           "name": "image",
-          "viewName": "Image *",
-          "required": false,
+          "viewName": "Image",
+          "required": true,
           "type": "autocomplete",
           "autocompleteType": "function",
           "functionName": "listImagesAuto",
@@ -293,8 +294,8 @@
         },
         {
           "name": "network",
-          "viewName": "VPC Network Name *",
-          "required": false,
+          "viewName": "VPC Network Name",
+          "required": true,
           "type": "autocomplete",
           "autocompleteType": "function",
           "functionName": "listNetworksAuto",
@@ -305,8 +306,8 @@
         },
         {
           "name": "subnetwork",
-          "viewName": "Subnet *",
-          "required": false,
+          "viewName": "Subnet",
+          "required": true,
           "type": "autocomplete",
           "autocompleteType": "function",
           "functionName": "listSubnetworksAuto",
@@ -416,17 +417,9 @@
       "viewName": "VM Action",
       "params": [
         {
-          "name": "creds",
-          "viewName": "Service Account Credentials *",
-          "required": false,
-          "type": "vault",
-          "description": "Vaulted JSON document containing service account credentials as provided by GCP",
-          "learnUrl": "https://cloud.google.com/docs/authentication/production"
-        },
-        {
           "name": "project",
-          "viewName": "Project *",
-          "required": false,
+          "viewName": "Project",
+          "required": true,
           "type": "autocomplete",
           "autocompleteType": "function",
           "functionName": "listProjectsAuto",
@@ -447,7 +440,8 @@
         },
         {
           "name": "zone",
-          "viewName": "Zone *",
+          "viewName": "Zone",
+          "required": true,
           "type": "autocomplete",
           "autocompleteType": "function",
           "functionName": "listZonesAuto",
@@ -457,8 +451,8 @@
         },
         {
           "name": "vm",
-          "viewName": "VM Instance *",
-          "required": false,
+          "viewName": "VM Instance",
+          "required": true,
           "type": "autocomplete",
           "autocompleteType": "function",
           "functionName": "listVmsAuto",
@@ -469,8 +463,8 @@
         },
         {
           "name": "action",
-          "viewName": "Action *",
-          "required": false,
+          "viewName": "Action",
+          "required": true,
           "type": "options",
           "options": [
             {
@@ -532,17 +526,9 @@
       "viewName": "Create VPC Network",
       "params": [
         {
-          "name": "creds",
-          "viewName": "Service Account Credentials *",
-          "required": false,
-          "type": "vault",
-          "description": "Vaulted JSON document containing service account credentials as provided by GCP",
-          "learnUrl": "https://cloud.google.com/docs/authentication/production"
-        },
-        {
           "name": "project",
-          "viewName": "Project *",
-          "required": false,
+          "viewName": "Project",
+          "required": true,
           "type": "autocomplete",
           "autocompleteType": "function",
           "functionName": "listProjectsAuto",
@@ -552,8 +538,8 @@
         },
         {
           "name": "name",
-          "viewName": "Network Name *",
-          "required": false,
+          "viewName": "Network Name",
+          "required": true,
           "type": "string",
           "description": "Unique name for the new VPC network (lowercase letters, numbers, hypen only)",
           "placeholder": "geotown-net-01",
@@ -590,13 +576,6 @@
       "name": "deleteVM",
       "viewName": "Delete VM",
       "params": [
-        {
-          "name": "creds",
-          "viewName": "Service Account Credentials",
-          "type": "vault",
-          "description": "Service account credentials",
-          "learnUrl": "https://cloud.google.com/docs/authentication/production"
-        },
         {
           "name": "project",
           "viewName": "Project",
@@ -659,17 +638,9 @@
       "viewName": "Create Subnet",
       "params": [
         {
-          "name": "creds",
-          "viewName": "Service Account Credentials *",
-          "required": false,
-          "type": "vault",
-          "description": "Vaulted JSON document containing service account credentials as provided by GCP",
-          "learnUrl": "https://cloud.google.com/docs/authentication/production"
-        },
-        {
           "name": "project",
-          "viewName": "Project *",
-          "required": false,
+          "viewName": "Project",
+          "required": true,
           "type": "autocomplete",
           "autocompleteType": "function",
           "functionName": "listProjectsAuto",
@@ -679,8 +650,8 @@
         },
         {
           "name": "network",
-          "viewName": "VPC Network Name *",
-          "required": false,
+          "viewName": "VPC Network Name",
+          "required": true,
           "type": "autocomplete",
           "autocompleteType": "function",
           "functionName": "listNetworksAuto",
@@ -691,8 +662,8 @@
         },
         {
           "name": "name",
-          "viewName": "Subnet Name *",
-          "required": false,
+          "viewName": "Subnet Name",
+          "required": true,
           "type": "string",
           "description": "Unique name for the new subnet (lowercase letters, numbers, hypen only)",
           "placeholder": "farnorth-dmz",
@@ -709,8 +680,8 @@
         },
         {
           "name": "region",
-          "viewName": "Region *",
-          "required": false,
+          "viewName": "Region",
+          "required": true,
           "type": "autocomplete",
           "autocompleteType": "function",
           "functionName": "listRegionsAuto",
@@ -720,8 +691,8 @@
         },
         {
           "name": "ipRange",
-          "viewName": "IP Range *",
-          "required": false,
+          "viewName": "IP Range",
+          "required": true,
           "type": "string",
           "description": "CIDR notataion IP address range for the new subnet",
           "placeholder": "10.54.133.0/24",
@@ -758,17 +729,9 @@
       "viewName": "Reserve Static Internal IP Address",
       "params": [
         {
-          "name": "creds",
-          "viewName": "Service Account Credentials *",
-          "required": false,
-          "type": "vault",
-          "description": "Vaulted JSON document containing service account credentials as provided by GCP",
-          "learnUrl": "https://cloud.google.com/docs/authentication/production"
-        },
-        {
           "name": "project",
-          "viewName": "Project *",
-          "required": false,
+          "viewName": "Project",
+          "required": true,
           "type": "autocomplete",
           "autocompleteType": "function",
           "functionName": "listProjectsAuto",
@@ -778,8 +741,8 @@
         },
         {
           "name": "network",
-          "viewName": "VPC Network Name *",
-          "required": false,
+          "viewName": "VPC Network Name",
+          "required": true,
           "type": "autocomplete",
           "autocompleteType": "function",
           "functionName": "listNetworksAuto",
@@ -790,8 +753,8 @@
         },
         {
           "name": "region",
-          "viewName": "Region *",
-          "required": false,
+          "viewName": "Region",
+          "required": true,
           "type": "autocomplete",
           "autocompleteType": "function",
           "functionName": "listRegionsAuto",
@@ -801,8 +764,8 @@
         },
         {
           "name": "subnet",
-          "viewName": "Subnet *",
-          "required": false,
+          "viewName": "Subnet",
+          "required": true,
           "type": "autocomplete",
           "autocompleteType": "function",
           "functionName": "listSubnetworksAuto",
@@ -812,8 +775,8 @@
         },
         {
           "name": "resName",
-          "viewName": "Reservation name *",
-          "required": false,
+          "viewName": "Reservation name",
+          "required": true,
           "type": "string",
           "description": "Name for the reserved IP address resource",
           "placeholder": "reserve-name-01",
@@ -821,8 +784,8 @@
         },
         {
           "name": "resIp",
-          "viewName": "IP To Reserve *",
-          "required": false,
+          "viewName": "IP To Reserve",
+          "required": true,
           "type": "string",
           "description": "IP address to reserve (within the address space of the selected subnet)",
           "placeholder": "10.46.22.100",
@@ -843,17 +806,9 @@
       "viewName": "Create Firewall Rule",
       "params": [
         {
-          "name": "creds",
-          "viewName": "Service Account Credentials *",
-          "required": false,
-          "type": "vault",
-          "description": "Vaulted JSON document containing service account credentials as provided by GCP",
-          "learnUrl": "https://cloud.google.com/docs/authentication/production"
-        },
-        {
           "name": "project",
-          "viewName": "Project *",
-          "required": false,
+          "viewName": "Project",
+          "required": true,
           "type": "autocomplete",
           "autocompleteType": "function",
           "functionName": "listProjectsAuto",
@@ -863,8 +818,8 @@
         },
         {
           "name": "network",
-          "viewName": "VPC Network Name *",
-          "required": false,
+          "viewName": "VPC Network Name",
+          "required": true,
           "type": "autocomplete",
           "autocompleteType": "function",
           "functionName": "listNetworksAuto",
@@ -875,8 +830,8 @@
         },
         {
           "name": "name",
-          "viewName": "Firewall Rule Name *",
-          "required": false,
+          "viewName": "Firewall Rule Name",
+          "required": true,
           "type": "string",
           "description": "Unique name for the firewall rule (lowercase letters, numbers, hypen only)",
           "placeholder": "allow-rdp-in",
@@ -1016,17 +971,9 @@
       "viewName": "Create Route",
       "params": [
         {
-          "name": "creds",
-          "viewName": "Service Account Credentials *",
-          "required": false,
-          "type": "vault",
-          "description": "Vaulted JSON document containing service account credentials as provided by GCP",
-          "learnUrl": "https://cloud.google.com/docs/authentication/production"
-        },
-        {
           "name": "project",
-          "viewName": "Project *",
-          "required": false,
+          "viewName": "Project",
+          "required": true,
           "type": "autocomplete",
           "autocompleteType": "function",
           "functionName": "listProjectsAuto",
@@ -1036,8 +983,8 @@
         },
         {
           "name": "network",
-          "viewName": "VPC Network Name *",
-          "required": false,
+          "viewName": "VPC Network Name",
+          "required": true,
           "type": "autocomplete",
           "autocompleteType": "function",
           "functionName": "listNetworksAuto",
@@ -1048,8 +995,8 @@
         },
         {
           "name": "name",
-          "viewName": "Route Name *",
-          "required": false,
+          "viewName": "Route Name",
+          "required": true,
           "type": "string",
           "description": "Unique name for the new route (lowercase letters, numbers, hypen only)",
           "placeholder": "route-nat-egress-3b",
@@ -1106,13 +1053,6 @@
       "viewName": "List Subnets",
       "params": [
         {
-          "name": "creds",
-          "viewName": "Service Account Credentials",
-          "type": "vault",
-          "description": "Vaulted JSON document containing service account credentials as provided by GCP",
-          "learnUrl": "https://cloud.google.com/docs/authentication/production"
-        },
-        {
           "name": "project",
           "viewName": "Project",
           "type": "autocomplete",
@@ -1124,7 +1064,8 @@
         },
         {
           "name": "region",
-          "viewName": "Region *",
+          "viewName": "Region",
+          "required": true,
           "type": "autocomplete",
           "autocompleteType": "function",
           "functionName": "listRegionsAuto",
@@ -1149,13 +1090,6 @@
       "name": "addProjectMetadata",
       "viewName": "Add Project Metadata",
       "params": [
-        {
-          "name": "creds",
-          "viewName": "Service Account Credentials",
-          "type": "vault",
-          "description": "Vaulted JSON document containing service account credentials as provided by GCP",
-          "learnUrl": "https://cloud.google.com/docs/authentication/production"
-        },
         {
           "name": "project",
           "viewName": "Project",
@@ -1199,13 +1133,6 @@
       "name": "listFirewallRules",
       "viewName": "List Firewall Rules",
       "params": [
-        {
-          "name": "creds",
-          "viewName": "Service Account Credentials",
-          "type": "vault",
-          "description": "Vaulted JSON document containing service account credentials as provided by GCP.",
-          "learnUrl": "https://cloud.google.com/docs/authentication/production"
-        },
         {
           "name": "project",
           "viewName": "Project",

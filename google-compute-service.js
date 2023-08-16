@@ -30,7 +30,7 @@ module.exports = class GoogleComputeService {
      * @return {GoogleComputeService} The Google Compute Service Client
      */
   static from(params, settings) {
-    const creds = parsers.object(params.creds || settings.creds);
+    const creds = parsers.object(params.credentials);
     if (!creds) { throw new Error("Must provide credentials to call any method in the plugin!"); }
     const project = parsers.autocomplete(params.project || settings.project) || undefined;
     const region = parsers.autocomplete(params.region || settings.region);
