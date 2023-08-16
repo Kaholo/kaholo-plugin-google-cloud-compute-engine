@@ -1,30 +1,33 @@
 {
   "name": "Google-Cloud-Compute-Engine",
+  "viewName": "Google Cloud Compute Engine",
+  "description": "Google Cloud Platform managed virtual machines",
   "type": "executer",
   "exposeRoute": false,
   "execProgram": "node",
   "main": "app.js",
   "imgUrl": "logo.png",
-  "version": "3.3.0-develop",
-  "category": ["CLOUD", "COMPUTE"],
+  "version": "3.3.0",
+  "category": ["Compute"],
   "keywords": [
     "GCP",
-    "compute",
     "google",
-    "platform",
-    "vm",
-    "instance",
     "cloud",
-    "cluster",
-    "project",
-    "infra",
+    "platform",
+    "compute",
+    "vm",
+    "virtual",
+    "machines",
+    "instance",
     "infrastructure",
-    "cli",
     "network",
     "subnet",
     "firewall",
     "IP",
-    "route"
+    "address",
+    "route",
+    "image",
+    "snapshot"
   ],
   "auth": {
     "authId": "gcpAccount",
@@ -33,8 +36,9 @@
         "name": "credentials",
         "viewName": "Service Account Credentials",
         "type": "vault",
+        "required": true,
         "description": "Vaulted JSON document containing service account credentials as provided by GCP",
-        "learnUrl": "https://cloud.google.com/docs/authentication/production"
+        "learnUrl": "https://cloud.google.com/iam/docs/keys-create-delete"
       }
     ]
   },
