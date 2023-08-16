@@ -163,7 +163,7 @@
         {
           "name": "imageProject",
           "viewName": "Image Project",
-          "required": false,
+          "required": true,
           "type": "autocomplete",
           "autocompleteType": "function",
           "functionName": "listImageProjectsAuto",
