@@ -100,8 +100,8 @@ This method creates a new virtual machine instance. The underlying Google Cloud 
 
 * Can IP Forward - If enabled, the VM instance can forward packets like a network device, e.g. NAT, router or firewall. Otherwise Google will block through packets due to strict source/destination checking.
 * Preemptible - If enabled, the VM will be a discount-priced instance that may be arbitrarily deleted by GCP prematurely, or with 24 hours maximum.
-* Tags - Network Tags associate Vms with firewall rules and routes with the same tag or tags. To enter multiple values seprate each with a new line.
-* Labels - The `key=value` labels to assign to the new VM. To enter multiple values seprate each with a new line.
+* Tags - Network Tags associate Vms with firewall rules and routes with the same tag or tags. To enter multiple values separate each with a new line.
+* Labels - The `key=value` labels to assign to the new VM. To enter multiple values separate each with a new line.
 * Wait For Operation End - as described above in plugin settings 
 
 ## Method: VM Action
@@ -153,7 +153,7 @@ Create a new subnet inside the specified VPC network. Unlike VPC networks, each 
 * Subnet Name - a unique name for the new subnet
 * Description - a description of the new subnet
 * Region - as described above in plugin settings
-* IP Range - CIDR notataion IP address range for the new subnet. For example 10.55.25.0/24.
+* IP Range - CIDR notation IP address range for the new subnet. For example 10.55.25.0/24.
 * Private Google API Access - If selected, allow VM instances inside the new subnet to access any google API.
 * Flow Logs - If selected, record subnet traffic to flow logs for network monitoring, forensics, real-time security analysis, and expense optimization.
 * Wait For Operation End - as described above in plugin settings.
@@ -171,7 +171,7 @@ Creates a reservation for the specified internal IP address on the specified sub
 * Wait For Operation End - as described above in plugin settings.
 
 ## Method: Create Firewall Rule
-Creates a new firewall rule for the specified VPC network. Rules can contain ranges of IP addresses and ports, but each rule must be for either all traffic or one specified protocol and either ingress or egress. Create multiple rules if necessary to cover all combinations of protocol and ingress/egress requried. **The defaults are very permissive** - if none of the optional parameters are specified, the method creates by default a rule that allows all traffic from everywhere into the subnet. This is for Kaholo user convenience only, not an advisable security practice.
+Creates a new firewall rule for the specified VPC network. Rules can contain ranges of IP addresses and ports, but each rule must be for either all traffic or one specified protocol and either ingress or egress. Create multiple rules if necessary to cover all combinations of protocol and ingress/egress required. **The defaults are very permissive** - if none of the optional parameters are specified, the method creates by default a rule that allows all traffic from everywhere into the subnet. This is for Kaholo user convenience only, not an advisable security practice.
 
 Rules are associated to routes and VM instances by means of Network Tags. For example a firewall rule to allow TCP ingress on port 443 (HTTPS) tagged `https-server` would allow only VM instances also tagged `https-server` to receive HTTPS web traffic. Firewall rules with no tags apply to every VM instance in the VPC network.
 
