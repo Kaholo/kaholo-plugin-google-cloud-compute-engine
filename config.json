@@ -7,7 +7,7 @@
   "execProgram": "node",
   "main": "app.js",
   "imgUrl": "logo.png",
-  "version": "3.3.0",
+  "version": "3.4.0",
   "category": ["Compute"],
   "keywords": [
     "GCP",
